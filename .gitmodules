@@ -1,0 +1,4 @@
+[submodule "third_party/linux"]
+	path = third_party/linux
+	url = https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+	branch = linux-6.19.y

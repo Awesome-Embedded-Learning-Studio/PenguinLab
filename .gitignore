@@ -11,3 +11,12 @@ compile_commands.json
 # OS
 .DS_Store
 Thumbs.db
+
+# MkDocs
+site/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/

@@ -1,0 +1,196 @@
+site_name: PenguinLab 文档
+site_description: 30 天嵌入式 Linux 内核学习计划
+site_author: Charliechen
+site_url: https://awesome-embedded-learning-studio.github.io/PenguinLab/
+
+copyright: Copyright &copy; 2025 Charliechen - 保留所有权利
+
+docs_dir: "tutorial"
+
+# 排除非文档文件
+exclude_docs: |
+  **/*.ko
+  **/*.o
+  **/*.cmd
+  **/*.mod
+  **/*.mod.c
+  **/*.order
+  **/*.symvers
+  **/build/
+  **/.gitignore
+  **/Makefile
+  **/CMakeLists.txt
+
+
+# ==================== 主题配置 ====================
+
+theme:
+  name: material
+  language: zh
+
+  logo: Awesome-Embedded.png
+  favicon: Awesome-Embedded.ico
+
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: 切换至暗色模式
+
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: 切换至亮色模式
+
+  font:
+    text: Noto Sans SC
+    code: JetBrains Mono
+
+  features:
+    # ---------- 导航功能 ----------
+    - navigation.instant
+    - navigation.instant.prefetch
+    - navigation.instant.progress
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.prune
+    - navigation.path
+    - navigation.indexes
+    - navigation.top
+    - navigation.footer
+
+    # ---------- 目录功能 ----------
+    - toc.follow
+
+    # ---------- 搜索功能 ----------
+    - search.suggest
+    - search.highlight
+    - search.share
+
+    # ---------- 内容功能 ----------
+    - content.code.copy
+    - content.code.select
+    - content.code.annotate
+    - content.tabs.link
+    - content.tooltips
+    - content.action.edit
+    - content.action.view
+
+
+# ==================== Markdown 扩展 ====================
+
+markdown_extensions:
+  # ---------- 基础扩展 ----------
+  - abbr
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+
+  # 目录扩展
+  - toc:
+      permalink: true
+      permalink_title: 链接到此章节
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
+
+  # 警告框扩展
+  - admonition
+
+  # ---------- PyMdown 扩展 ----------
+  - pymdownx.details
+
+  # 代码高亮
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+      linenums: true
+      linenums_style: pymdownx-inline
+
+  # 行内代码高亮
+  - pymdownx.inlinehilite
+
+  # 代码块围栏支持
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+  # 内容标签页
+  - pymdownx.tabbed:
+      alternate_style: true
+      combine_header_slug: true
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
+
+  # Emoji 支持
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+  # 其他实用扩展
+  - pymdownx.caret
+  - pymdownx.mark
+  - pymdownx.tilde
+  - pymdownx.keys
+  - pymdownx.smartsymbols
+  - pymdownx.snippets
+  - pymdownx.critic
+  - pymdownx.betterem
+
+
+# ==================== 插件配置 ====================
+
+plugins:
+  # 搜索插件
+  - search:
+      separator: '[\s\u200b\-_,:!=\[\]()"/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
+      lang:
+        - zh
+        - en
+      pipeline:
+        - stemmer
+        - stopWordFilter
+        - trimmer
+
+  # 标签插件
+  - tags
+
+  # Awesome Pages 插件
+  - awesome-pages
+
+  # Git 修订日期插件
+  - git-revision-date-localized:
+      enable_creation_date: true
+      fallback_to_build_date: true
+      type: datetime
+      timezone: Asia/Shanghai
+      locale: zh
+
+
+# ==================== 额外配置 ====================
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/Awesome-Embedded-Learning-Studio
+      name: GitHub
+    - icon: fontawesome/solid/paper-plane
+      link: mailto:725610365@qq.com
+      name: 发送邮件
+
+extra_css:
+  - stylesheets/extra.css

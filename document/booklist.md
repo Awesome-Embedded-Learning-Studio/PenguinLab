@@ -5,7 +5,33 @@
 
 ---
 
+## 快速选书指南
+
+| 你现在的问题 | 先查这本 |
+|-------------|---------|
+| 某个内核机制的原理 | 《Linux 内核设计与实现》Robert Love |
+| 某个 API 怎么用 | LDD3（免费）或《Linux 设备驱动开发详解》宋宝华 |
+| 某个 devm_/regmap/IIO API | *Linux Device Driver Development* Madieu |
+| imx6ull 引脚/时钟配置 | i.MX6ULL 参考手册（NXP 官网） |
+| H618 相关 | sunxi 社区 wiki + 全志 SDK 文档 |
+| 性能问题排查 | 《Linux 性能优化实战》倪朋飞 |
+| 内核同步/锁 | Paul McKenney 免费书 |
+
+---
+
+## 目录
+
+- [第一层：内核原理（理论基础）](#第一层内核原理理论基础)
+- [第二层：设备驱动（核心实战）](#第二层设备驱动核心实战)
+- [第三层：嵌入式系统（工程实践）](#第三层嵌入式系统工程实践)
+- [第四层：性能与调试](#第四层性能与调试)
+- [第五层：免费在线资源](#第五层免费在线资源高质量)
+
+---
+
 ## 第一层：内核原理（理论基础）
+
+> Week 1 开始前通读，后续按需查阅。
 
 ### 1. 《Linux 内核设计与实现》第 3 版
 - **英文原版**：*Linux Kernel Development*, 3rd Edition — Robert Love
@@ -49,6 +75,8 @@
 ---
 
 ## 第二层：设备驱动（核心实战）
+
+> Week 2 开始，驱动开发的必读层。
 
 ### 4. *Linux Device Drivers*, 3rd Edition（LDD3）
 - **作者**：Jonathan Corbet, Alessandro Rubini, Greg Kroah-Hartman
@@ -101,6 +129,8 @@
 
 ## 第三层：嵌入式系统（工程实践）
 
+> Week 1–4 全程参考，建立嵌入式工程全局观。
+
 ### 7. *Embedded Linux Primer*, 2nd Edition
 - **作者**：Christopher Hallinan
 - **中文版**：《嵌入式 Linux 基础教程》李云译，人民邮电出版社（第 2 版）
@@ -145,6 +175,8 @@
 ---
 
 ## 第四层：性能与调试
+
+> Week 4 及学完后的进阶方向。
 
 ### 11. 《Linux 性能优化实战》
 - **作者**：倪朋飞（极客时间专栏，后出书）
@@ -204,17 +236,3 @@ sudo apt install python3-sphinx
 make ARCH=arm htmldocs
 # 结果在 Documentation/output/
 ```
-
----
-
-## 快速选书指南
-
-| 你现在的问题 | 先查这本 |
-|-------------|---------|
-| 某个内核机制的原理 | 《Linux 内核设计与实现》Robert Love |
-| 某个 API 怎么用 | LDD3（免费）或《Linux 设备驱动开发详解》宋宝华 |
-| 某个 devm_/regmap/IIO API | *Linux Device Driver Development* Madieu |
-| imx6ull 引脚/时钟配置 | i.MX6ULL 参考手册（NXP 官网） |
-| H618 相关 | sunxi 社区 wiki + 全志 SDK 文档 |
-| 性能问题排查 | 《Linux 性能优化实战》倪朋飞 |
-| 内核同步/锁 | Paul McKenney 免费书 |

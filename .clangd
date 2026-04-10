@@ -1,0 +1,26 @@
+Diagnostics:
+  Suppress:
+    - unknown_argument
+
+CompileFlags:
+  CompilationDatabase: .
+  Remove:
+    - -fno-allow-store-data-races
+    - -fzero-init-padding-bits=all
+    - -fmin-function-alignment=4
+    - -fconserve-stack
+    - -femit-struct-debug-baseonly
+    - -mno-fdpic
+    - -fno-allow-store-data-races
+    - -fconserve-stack
+    - -mabi=*
+    - -fno-ipa-sra
+    - --param=*
+
+InlayHints:
+  Enabled: Yes
+  ParameterNames: Yes
+  DeducedTypes: Yes
+
+Completion:
+  AllScopes: Yes

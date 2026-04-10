@@ -120,6 +120,26 @@ make ARCH=arm zImage
 
 所以驱动代码里可以用 `#ifdef CONFIG_MY_FEATURE` 做条件编译，而这个宏正是从 menuconfig 来的。
 
+### 5. 项目脚本速查
+
+PenguinLab 提供了统一的构建脚本 `scripts/linux-action-scripts.sh`：
+
+| 操作 | 命令 |
+|------|------|
+| 配置 | `LINUX_DEFCONFIG=imx_v6_v7_defconfig ./scripts/linux-action-scripts.sh config` |
+| 编译 | `./scripts/linux-action-scripts.sh build` |
+| 配置并编译 | `LINUX_DEFCONFIG=imx_v6_v7_defconfig ./scripts/linux-action-scripts.sh config_and_build` |
+| 清理 | `./scripts/linux-action-scripts.sh clean` |
+
+脚本默认 ARM32（`arm` + `arm-linux-gnueabihf-`），构建输出到 `out/build_latest_arm/`。
+
+切换 ARM64：
+```bash
+ARCH=aarch64 CROSS_COMPILE=aarch64-linux-gnu- \
+  LINUX_DEFCONFIG=defconfig \
+  ./scripts/linux-action-scripts.sh config_and_build
+```
+
 ---
 
 ## 练习
@@ -160,10 +180,11 @@ obj-$(CONFIG_MYDRIVER_HELLO) += hello.o
 hello-objs := hello_core.o hello_platform.o
 ```
 
-- [ ] 在真实内核源码的 `drivers/misc/Kconfig` 末尾加一行 `source "drivers/misc/mydriver/Kconfig"`
-- [ ] 在 `drivers/misc/Makefile` 末尾加 `obj-$(CONFIG_MYDRIVER_HELLO) += mydriver/`
-- [ ] 运行 `make ARCH=arm menuconfig`，进入 `Device Drivers → Misc devices`，找到你的选项
-- [ ] 把它设为 `M`，退出保存，检查 `.config` 中是否出现 `CONFIG_MYDRIVER_HELLO=m`
+- [ ] 将 `mydriver/` 目录复制到 `third_party/linux/drivers/misc/mydriver/`
+- [ ] 在 `third_party/linux/drivers/misc/Kconfig` 末尾加一行 `source "drivers/misc/mydriver/Kconfig"`
+- [ ] 在 `third_party/linux/drivers/misc/Makefile` 末尾加 `obj-$(CONFIG_MYDRIVER_HELLO) += mydriver/`
+- [ ] 在 `third_party/linux/` 目录下运行 `make ARCH=arm menuconfig`，进入 `Device Drivers → Misc devices`，找到你的选项
+- [ ] 把它设为 `M`，退出保存，检查 `.config`（或 `out/build_latest_arm/.config`）中是否出现 `CONFIG_MYDRIVER_HELLO=m`
 
 ### 练习 2：理解 `select` 的危险
 
@@ -171,6 +192,7 @@ hello-objs := hello_core.o hello_platform.o
 
 ```bash
 # 搜索 Kconfig 中同时用了 select 和 depends on 的项
+cd third_party/linux
 grep -r "select REGMAP" arch/arm/Kconfig drivers/*/Kconfig | head -20
 
 # 看看 REGMAP 自身有什么依赖
@@ -182,13 +204,14 @@ grep -A5 "^config REGMAP$" drivers/base/regmap/Kconfig
 ### 练习 3：分析 imx6ull 的编译条件
 
 ```bash
-cd ~/kernel/linux-stable
+cd third_party/linux
 
 # 找 imx6ull 相关的所有 Kconfig 条件
-grep -r "imx6ul\|imx6ull\|MX6UL" arch/arm/Kconfig arch/arm/mach-imx/ | head -30
+grep -r "imx6ul\|imx6ull\|MX6UL" arch/arm/Kconfig arch/arm/mach-imx/ 2>/dev/null | head -30
 
 # 找哪些驱动在 imx6ull 上会被编入
-grep "CONFIG_SOC_IMX6UL" .config
+# （如果用项目脚本编译，.config 在构建输出目录）
+grep "CONFIG_SOC_IMX6UL" out/build_latest_arm/.config 2>/dev/null || grep "CONFIG_SOC_IMX6UL" .config
 ```
 
 - [ ] 找到控制 imx6ull GPIO 驱动编译的 `CONFIG_` 项
@@ -197,7 +220,7 @@ grep "CONFIG_SOC_IMX6UL" .config
 ### 练习 4：`make` 目标速查练习
 
 ```bash
-cd ~/kernel/linux-stable
+cd third_party/linux
 
 # 查看所有可用 make 目标
 make help | grep -E "defconfig|config|clean"
@@ -205,7 +228,7 @@ make help | grep -E "defconfig|config|clean"
 # 只编译某个子目录（增量编译）
 make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- M=drivers/leds
 
-# 查看某个 .o 的编译命令
+# 查看某个 .o 的编译命令（V=1 显示完整命令）
 make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- V=1 drivers/leds/leds-gpio.o 2>&1 | tail -5
 ```
 

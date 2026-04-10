@@ -1,0 +1,17 @@
+# Kernel module build artifacts
+*.o
+*.ko
+*.mod
+*.mod.c
+*.cmd
+modules.order
+Module.symvers
+.module-common.o
+.tmp_versions/
+
+# CMake build output
+build/
+
+# Userspace binaries
+test_chardev
+penguin_example

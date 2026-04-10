@@ -1,2 +1,13 @@
 # AI
 .claude
+out/
+compile_commands.json
+.cache
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

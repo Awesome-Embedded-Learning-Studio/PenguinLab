@@ -1,0 +1,6390 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="30 天嵌入式 Linux 内核学习计划">
+      
+      
+        <meta name="author" content="Charliechen">
+      
+      
+        <link rel="canonical" href="https://awesome-embedded-learning-studio.github.io/PenguinLab/%E5%8F%82%E8%80%83%E6%96%87%E6%A1%A3/notes/linux_kernel_networking/ch05_8/">
+      
+      
+        <link rel="prev" href="../ch05_7/">
+      
+      
+        <link rel="next" href="../ch06/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../Awesome-Embedded.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>第 5 章 IPv4 路由子系统 - PenguinLab 文档</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Sans+SC:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Noto Sans SC";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#第-5-章-ipv4-路由子系统" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="PenguinLab 文档" class="md-header__button md-logo" aria-label="PenguinLab 文档" data-md-component="logo">
+      
+  <img src="../../../../Awesome-Embedded.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PenguinLab 文档
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              第 5 章 IPv4 路由子系统
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换至暗色模式"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换至暗色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="indigo"  aria-label="切换至亮色模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换至亮色模式" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="分享" aria-label="分享" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  欢迎来到 PenguinLab
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../part1/01_%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E4%B8%8E%E6%BA%90%E7%A0%81%E6%A0%91%E5%AF%BC%E8%A7%88/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part1
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../../booklist/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  参考文档
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/week2/day08-09_%E5%86%85%E6%A0%B8%E6%A8%A1%E5%9D%97%E5%9F%BA%E7%A1%80%E8%AE%BE%E8%AE%A1/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  学习计划
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  示例代码
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="PenguinLab 文档" class="md-nav__button md-logo" aria-label="PenguinLab 文档" data-md-component="logo">
+      
+  <img src="../../../../Awesome-Embedded.png" alt="logo">
+
+    </a>
+    PenguinLab 文档
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    欢迎来到 PenguinLab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../part1/01_%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E4%B8%8E%E6%BA%90%E7%A0%81%E6%A0%91%E5%AF%BC%E8%A7%88/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part1
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    参考文档
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    参考文档
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../booklist/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    书单：嵌入式 Linux 内核学习推荐书目
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../qemu-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QEMU ARM 速查手册
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Notes
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_3" id="__nav_3_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Notes
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../linux_kernel_debugging/ch01/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux kernel debugging
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../linux_kernel_device_drivers/ch01/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux kernel device drivers
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_3_4" id="__nav_3_3_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux kernel networking
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_3_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Linux kernel networking
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch01/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 1 章
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch01_1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 1 章 深入内核：网络协议栈的黑盒解剖
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch01_2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.2 网络设备（The Network Device）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch01_3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch01 3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch02/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 2 章
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch02_1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 2 章 当用户空间遇见内核
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch02_2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kernel Netlink Sockets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch02_3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch02 3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch02_4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch02 4
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch02_5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.5 增删路由表项：在 FIB 里跳舞
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch02_6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.6 Generic Netlink Protocol
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch02_7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch02 7
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch03/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 3 章
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch03_1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.0 网络的神经系统：为何我们需要 ICMP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch03_2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.2 IPv6 的「瑞士军刀」：ICMPv6
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch03_3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.3 快速参考与实战补充
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch04/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 4 章
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch04_1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 4 章 网络层的骨架
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch04_2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.2 接收 IPv4 数据包
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch04_3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3 接收 IPv4 组播数据包
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch04_4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4 当 IP 选项在包里醒来
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch04_5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.5 发送 IPv4 数据包
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch04_6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.6 分片
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch04_7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.7 重组：把碎掉的镜子拼回来
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch04_8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch04 8
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch04_9/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch04 9
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch05/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 5 章
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch05_1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.0 没有地图，就无法远行
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch05_2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.2 在路由子系统中执行查找
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch05_3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FIB Info：一张路由条目的「身份证」
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch05_4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch05 4
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch05_5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.5 Policy Routing：地图之外的选择权
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch05_6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.6 FIB Alias：当同一个目的地有了多个分身
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch05_7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.7 路由器的「悄悄话」：ICMPv4 Redirect
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 5 章 IPv4 路由子系统
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 5 章 IPv4 路由子系统
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#58-快速参考面板quick-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.8 快速参考面板（Quick Reference）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5.8 快速参考面板（Quick Reference）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#模块与文件清单" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        模块与文件清单
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#核心-api-方法" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        核心 API 方法
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="核心 API 方法">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#路由表操作" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        路由表操作
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fib-条目管理" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FIB 条目管理
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#查找与-trie-遍历" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        查找与 TRIE 遍历
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#重定向与异常处理" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        重定向与异常处理
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#度量值查询" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        度量值查询
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#核心宏定义" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        核心宏定义
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="核心宏定义">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fib-查找结果提取" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FIB 查找结果提取
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#设备行为检查" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        设备行为检查
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#trie-树结构遍历" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TRIE 树结构遍历
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#多路径路由迭代" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        多路径路由迭代
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#关键数据表" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        关键数据表
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="关键数据表">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#表-5-1路由度量值" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        表 5-1：路由度量值
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#表-5-2路由类型与错误码" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        表 5-2：路由类型与错误码
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#路由标志位" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        路由标志位
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="路由标志位">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#表-5-3路由表示例" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        表 5-3：路由表示例
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#本章回响" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        本章回响
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#练习题" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习题
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="练习题">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#练习-1understanding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 1：understanding
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#练习-2application" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 2：application
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#练习-3thinking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 3：thinking
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#要点提炼" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        要点提炼
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch06/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 6 章
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch06_1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.0 引言：一群人的信，怎么发给每一个人？
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch06_2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.2 组播转发缓存 (MFC)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch06_3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.3 Multicast Router
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch06_4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch06 4
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch06_5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch06 5
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch06_6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.6 The ipmr_queue_xmit() Method
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch06_7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch06 7
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch06_8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.8 多路径路由
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch06_9/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.9 最后的备忘单
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch07/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 7 章
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch07_1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 7 章 Linux 邻居子系统
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch07_2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.2 用户空间与邻居子系统的交互
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch07_3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch07 3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch07_4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.4 NDISC 协议 (IPv6)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch07_5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.5 快速参考
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch08/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 8 章
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch08_1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 8 章 当地址不再是稀缺资源
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch08_2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.2 IPv6 地址类型与特殊地址
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch08_3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch08 3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch08_4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Extension Headers —— 链接式的无限扩展
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch08_5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.5 Autoconfiguration：无状态的魔法
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch08_6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.6 接收 IPv6 数据包
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch08_7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.7 接收 IPv6 组播数据包
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch08_8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.8 Multicast Listener Discovery (MLD)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch08_9/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.9 速查表与内核碎片（Quick Reference）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch09/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 9 章
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch09_1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 9 章 Netfilter Frameworks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch09_10/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch09 10
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch09_2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.2 Netfilter Hooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch09_3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch09 3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch09_4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.4 连接跟踪条目（Connection Tracking Entries）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch09_5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.5 连接跟踪助手与预期连接
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch09_6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.6 IPTables：规则的前端实现
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch09_7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.7 网络地址转换 (NAT)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch09_8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NAT Hook 回调与连接跟踪 Hook 回调的共舞
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch09_9/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.9 NAT Hook 回调与连接跟踪扩展
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch10/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 10 章
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch10_1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 10 章 通往信任的隧道
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch10_2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.2 IKE (Internet Key Exchange)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch10_3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.3 The XFRM Framework
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch10_4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.4 ESP 实现 (IPv4)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch10_5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.5 接收一个 IPsec 数据包（传输模式）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch10_6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch10 6
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch10_7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.7 NAT Traversal in IPsec
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch10_8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.8 快速参考
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch11/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 11 章
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch11_1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.1 Sockets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch11_2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch11 2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch11_3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.3 UDP (User Datagram Protocol)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch11_4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.4 TCP (Transmission Control Protocol)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch11_5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.5 SCTP：工程权衡下的混血儿
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch11_6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.6 DCCP: 数据报拥塞控制协议
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch11_7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.7 快速参考手册
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch12/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 12 章
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch12_1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12.1 Mac80211 Subsystem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch12_2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch12 2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch12_3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12.3 Network Topologies（网络拓扑）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch12_4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12.4 节电模式 (Power Save Mode)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch12_5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch12 5
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch12_6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mac80211 实现细节
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch12_7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12.7 High Throughput (802.11n) —— 高速公路的入场券
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch12_8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch12 8
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch12_9/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch12 9
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch13/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 13 章
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch13_1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 13 章 绕过内核的代价
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch13_2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch13 2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch13_3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13.3 Memory Region (MR)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch13_4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch13 4
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch13_5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13.5 Shared Receive Queue (SRQ)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch13_6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch13 6
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch13_7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13.7 RDMA 支持的操作
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch13_8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13.8 速查表
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch14/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 14 章
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch14_1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14. Namespaces Implementation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch14_10/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14.10 通知链
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch14_11/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14.11 The PCI Subsystem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch14_12/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14.12 PPPoE Header —— 把协议钉在以太网上
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch14_13/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14.13 Android
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch14_14/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14.14 方法速查表（工具箱里的扳手和螺丝刀）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch14_15/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15 Macros
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch14_2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14.2 UTS 命名空间的实现
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch14_3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Network Namespaces Implementation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch14_4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4 管理 Network Namespace：从上帝视角到手动操作
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch14_5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14.5 Cgroups：当隔离遇上资源争夺
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch14_6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14.6 Busy Poll Sockets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch14_7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14.7 Linux Bluetooth 子系统
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch14_8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14.8 IEEE 802.15.4 和 6LoWPAN
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch14_9/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14.9 近场通信 (NFC)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../linux_kernel_programming/ch01/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux kernel programming
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    
+  
+  
+  
+    <a href="../../../../%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/week2/day08-09_%E5%86%85%E6%A0%B8%E6%A8%A1%E5%9D%97%E5%9F%BA%E7%A1%80%E8%AE%BE%E8%AE%A1/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    学习计划
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    示例代码
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#58-快速参考面板quick-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.8 快速参考面板（Quick Reference）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5.8 快速参考面板（Quick Reference）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#模块与文件清单" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        模块与文件清单
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#核心-api-方法" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        核心 API 方法
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="核心 API 方法">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#路由表操作" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        路由表操作
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fib-条目管理" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FIB 条目管理
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#查找与-trie-遍历" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        查找与 TRIE 遍历
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#重定向与异常处理" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        重定向与异常处理
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#度量值查询" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        度量值查询
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#核心宏定义" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        核心宏定义
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="核心宏定义">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fib-查找结果提取" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FIB 查找结果提取
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#设备行为检查" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        设备行为检查
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#trie-树结构遍历" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TRIE 树结构遍历
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#多路径路由迭代" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        多路径路由迭代
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#关键数据表" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        关键数据表
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="关键数据表">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#表-5-1路由度量值" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        表 5-1：路由度量值
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#表-5-2路由类型与错误码" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        表 5-2：路由类型与错误码
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#路由标志位" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        路由标志位
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="路由标志位">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#表-5-3路由表示例" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        表 5-3：路由表示例
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#本章回响" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        本章回响
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#练习题" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习题
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="练习题">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#练习-1understanding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 1：understanding
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#练习-2application" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 2：application
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#练习-3thinking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 3：thinking
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#要点提炼" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        要点提炼
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+  <nav class="md-path" aria-label="导航栏" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href="../../../.." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    欢迎来到 PenguinLab
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../../../booklist/" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    参考文档
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Notes
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../ch01/" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Linux kernel networking
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="第-5-章-ipv4-路由子系统">第 5 章  IPv4 路由子系统<a class="headerlink" href="#第-5-章-ipv4-路由子系统" title="链接到此章节">&para;</a></h1>
+<h2 id="58-快速参考面板quick-reference">5.8  快速参考面板（Quick Reference）<a class="headerlink" href="#58-快速参考面板quick-reference" title="链接到此章节">&para;</a></h2>
+<p>写代码的时候，IDE 里的自动补全很好用，但当你在大段内核代码里跳来跳去时，或者在 <code>grep</code> 结果里翻找时，你需要的是一个更直接的东西——一个贴在墙上的「速查表」。</p>
+<p>这一节就是那张表。</p>
+<p>这里没有故事，没有铺垫，只有我们在这一章里拆解过的那些核心数据结构、API 函数和宏定义。它们散落在 <code>net/ipv4</code> 的几个关键文件里，现在我把它们聚在一起，方便你在未来的调试（或者填坑）生涯中快速检索。</p>
+<h3 id="模块与文件清单">模块与文件清单<a class="headerlink" href="#模块与文件清单" title="链接到此章节">&para;</a></h3>
+<p>首先，我们把「案发现场」的位置再确认一遍。IPv4 路由子系统的实现主要集中在以下模块：</p>
+<ul>
+<li><strong><code>fib_frontend.c</code></strong>: FIB 的「前台」，处理用户空间来的请求（比如 <code>ip route add</code>）。</li>
+<li><strong><code>fib_trie.c</code></strong>: 核心查找逻辑，也就是那棵高效的 LC-trie 树住的地方。</li>
+<li><strong><code>fib_semantics.c</code></strong>: 处理 FIB 条目的语义，比如 <code>fib_info</code> 的管理。</li>
+<li><strong><code>route.c</code></strong>: 路由缓存的老家（虽然现代内核里缓存机制已经大变样，但核心依然在这里）。</li>
+<li><strong><code>fib_rules.c</code></strong>: 策略路由的实现者。注意，这个模块只有在你开启了 <code>CONFIG_IP_MULTIPLE_TABLES</code> 时才会被编译进去——如果你需要基于源地址或别的条件来做路由决策，这就是你需要的开关。</li>
+</ul>
+<p>代码之外，这几个头文件值得你加到书签里：</p>
+<ul>
+<li><code>include/net/ip_fib.h</code>: FIB 的核心定义。</li>
+<li><code>fib_lookup.h</code>: 查找逻辑的头文件。</li>
+<li><code>include/net/route.h</code>: 路由层与更高层的接口。</li>
+</ul>
+<p>别忘了目的缓存（<code>dst_entry</code>）的通用实现，它住在 <code>net/core/dst.c</code> 和 <code>include/net/dst.h</code> 里。</p>
+<hr />
+<h3 id="核心-api-方法">核心 API 方法<a class="headerlink" href="#核心-api-方法" title="链接到此章节">&para;</a></h3>
+<p>以下是本章提到的关键函数。如果你在阅读源码或写自己的内核模块时需要和 FIB 打交道，这些大概率是你需要调用的接口。</p>
+<h4 id="路由表操作"><strong>路由表操作</strong><a class="headerlink" href="#路由表操作" title="链接到此章节">&para;</a></h4>
+<ul>
+<li>
+<p><strong><code>int fib_table_insert(struct fib_table *tb, struct fib_config *cfg);</code></strong></p>
+<ul>
+<li><strong>做什么</strong>：向指定的 FIB 表（<code>tb</code>）插入一条路由。</li>
+<li><strong>参数</strong>：<code>cfg</code> 包含了用户空间传下来的路由配置（目标地址、网关、掩码等）。</li>
+<li><strong>注意</strong>：这是 Netlink socket 触发 <code>ip route add</code> 后最终落入内核的那一跳。</li>
+</ul>
+</li>
+<li>
+<p><strong><code>int fib_table_delete(struct fib_table *tb, struct fib_config *cfg);</code></strong></p>
+<ul>
+<li><strong>做什么</strong>：从指定的 FIB 表中删除一条路由。</li>
+<li><strong>对应命令</strong>：<code>ip route del</code>。</li>
+</ul>
+</li>
+<li>
+<p><strong><code>struct fib_table *fib_trie_table(u32 id);</code></strong></p>
+<ul>
+<li><strong>做什么</strong>：分配并初始化一个基于 TRIE 结构的 FIB 路由表。如果你想创建一个自定义的路由表（不仅仅是 <code>local</code> 或 <code>main</code>），这是你要找的构造函数。</li>
+</ul>
+</li>
+</ul>
+<h4 id="fib-条目管理"><strong>FIB 条目管理</strong><a class="headerlink" href="#fib-条目管理" title="链接到此章节">&para;</a></h4>
+<ul>
+<li>
+<p><strong><code>struct fib_info *fib_create_info(struct fib_config *cfg);</code></strong></p>
+<ul>
+<li><strong>做什么</strong>：根据配置 <code>cfg</code> 构造一个 <code>fib_info</code> 对象。</li>
+<li><strong>机制</strong>：这是路由条目的「肉」。它会检查是否已经有相同的 <code>fib_info</code> 存在（为了节省内存），如果没有才创建新的。</li>
+</ul>
+</li>
+<li>
+<p><strong><code>void free_fib_info(struct fib_info *fi);</code></strong></p>
+<ul>
+<li><strong>做什么</strong>：释放一个 <code>fib_info</code> 对象。</li>
+<li><strong>条件</strong>：只有当引用计数归零（<code>fib_dead</code> 标志被设置）时，它才会真正被释放，并递减全局计数器 <code>fib_info_cnt</code>。</li>
+</ul>
+</li>
+<li>
+<p><strong><code>void fib_alias_accessed(struct fib_alias *fa);</code></strong></p>
+<ul>
+<li><strong>做什么</strong>：标记一个 <code>fib_alias</code> 条目为「已访问」。</li>
+<li><strong>细节</strong>：它只是简单地把 <code>fa-&gt;fa_state</code> 设置为 <code>FA_S_ACCESSED</code>。这在垃圾回收或统计时可能会用到，用来区分哪些路由是「热」的。</li>
+</ul>
+</li>
+</ul>
+<h4 id="查找与-trie-遍历"><strong>查找与 TRIE 遍历</strong><a class="headerlink" href="#查找与-trie-遍历" title="链接到此章节">&para;</a></h4>
+<ul>
+<li><strong><code>struct leaf *fib_find_node(struct trie *t, u32 key);</code></strong><ul>
+<li><strong>做什么</strong>：在 TR 树 <code>t</code> 中查找匹配 <code>key</code> 的节点。</li>
+<li><strong>返回</strong>：成功返回 <code>leaf</code> 节点，失败返回 <code>NULL</code>。这是 LPM（最长前缀匹配）算法在数据结构层面的直接体现。</li>
+</ul>
+</li>
+</ul>
+<h4 id="重定向与异常处理"><strong>重定向与异常处理</strong><a class="headerlink" href="#重定向与异常处理" title="链接到此章节">&para;</a></h4>
+<ul>
+<li>
+<p><strong><code>void ip_rt_send_redirect(struct sk_buff *skb);</code></strong></p>
+<ul>
+<li><strong>做什么</strong>：发送一个 ICMPv4 Redirect 消息。</li>
+<li><strong>场景</strong>：当内核发现主机在走一条「冤枉路」（通过本机转发，但本机不是最佳下一跳）时，调用这个函数好心地告诉对方「别绕了，走那边」。</li>
+</ul>
+</li>
+<li>
+<p><strong><code>void __ip_do_redirect(struct rtable *rt, struct sk_buff *skb, struct flowi4 *fl4, bool kill_route);</code></strong></p>
+<ul>
+<li><strong>做什么</strong>：处理接收到的 ICMPv4 Redirect 消息。</li>
+<li><strong>核心逻辑</strong>：这就是创建 FIB nexthop exception (FNHE) 的地方。如果 <code>kill_route</code> 为真，它会彻底干掉旧路由；否则，它会创建一个异常条目，让特定的流量绕过 FIB 表直奔新网关。</li>
+</ul>
+</li>
+<li>
+<p><strong><code>void update_or_create_fnhe(struct fib_nh *nh, __be32 daddr, __be32 gw, u32 pmtu, unsigned long expires);</code></strong></p>
+<ul>
+<li><strong>做什么</strong>：正如其名，更新或创建一个 FNHE。</li>
+<li><strong>参数</strong>：指定了下一跳 <code>nh</code>、目标地址 <code>daddr</code>、新网关 <code>gw</code>、PMTU 以及过期时间。这是 Redirect 和 PMTU 发现机制修改路由行为的统一入口。</li>
+</ul>
+</li>
+</ul>
+<h4 id="度量值查询"><strong>度量值查询</strong><a class="headerlink" href="#度量值查询" title="链接到此章节">&para;</a></h4>
+<ul>
+<li><strong><code>u32 dst_metric(const struct dst_entry *dst, int metric);</code></strong><ul>
+<li><strong>做什么</strong>：从 <code>dst_entry</code> 中提取指定的度量值（比如 MTU、初始窗口等）。</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h3 id="核心宏定义">核心宏定义<a class="headerlink" href="#核心宏定义" title="链接到此章节">&para;</a></h3>
+<p>内核代码里充满了宏，这里挑几个我们在解析 FIB 逻辑时遇到过的关键角色。</p>
+<h4 id="fib-查找结果提取"><strong>FIB 查找结果提取</strong><a class="headerlink" href="#fib-查找结果提取" title="链接到此章节">&para;</a></h4>
+<p>这些宏通常接收一个 <code>fib_result</code> 结构体作为参数，把查找结果里的关键字段抠出来。</p>
+<ul>
+<li><strong><code>FIB_RES_GW(res)</code></strong>: 返回下一跳的网关地址 (<code>nh_gw</code>)。</li>
+<li><strong><code>FIB_RES_DEV(res)</code></strong>: 返回下一步要走的网络设备 (<code>net_device</code>)。</li>
+<li><strong><code>FIB_RES_OIF(res)</code></strong>: 返回输出接口的索引 (<code>nh_oif</code>)。</li>
+<li><strong><code>FIB_RES_NH(res)</code></strong>: 返回完整的 <code>fib_nh</code> 结构体。<ul>
+<li><em>细节</em>：如果开启了多路径路由，这里会根据 <code>res-&gt;nh_sel</code> 作为索引，从 <code>fib_info</code> 的 <code>nexthop</code> 数组里选出正确的那一个。</li>
+</ul>
+</li>
+</ul>
+<h4 id="设备行为检查"><strong>设备行为检查</strong><a class="headerlink" href="#设备行为检查" title="链接到此章节">&para;</a></h4>
+<p>在决定「要不要转发」或「听不听话」之前，内核得先问问网卡的态度。</p>
+<ul>
+<li><strong><code>IN_DEV_FORWARD(in_dev)</code></strong>: 检查该设备是否开启了 IP 转发。如果这个关了，它就是个安静的终点，不是路由器。</li>
+<li><strong><code>IN_DEV_RX_REDIRECTS(in_dev)</code></strong>: 检查该设备是否<strong>接收</strong> ICMP Redirect。如果你要做路由器，通常会关掉这个，防止被别人的 Redirect 搞乱。</li>
+<li><strong><code>IN_DEV_TX_REDIRECTS(in_dev)</code></strong>: 检查该设备是否<strong>发送</strong> ICMP Redirect。</li>
+</ul>
+<h4 id="trie-树结构遍历"><strong>TRIE 树结构遍历</strong><a class="headerlink" href="#trie-树结构遍历" title="链接到此章节">&para;</a></h4>
+<ul>
+<li><strong><code>IS_LEAF(node)</code></strong>: 判断这个节点是不是叶子节点（终点）。</li>
+<li><strong><code>IS_TNODE(node)</code></strong>: 判断这个节点是不是内部节点（Trie Node，还要继续往下找）。</li>
+</ul>
+<h4 id="多路径路由迭代"><strong>多路径路由迭代</strong><a class="headerlink" href="#多路径路由迭代" title="链接到此章节">&para;</a></h4>
+<ul>
+<li><strong><code>change_nexthops(fi)</code></strong>: 定义在 <code>fib_semantics.c</code> 里的一个宏。它提供了一个遍历 <code>fib_info</code> 里所有 <code>nexthop</code> 的循环机制。当你需要检查每一条可能的路径时，你会用到它。</li>
+</ul>
+<hr />
+<h3 id="关键数据表">关键数据表<a class="headerlink" href="#关键数据表" title="链接到此章节">&para;</a></h3>
+<h4 id="表-5-1路由度量值"><strong>表 5-1：路由度量值</strong><a class="headerlink" href="#表-5-1路由度量值" title="链接到此章节">&para;</a></h4>
+<p>内核不仅管路怎么走，还管路上的路况。这里有 15 种（<code>RTAX_MAX</code>）度量值，其中一些是专门给 TCP 用的。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Linux 符号</th>
+<th style="text-align: center;">TCP 相关 (Y/N)</th>
+<th style="text-align: left;">含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>RTAX_UNSPEC</code></td>
+<td style="text-align: center;">N</td>
+<td style="text-align: left;">未指定</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>RTAX_LOCK</code></td>
+<td style="text-align: center;">N</td>
+<td style="text-align: left;">锁定度量值（防止被更新）</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>RTAX_MTU</code></td>
+<td style="text-align: center;">N</td>
+<td style="text-align: left;">路径最大传输单元</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>RTAX_WINDOW</code></td>
+<td style="text-align: center;"><strong>Y</strong></td>
+<td style="text-align: left;">TCP 广播窗口大小</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>RTAX_RTT</code></td>
+<td style="text-align: center;"><strong>Y</strong></td>
+<td style="text-align: left;">往返时间</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>RTAX_RTTVAR</code></td>
+<td style="text-align: center;"><strong>Y</strong></td>
+<td style="text-align: left;">往返时间方差</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>RTAX_SSTHRESH</code></td>
+<td style="text-align: center;"><strong>Y</strong></td>
+<td style="text-align: left;">慢启动阈值</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>RTAX_CWND</code></td>
+<td style="text-align: center;"><strong>Y</strong></td>
+<td style="text-align: left;">拥塞窗口</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>RTAX_ADVMSS</code></td>
+<td style="text-align: center;"><strong>Y</strong></td>
+<td style="text-align: left;">对方 MSS (建议)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>RTAX_REORDERING</code></td>
+<td style="text-align: center;"><strong>Y</strong></td>
+<td style="text-align: left;">包重排序阈值</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>RTAX_HOPLIMIT</code></td>
+<td style="text-align: center;">N</td>
+<td style="text-align: left;">跳数限制</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>RTAX_INITCWND</code></td>
+<td style="text-align: center;"><strong>Y</strong></td>
+<td style="text-align: left;">初始拥塞窗口</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>RTAX_FEATURES</code></td>
+<td style="text-align: center;">N</td>
+<td style="text-align: left;">特性标志位</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>RTAX_RTO_MIN</code></td>
+<td style="text-align: center;"><strong>Y</strong></td>
+<td style="text-align: left;">最小重传超时时间</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>RTAX_INITRWND</code></td>
+<td style="text-align: center;"><strong>Y</strong></td>
+<td style="text-align: left;">初始接收窗口</td>
+</tr>
+</tbody>
+</table>
+<p><em>(来源：<code>include/uapi/linux/rtnetlink.h</code>)</em></p>
+<h4 id="表-5-2路由类型与错误码"><strong>表 5-2：路由类型与错误码</strong><a class="headerlink" href="#表-5-2路由类型与错误码" title="链接到此章节">&para;</a></h4>
+<p>当路由查找命中时，不同的 <code>type</code> 意味着不同的命运。这里列出了 <code>fib_props</code> 数组中的映射关系：特定路由类型对应的错误码和作用域。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Linux 符号</th>
+<th style="text-align: left;">错误码</th>
+<th style="text-align: left;">作用域</th>
+<th style="text-align: left;">含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>RTN_UNSPEC</code></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;"><code>RT_SCOPE_NOWHERE</code></td>
+<td style="text-align: left;">未指定（通常不出现在最终结果里）</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>RTN_UNICAST</code></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;"><code>RT_SCOPE_UNIVERSE</code></td>
+<td style="text-align: left;">普通单播路由</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>RTN_LOCAL</code></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;"><code>RT_SCOPE_HOST</code></td>
+<td style="text-align: left;">本地地址</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>RTN_BROADCAST</code></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;"><code>RT_SCOPE_LINK</code></td>
+<td style="text-align: left;">广播地址</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>RTN_ANYCAST</code></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;"><code>RT_SCOPE_LINK</code></td>
+<td style="text-align: left;">任播地址</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>RTN_MULTICAST</code></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;"><code>RT_SCOPE_UNIVERSE</code></td>
+<td style="text-align: left;">组播路由</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>RTN_BLACKHOLE</code></td>
+<td style="text-align: left;"><code>-EINVAL</code></td>
+<td style="text-align: left;"><code>RT_SCOPE_UNIVERSE</code></td>
+<td style="text-align: left;">黑洞（静默丢弃，不报错）</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>RTN_UNREACHABLE</code></td>
+<td style="text-align: left;"><code>-EHOSTUNREACH</code></td>
+<td style="text-align: left;"><code>RT_SCOPE_UNIVERSE</code></td>
+<td style="text-align: left;">不可达（丢弃并发送 ICMP 目标不可达）</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>RTN_PROHIBIT</code></td>
+<td style="text-align: left;"><code>-EACCES</code></td>
+<td style="text-align: left;"><code>RT_SCOPE_UNIVERSE</code></td>
+<td style="text-align: left;">禁止（被管理员拒绝，发送 ICMP 禁止访问）</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>RTN_THROW</code></td>
+<td style="text-align: left;"><code>-EAGAIN</code></td>
+<td style="text-align: left;"><code>RT_SCOPE_UNIVERSE</code></td>
+<td style="text-align: left;">也就是「继续查下一张表」（策略路由用）</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>RTN_NAT</code></td>
+<td style="text-align: left;"><code>-EINVAL</code></td>
+<td style="text-align: left;"><code>RT_SCOPE_NOWHERE</code></td>
+<td style="text-align: left;">NAT（旧用法）</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>RTN_XRESOLVE</code></td>
+<td style="text-align: left;"><code>-EINVAL</code></td>
+<td style="text-align: left;"><code>RT_SCOPE_NOWHERE</code></td>
+<td style="text-align: left;">需要外部解析（如通过 daemon）</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="路由标志位">路由标志位<a class="headerlink" href="#路由标志位" title="链接到此章节">&para;</a></h3>
+<p>当你敲下 <code>route -n</code> 或 <code>ip route show</code> 时，输出里那一串缩写字母（<code>UG</code>, <code>UH</code>）并不是乱码。它们是内核对这条路由的「批注」。</p>
+<p>以下是常见标志位的含义，对应表 5-3 的示例输出：</p>
+<ul>
+<li><strong><code>U</code> (Route is up)</strong>: 路由是激活的。</li>
+<li><strong><code>H</code> (Target is a host)</strong>: 目标是一个具体的主机（通常掩码是 255.255.255.255）。</li>
+<li><strong><code>G</code> (Use gateway)</strong>: 使用网关（数据包不是直接发到目标网段，而是要经过中间人）。</li>
+<li><strong><code>R</code> (Reinstate route)</strong>: 恢复动态路由（被路由守护进程重启）。</li>
+<li><strong><code>D</code> (Dynamically installed)</strong>: 动态安装（由 redirect 或守护进程创建）。</li>
+<li><strong><code>M</code> (Modified)</strong>: 已被修改（由 redirect 或守护进程修改）。</li>
+<li><strong><code>A</code> (Installed by addrconf)</strong>: 由 addrconf 自动配置（通常是 IPv6 相关，但也出现在这里）。</li>
+<li><strong><code>!</code> (Reject route)</strong>: 拒绝路由（对应 <code>RTN_PROHIBIT</code> 等类型）。</li>
+</ul>
+<h4 id="表-5-3路由表示例"><strong>表 5-3：路由表示例</strong><a class="headerlink" href="#表-5-3路由表示例" title="链接到此章节">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Destination</th>
+<th style="text-align: left;">Gateway</th>
+<th style="text-align: left;">Genmask</th>
+<th style="text-align: left;">Flags</th>
+<th style="text-align: left;">Metric</th>
+<th style="text-align: left;">Ref</th>
+<th style="text-align: left;">Use</th>
+<th style="text-align: left;">Iface</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">169.254.0.0</td>
+<td style="text-align: left;">0.0.0.0</td>
+<td style="text-align: left;">255.255.0.0</td>
+<td style="text-align: left;"><strong>U</strong></td>
+<td style="text-align: left;">1002</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">eth0</td>
+</tr>
+<tr>
+<td style="text-align: left;">192.168.3.0</td>
+<td style="text-align: left;">192.168.2.1</td>
+<td style="text-align: left;">255.255.255.0</td>
+<td style="text-align: left;"><strong>UG</strong></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">eth1</td>
+</tr>
+</tbody>
+</table>
+<p><strong>解读</strong>：
+*   第一行：去往链路本地地址 <code>169.254.0.0/16</code> 的流量直接走 <code>eth0</code>（没网关，所以没 G）。
+*   第二行：去往 <code>192.168.3.0/24</code> 的流量，需要先发给网关 <code>192.168.2.1</code>，然后从 <code>eth1</code> 出去。</p>
+<hr />
+<h3 id="本章回响">本章回响<a class="headerlink" href="#本章回响" title="链接到此章节">&para;</a></h3>
+<p>这一章，我们像剥洋葱一样剥开了内核路由子系统。</p>
+<p>最外层是 <code>ip route</code> 命令，那是你看到的；往里是 FIB 表，那是内核存储规则的地方；最深处是 LC-trie 树和 <code>fib_lookup</code> 算法，那是每一秒都在处理百万级流量的引擎。</p>
+<p>如果你只记得本章的一件事，请记住这个：<strong>路由决策不是一个简单的匹配，而是一个从查找、到缓存、再到动态修正（Redirect/FNHE）的完整闭环。</strong> 表 5-1 的那些度量值，表 5-2 的那些错误码，以及那些以 <code>fib_</code> 开头的结构体，都是为了让这个闭环既能跑得快，又能在网络拓扑发生变化时灵活地调整姿态。</p>
+<p>下一章，我们将从「怎么走」转向「怎么发」。我们将离开路由层的冷静决策，进入邻居层（Neighbor Subsystem）的热烈握手——看看 ARP 和 ND 是如何把抽象的 IP 地址变成真实的以太网帧，真正把数据推到网线上的。</p>
+<hr />
+<h2 id="练习题">练习题<a class="headerlink" href="#练习题" title="链接到此章节">&para;</a></h2>
+<h3 id="练习-1understanding">练习 1：understanding<a class="headerlink" href="#练习-1understanding" title="链接到此章节">&para;</a></h3>
+<p><strong>题目</strong>：在 Linux 内核的路由查找过程中，<code>fib_lookup()</code> 函数是核心入口。请简述 <code>fib_lookup()</code> 函数通过输入参数 <code>flowi4</code> 和输出参数 <code>fib_result</code> 进行路由查找的基本流程，并说明当查找成功时，内核如何基于 <code>fib_result</code> 构建 <code>dst_entry</code> (目的缓存)。</p>
+<details><summary>答案与解析</summary>
+
+
+**答案**：`fib_lookup()` 使用 `flowi4`（包含目标地址、源地址、TOS 等信息）作为键值，首先在 Local 表中查找，若失败则在 Main 表中进行最长前缀匹配（LPM）。查找成功后，它填充 `fib_result` 结构体（包含前缀长度、`fib_info` 指针、路由类型等）。随后，内核根据 `fib_result` 中的信息（如 `type` 是 RTN_LOCAL 还是 RTN_UNICAST）创建一个 `dst_entry` 对象（嵌入在 `rtable` 中），并设置其 `input` 或 `output` 回调函数（如 `ip_local_deliver` 或 `ip_forward`）。
+
+
+**解析**：本题考察对 IPv4 路由子系统核心数据流的理解。`flowi4` 定义了查找的“钥匙”，`fib_result` 存储了查找的“结果”。`fib_info` 是路由条目的具体参数载体。查找成功后，内核必须将这些静态的 FIB 信息转化为动态可用的路由缓存对象（`dst_entry`），其中最重要的就是设置处理数据包的回调函数，这决定了数据包是本地接收、转发还是丢弃。
+
+
+</details>
+
+<h3 id="练习-2application">练习 2：application<a class="headerlink" href="#练习-2application" title="链接到此章节">&para;</a></h3>
+<p><strong>题目</strong>：假设你是一名网络管理员，需要配置 Linux 服务器禁止来自 192.168.1.0/24 网段的流量访问 10.0.0.5。请写出实现这一策略的 <code>ip route</code> 命令，并结合 <code>fib_props</code> 和 <code>RTN_PROHIBIT</code> 的原理，解释内核收到匹配该规则的数据包时会返回什么错误码以及发送什么 ICMP 消息。</p>
+<details><summary>答案与解析</summary>
+
+
+**答案**：命令：`ip route add prohibit 10.0.0.5 from 192.168.1.0/24`。
+
+原理：内核中 `fib_props` 数组定义了不同路由类型的行为。`RTN_PROHIBIT` 类型对应的错误码是 `-EACCES`。当数据包匹配此规则时，路由查找返回该错误，内核随即调用 `ip_error()` 处理，丢弃数据包并向发送方回复 ICMP “Destination Unreachable” 消息，代码为 “Packet Filtered” (ICMP_PKT_FILTERED)。
+
+
+**解析**：本题考察如何应用策略路由（Policy Routing）概念进行流量过滤。理解 `RTN_PROHIBIT` 是 `fib_type` 的一种，它不是简单地丢弃数据包，而是有特定的交互行为（发送 ICMP）。通过查找 `fib_props` 数组中 `RTN_PROHIBIT` 对应的 `error` 字段，可以确定具体的内核行为。
+
+
+</details>
+
+<h3 id="练习-3thinking">练习 3：thinking<a class="headerlink" href="#练习-3thinking" title="链接到此章节">&para;</a></h3>
+<p><strong>题目</strong>：在早期的内核版本中（&lt; 3.6），Linux 使用路由缓存来加速查找，但在 3.6 版本后将其移除，转而完全依赖 FIB TRIE。请从“性能”和“安全性/稳定性”两个维度，分析内核开发团队做出这一改动（采用 FIB TRIE 而非 Routing Cache）的主要原因。</p>
+<details><summary>答案与解析</summary>
+
+
+**答案**：1. **性能**：随着路由表规模的增长（互联网核心路由表条目极多），维护庞大的哈希缓存及其一致性（如路由失效更新）的开销变得非常大。LC-trie（基于最长前缀匹配的树结构）本身查找速度非常快（O(key length)），且内存效率高，使得额外的缓存层变得不再必要。
+
+2. **安全性与稳定性**：路由缓存容易受到“Shadow Master”类 DoS 攻击。攻击者可以通过发送大量随机目标 IP 的数据包，迫使内核不断进行缓存未命中查找并填充缓存，耗尽系统内存和 CPU。移除缓存后，直接在 FIB TRIE 上查找，消除了这种基于缓存溢出的攻击面。
+
+
+**解析**：本题考察对内核网络子系统演进的深度思考。这是一个经典的“用空间换时间”到“算法优化”的转变案例。理解这一点需要认识到：虽然缓存通常能加速访问，但在高动态变化或特定攻击场景下，缓存的管理成本（锁竞争、表项刷新）和脆弱性（易被攻击）可能超过其带来的收益。FIB TRIE 提供了足够高的查找效率，从而允许移除复杂的缓存逻辑。
+
+
+</details>
+
+<hr />
+<h2 id="要点提炼">要点提炼<a class="headerlink" href="#要点提炼" title="链接到此章节">&para;</a></h2>
+<p>Linux 内核通过 <strong>FIB（转发信息库）</strong> 与路由查找机制来决定数据包的去向，核心函数 <code>fib_lookup()</code> 根据目标地址等参数查询路由表，最终生成包含 <code>input</code> 和 <code>output</code> 函数指针的 <code>dst_entry</code>（路由缓存项），将复杂的查表过程转化为对特定回调函数（如 <code>ip_local_deliver</code> 或 <code>ip_forward</code>）的调用，从而实现本机接收与转发的逻辑分流。</p>
+<p><strong><code>fib_info</code> 结构体</strong> 是路由条目在内核中的完整“身份证”，它封装了除目的地之外的所有元数据。它不仅记录了路由来源（如静态配置或内核生成）、作用域和优先级，还通过 <code>fib_metrics</code> 数组管理 MTU、RTT 等 TCP 性能参数。这种设计将路由的决策属性与物理路径分离，使得内核能通过引用计数高效管理路由条目的生命周期，并支持多路径路由配置。</p>
+<p>路由并非总是意味着允许通行，内核通过 <strong><code>fib_props</code> 映射表</strong> 将不同类型的路由（如 <code>RTN_PROHIBIT</code>）转化为具体的操作行为。当路由查找命中“禁止”类型时，内核不会静默丢包，而是依据配置触发 ICMP “目标不可达”或“过滤”消息，这种机制将路由表本身升级为一套高效的流量控制策略系统。</p>
+<p>为了应对网络环境的动态变化，内核在 <strong><code>fib_nh</code>（下一跳）</strong> 层面引入了 <strong>Exception（例外）机制</strong>。针对特定目标地址，内核利用哈希表记录 ICMP 重定向带来的网关变更或 PMTU 发现带来的 MTU 调整。这种“便签式”的微调避免了频繁修改庞大的全局路由表，实现了对个别路径的精准修正与隔离。</p>
+<p>当多条路由指向相同目的地和物理路径但属性（如 TOS、优先级）不同时，内核采用 <strong><code>fib_alias</code></strong> 机制来优化内存。它允许多个轻量级的 <code>fib_alias</code> 结构体共享同一个存储实际路径信息的 <code>fib_info</code>，这种设计避免了为微小差异复制大量路由数据，显著提升了大规模路由表（如 BGP 场景）的内存利用率。</p>
+
+
+
+
+
+
+
+  
+    
+  
+  
+    
+  
+
+
+  <aside class="md-source-file">
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="最后更新">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年5月6日 08:06:46 CST">2026年5月6日 08:06:46</span>
+  </span>
+
+    
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="创建日期">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年5月6日 08:06:46 CST">2026年5月6日 08:06:46</span>
+  </span>
+
+    
+    
+    
+  </aside>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href="../ch05_7/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 6.7 路由器的「悄悄话」：ICMPv4 Redirect">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                6.7 路由器的「悄悄话」：ICMPv4 Redirect
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../ch06/" class="md-footer__link md-footer__link--next" aria-label="下一页: 第 6 章">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              <div class="md-ellipsis">
+                第 6 章
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 Charliechen - 保留所有权利
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/Awesome-Embedded-Learning-Studio" target="_blank" rel="noopener" title="GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="mailto:725610365@qq.com" target="_blank" rel="noopener" title="发送邮件" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M536.4-26.3c9.8-3.5 20.6-1 28 6.3s9.8 18.2 6.3 28l-178 496.9c-5 13.9-18.1 23.1-32.8 23.1-14.2 0-27-8.6-32.3-21.7l-64.2-158c-4.5-11-2.5-23.6 5.2-32.6l94.5-112.4c5.1-6.1 4.7-15-.9-20.6s-14.6-6-20.6-.9l-112.4 94.3c-9.1 7.6-21.6 9.6-32.6 5.2L38.1 216.8c-13.1-5.3-21.7-18.1-21.7-32.3 0-14.7 9.2-27.8 23.1-32.8z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.instant", "navigation.instant.prefetch", "navigation.instant.progress", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.prune", "navigation.path", "navigation.indexes", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.select", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.action.edit", "content.action.view"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

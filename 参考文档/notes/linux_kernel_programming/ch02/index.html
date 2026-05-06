@@ -1,0 +1,4262 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="30 天嵌入式 Linux 内核学习计划">
+      
+      
+        <meta name="author" content="Charliechen">
+      
+      
+        <link rel="canonical" href="https://awesome-embedded-learning-studio.github.io/PenguinLab/%E5%8F%82%E8%80%83%E6%96%87%E6%A1%A3/notes/linux_kernel_programming/ch02/">
+      
+      
+        <link rel="prev" href="../ch01/">
+      
+      
+        <link rel="next" href="../ch03/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../Awesome-Embedded.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Chapter 2: Building the 6.x Linux Kernel from Source – Part 1 - PenguinLab 文档</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Sans+SC:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Noto Sans SC";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#chapter-2-building-the-6x-linux-kernel-from-source--part-1" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="PenguinLab 文档" class="md-header__button md-logo" aria-label="PenguinLab 文档" data-md-component="logo">
+      
+  <img src="../../../../Awesome-Embedded.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PenguinLab 文档
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Chapter 2: Building the 6.x Linux Kernel from Source – Part 1
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换至暗色模式"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换至暗色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="indigo"  aria-label="切换至亮色模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换至亮色模式" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="分享" aria-label="分享" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  欢迎来到 PenguinLab
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../part1/01_%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E4%B8%8E%E6%BA%90%E7%A0%81%E6%A0%91%E5%AF%BC%E8%A7%88/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part1
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../../booklist/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  参考文档
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/week2/day08-09_%E5%86%85%E6%A0%B8%E6%A8%A1%E5%9D%97%E5%9F%BA%E7%A1%80%E8%AE%BE%E8%AE%A1/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  学习计划
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  示例代码
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="PenguinLab 文档" class="md-nav__button md-logo" aria-label="PenguinLab 文档" data-md-component="logo">
+      
+  <img src="../../../../Awesome-Embedded.png" alt="logo">
+
+    </a>
+    PenguinLab 文档
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    欢迎来到 PenguinLab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../part1/01_%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E4%B8%8E%E6%BA%90%E7%A0%81%E6%A0%91%E5%AF%BC%E8%A7%88/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part1
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    参考文档
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    参考文档
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../booklist/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    书单：嵌入式 Linux 内核学习推荐书目
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../qemu-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QEMU ARM 速查手册
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Notes
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_3" id="__nav_3_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Notes
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../linux_kernel_debugging/ch01/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux kernel debugging
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../linux_kernel_device_drivers/ch01/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux kernel device drivers
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../linux_kernel_networking/ch01/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux kernel networking
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_3_5" id="__nav_3_3_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux kernel programming
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_3_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_3_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Linux kernel programming
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch01/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 1 章 内核编程新视界 —— 从零开始构建你的内核工作空间
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 2: Building the 6.x Linux Kernel from Source – Part 1
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 2: Building the 6.x Linux Kernel from Source – Part 1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#从源码构建-linux-内核一场漫长的修行" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        从源码构建 Linux 内核：一场漫长的修行
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="从源码构建 Linux 内核：一场漫长的修行">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#-前置工作你真的准备好了吗" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ⚠️ 前置工作：你真的准备好了吗？
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#极简系统论linux-是怎么跑起来的" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        极简系统论：Linux 是怎么跑起来的
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#preliminaries-别急着敲命令先搞懂规则" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Preliminaries: 别急着敲命令，先搞懂规则
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Preliminaries: 别急着敲命令，先搞懂规则">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#去中心化的办公室" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        去中心化的“办公室”
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#理解-linux-内核版本命名规范" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        理解 Linux 内核版本命名规范
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="理解 Linux 内核版本命名规范">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#历史的回响偶数奇数传说" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        历史的回响：偶数奇数传说
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#手脚模型-fingers-and-toes-releases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        “手脚模型” (Fingers-and-toes releases)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#内核开发工作流从合并窗口到发布版" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        内核开发工作流：从合并窗口到发布版
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="内核开发工作流：从合并窗口到发布版">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#查看-git-历史记录" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        查看 Git 历史记录
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#时间轴上的两个关键阶段" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        时间轴上的两个关键阶段
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="时间轴上的两个关键阶段">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-merge-window-合并窗口--只有-2-周" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Merge Window (合并窗口) —— 只有 2 周
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-bugfix-window-修复窗口--6-到-10-周" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Bugfix Window (修复窗口) —— 6 到 10 周
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#赶不上合并窗口怎么办" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        赶不上合并窗口怎么办？
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#探索内核源码树的类型" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        探索内核源码树的类型
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="探索内核源码树的类型">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-mainline--stable-主线--稳定版" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Mainline / Stable (主线 / 稳定版)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-long-term-support-lts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Long Term Support (LTS)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3--next-trees-前沿树" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. -next Trees (前沿树)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-distribution-kernels-发行版内核" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Distribution Kernels (发行版内核)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-soc-vendor-kernels-芯片厂商内核" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. SoC Vendor Kernels (芯片厂商内核)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-super-lts-slts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Super LTS (SLTS)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-重要更新lts-缩水了" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ⚠️ 重要更新：LTS 缩水了
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#到底该跑哪个内核" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        到底该跑哪个内核？
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#开始构建前-3-步实战" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        开始构建：前 3 步实战
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="开始构建：前 3 步实战">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1--获取-linux-内核源码" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1 – 获取 Linux 内核源码
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 1 – 获取 Linux 内核源码">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#方法-a直接下载" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        方法 A：直接下载
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#方法-bclone-git-仓库可选" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        方法 B：Clone Git 仓库（可选）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2--解压内核源码树" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2 – 解压内核源码树
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-额外赠送源码树结构速览" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📖 额外赠送：源码树结构速览
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3--配置-linux-内核" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3 – 配置 Linux 内核
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 3 – 配置 Linux 内核">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kconfig--kbuild-极简入门" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kconfig / Kbuild 极简入门
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#获取初始配置三条路" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        获取初始配置：三条路
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="获取初始配置：三条路">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#策略-1厂家的配置安全但臃肿" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        策略 1：厂家的配置（安全但臃肿）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#策略-2默认配置" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        策略 2：默认配置
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#策略-3精简配置--推荐给学习者" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        策略 3：精简配置 —— 推荐给学习者
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4其实是-step-3-的延续-调整配置" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4（其实是 Step 3 的延续）—— 调整配置
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 4（其实是 Step 3 的延续）—— 调整配置">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#启动图形化菜单" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        启动图形化菜单
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#导航与操作" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        导航与操作
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#符号说明" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        符号说明
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#实战演示开启-config-查看支持" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        实战演示：开启 .config 查看支持
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#配置进阶脚本化与差异化" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        配置进阶：脚本化与差异化
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="配置进阶：脚本化与差异化">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#脚本修改配置" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        脚本修改配置
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#查看配置差异" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        查看配置差异
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#安全加固kconfig-hardened-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        安全加固：Kconfig Hardened Check
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#定制-kconfig-菜单加上你自己的名字" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        定制 Kconfig 菜单：加上你自己的名字
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="定制 Kconfig 菜单：加上你自己的名字">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#实验加个lkp-测试选项" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        实验：加个“LKP 测试选项”
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#本章小结" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        本章小结
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#练习题" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习题
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="练习题">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#练习-1版本号考古-理解" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 1：版本号考古 ⭐（理解）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#练习-2配置项狩猎-应用" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 2：配置项狩猎 ⭐⭐（应用）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#练习-3自定义模块构建-实战" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 3：自定义模块构建 ⭐⭐⭐（实战）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#附录常用命令速查" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        附录：常用命令速查
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#练习题_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习题
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="练习题">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#练习-1understanding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 1：understanding
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#练习-2application" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 2：application
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#练习-3thinking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 3：thinking
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#要点提炼" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        要点提炼
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch03/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 3 章 从源码构建 6.x Linux 内核（第二部分）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch04/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch04
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch05/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 5 章 编写你的第一个内核模块——第二部分
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch06/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6. 内核机制 essentials —— 进程与线程
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch07/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch07
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch08/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 8 章 内核内存分配器：伙伴系统与 Slab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch09/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 9 章 内核内存分配进阶：选择、回收与生存
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch10/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 10 章 CPU 调度器（第 1 部分）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch11/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 11 章 CPU 调度器（第二部分）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch12/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 12 章 并发的代价 —— 内核同步机制 Part 1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch13/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 13 章 内核同步（下半部分）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    
+  
+  
+  
+    <a href="../../../../%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/week2/day08-09_%E5%86%85%E6%A0%B8%E6%A8%A1%E5%9D%97%E5%9F%BA%E7%A1%80%E8%AE%BE%E8%AE%A1/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    学习计划
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    示例代码
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#从源码构建-linux-内核一场漫长的修行" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        从源码构建 Linux 内核：一场漫长的修行
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="从源码构建 Linux 内核：一场漫长的修行">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#-前置工作你真的准备好了吗" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ⚠️ 前置工作：你真的准备好了吗？
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#极简系统论linux-是怎么跑起来的" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        极简系统论：Linux 是怎么跑起来的
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#preliminaries-别急着敲命令先搞懂规则" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Preliminaries: 别急着敲命令，先搞懂规则
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Preliminaries: 别急着敲命令，先搞懂规则">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#去中心化的办公室" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        去中心化的“办公室”
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#理解-linux-内核版本命名规范" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        理解 Linux 内核版本命名规范
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="理解 Linux 内核版本命名规范">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#历史的回响偶数奇数传说" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        历史的回响：偶数奇数传说
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#手脚模型-fingers-and-toes-releases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        “手脚模型” (Fingers-and-toes releases)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#内核开发工作流从合并窗口到发布版" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        内核开发工作流：从合并窗口到发布版
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="内核开发工作流：从合并窗口到发布版">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#查看-git-历史记录" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        查看 Git 历史记录
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#时间轴上的两个关键阶段" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        时间轴上的两个关键阶段
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="时间轴上的两个关键阶段">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-merge-window-合并窗口--只有-2-周" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Merge Window (合并窗口) —— 只有 2 周
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-bugfix-window-修复窗口--6-到-10-周" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Bugfix Window (修复窗口) —— 6 到 10 周
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#赶不上合并窗口怎么办" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        赶不上合并窗口怎么办？
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#探索内核源码树的类型" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        探索内核源码树的类型
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="探索内核源码树的类型">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-mainline--stable-主线--稳定版" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Mainline / Stable (主线 / 稳定版)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-long-term-support-lts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Long Term Support (LTS)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3--next-trees-前沿树" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. -next Trees (前沿树)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-distribution-kernels-发行版内核" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Distribution Kernels (发行版内核)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-soc-vendor-kernels-芯片厂商内核" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. SoC Vendor Kernels (芯片厂商内核)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-super-lts-slts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Super LTS (SLTS)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-重要更新lts-缩水了" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ⚠️ 重要更新：LTS 缩水了
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#到底该跑哪个内核" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        到底该跑哪个内核？
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#开始构建前-3-步实战" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        开始构建：前 3 步实战
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="开始构建：前 3 步实战">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1--获取-linux-内核源码" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1 – 获取 Linux 内核源码
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 1 – 获取 Linux 内核源码">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#方法-a直接下载" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        方法 A：直接下载
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#方法-bclone-git-仓库可选" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        方法 B：Clone Git 仓库（可选）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2--解压内核源码树" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2 – 解压内核源码树
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-额外赠送源码树结构速览" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📖 额外赠送：源码树结构速览
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3--配置-linux-内核" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3 – 配置 Linux 内核
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 3 – 配置 Linux 内核">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kconfig--kbuild-极简入门" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kconfig / Kbuild 极简入门
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#获取初始配置三条路" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        获取初始配置：三条路
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="获取初始配置：三条路">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#策略-1厂家的配置安全但臃肿" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        策略 1：厂家的配置（安全但臃肿）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#策略-2默认配置" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        策略 2：默认配置
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#策略-3精简配置--推荐给学习者" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        策略 3：精简配置 —— 推荐给学习者
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4其实是-step-3-的延续-调整配置" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4（其实是 Step 3 的延续）—— 调整配置
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 4（其实是 Step 3 的延续）—— 调整配置">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#启动图形化菜单" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        启动图形化菜单
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#导航与操作" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        导航与操作
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#符号说明" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        符号说明
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#实战演示开启-config-查看支持" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        实战演示：开启 .config 查看支持
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#配置进阶脚本化与差异化" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        配置进阶：脚本化与差异化
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="配置进阶：脚本化与差异化">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#脚本修改配置" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        脚本修改配置
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#查看配置差异" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        查看配置差异
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#安全加固kconfig-hardened-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        安全加固：Kconfig Hardened Check
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#定制-kconfig-菜单加上你自己的名字" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        定制 Kconfig 菜单：加上你自己的名字
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="定制 Kconfig 菜单：加上你自己的名字">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#实验加个lkp-测试选项" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        实验：加个“LKP 测试选项”
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#本章小结" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        本章小结
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#练习题" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习题
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="练习题">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#练习-1版本号考古-理解" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 1：版本号考古 ⭐（理解）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#练习-2配置项狩猎-应用" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 2：配置项狩猎 ⭐⭐（应用）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#练习-3自定义模块构建-实战" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 3：自定义模块构建 ⭐⭐⭐（实战）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#附录常用命令速查" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        附录：常用命令速查
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#练习题_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习题
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="练习题">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#练习-1understanding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 1：understanding
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#练习-2application" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 2：application
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#练习-3thinking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 3：thinking
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#要点提炼" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        要点提炼
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+  <nav class="md-path" aria-label="导航栏" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href="../../../.." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    欢迎来到 PenguinLab
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../../../booklist/" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    参考文档
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Notes
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../ch01/" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Linux kernel programming
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="chapter-2-building-the-6x-linux-kernel-from-source--part-1">Chapter 2: Building the 6.x Linux Kernel from Source – Part 1<a class="headerlink" href="#chapter-2-building-the-6x-linux-kernel-from-source--part-1" title="链接到此章节">&para;</a></h1>
+<h2 id="从源码构建-linux-内核一场漫长的修行">从源码构建 Linux 内核：一场漫长的修行<a class="headerlink" href="#从源码构建-linux-内核一场漫长的修行" title="链接到此章节">&para;</a></h2>
+<p>从源代码开始构建 Linux 内核，是开启内核开发之旅最硬核的方式。</p>
+<p>别被那些花哨的图形化安装工具骗了——在那层薄薄的伪装之下，隐藏着世界上最重要的软件工程之一。这个话题大到必须分成两章来讲，这是第一章，下一章还在路上。</p>
+<h3 id="-前置工作你真的准备好了吗">⚠️ 前置工作：你真的准备好了吗？<a class="headerlink" href="#-前置工作你真的准备好了吗" title="链接到此章节">&para;</a></h3>
+<p>如果你还没搞定工作空间，<strong>千万别往下一步走</strong>。</p>
+<p>之前的“在线章节”（Online Chapter）我们花了大篇幅讲环境搭建——文档看哪、工具装哪、GitHub 怎么配。如果你跳过了那一步，现在去补上还来得及。这不是官僚主义，这是为了防止你在一个全是报错的终端前怀疑人生。</p>
+<p>接下来这一章和下一章的任务非常明确：<strong>从零开始，用源码构建一个现代 Linux 内核</strong>。</p>
+<p>在这章里，我们先搞定基础：
+*   看懂内核版本号那些奇怪的时间线；
+*   理解内核是怎么一步步开发出来的（以及你如果赶不上这班车会发生什么）；
+*   搞清楚“主线内核”、“LTS”、“厂商内核”这些到底都是什么鬼。</p>
+<p>然后，我们上手干脏活：
+*   下载纯净的内核源码（Vanilla Kernel）；
+*   把它解压开，看看这 3000 万行代码到底长什么样；
+*   <strong>最关键的一步</strong>：配置它。</p>
+<p>最后，我们会花点时间黑进 Kconfig 系统——也就是那个决定哪些代码能进内核的“看门人”——甚至给它加个我们自己的菜单项。</p>
+<hr />
+<h2 id="极简系统论linux-是怎么跑起来的">极简系统论：Linux 是怎么跑起来的<a class="headerlink" href="#极简系统论linux-是怎么跑起来的" title="链接到此章节">&para;</a></h2>
+<p>在开始之前，我们要先达成一个共识。</p>
+<p>任何一个能跑起来的 Linux 系统——不管是天河一号还是你手边的树莓派——都少不了三个“老三样”：</p>
+<ol>
+<li><strong>Bootloader（引导程序）</strong>：第一个醒来干活的家伙，负责把内核喊起来。</li>
+<li><strong>OS Kernel（内核）</strong>：就是我们要折腾的主角。</li>
+<li><strong>Root Filesystem（根文件系统）</strong>：内核启动后需要的那一大堆库、配置和工具。</li>
+</ol>
+<p>还有两个“选装件”，但在 ARM 这种嵌入式平台上几乎是标配：</p>
+<ul>
+<li><strong>Device Tree Blob (DTB)</strong>：给 ARM 准备的“硬件说明书”，告诉内核这板子上都有啥外设。</li>
+<li><strong>Initramfs</strong>：一个塞进内存里的迷你文件系统，用来挂载真正的根文件系统，或者加载那些必须得有的驱动。</li>
+</ul>
+<p>在这两章里，我们只干一件事：<strong>构建那个 OS 内核</strong>。Root Filesystem 的坑留给以后，下一章我们会顺带提一下 x86 的 GRUB 引导配置，那是为了让你能真正跑起来。</p>
+<p>对于一个完整的 x86 构建流程，大约需要 6 到 7 步。这一章我们只走前 3 步，剩下的我们放到下一章去。</p>
+<hr />
+<h2 id="preliminaries-别急着敲命令先搞懂规则">Preliminaries: 别急着敲命令，先搞懂规则<a class="headerlink" href="#preliminaries-别急着敲命令先搞懂规则" title="链接到此章节">&para;</a></h2>
+<p>在开始之前，有几件事必须得先说明白。这不只是技术细节，这是 Linux 世界的“潜规则”。</p>
+<h3 id="去中心化的办公室">去中心化的“办公室”<a class="headerlink" href="#去中心化的办公室" title="链接到此章节">&para;</a></h3>
+<p>Linux 内核不是某家大公司关起门来开发的，它是一个完全去中心化的、在全球协作的巨大怪兽。</p>
+<p>如果你非要找一个“办公室”，那可能是 <strong>Linux Foundation</strong>（Linux 基金会）。它负责搞定法律和资金问题，而 <strong>Kernel Organization</strong> 负责把代码免费发到全世界（https://www.kernel.org）。</p>
+<p>这里有一个常见的误区：GPL 协议是不允许赚钱的？
+大错特错。GPL 从来不阻止开发者收费。Linus 和基金会选择免费发给别人，<strong>但这不妨碍 Red Hat、SUSE 这些公司拿着内核卖支持、卖订阅、卖 SaaS</strong>。只要源代码最终公开，怎么商业化那是你的本事。</p>
+<hr />
+<h2 id="理解-linux-内核版本命名规范">理解 Linux 内核版本命名规范<a class="headerlink" href="#理解-linux-内核版本命名规范" title="链接到此章节">&para;</a></h2>
+<p>看一眼你的终端，输入 <code>uname -r</code>，输出的一串字符是什么意思？</p>
+<p>在我们的 Ubuntu 22.04 虚拟机上，它大概是这个样子的：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1"></a><a href="#__codelineno-0-1"><span class="linenos" data-linenos="1 "></span></a>$<span class="w"> </span>uname<span class="w"> </span>-r
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2"></a><a href="#__codelineno-0-2"><span class="linenos" data-linenos="2 "></span></a><span class="m">5</span>.19.0-40-generic
+</span></code></pre></div>
+<p>这串字符背后有一套严格的语法。现代 Linux 内核的版本号格式如下：</p>
+<p><code>major#.minor#[.patchlevel][-EXTRAVERSION]</code></p>
+<p>或者用更简单的代数表示：<code>w.x[.y][-z]</code>。</p>
+<p>方括号里的部分是可选的。让我们拆解一下这串 <code>5.19.0-40-generic</code>：</p>
+<ul>
+<li><strong>Major # (w)</strong>: <code>5</code> —— 主版本号，现在是 6.x 时代了。</li>
+<li><strong>Minor # (x)</strong>: <code>19</code> —— 次版本号。</li>
+<li><strong>[patchlevel] (y)</strong>: <code>0</code> —— 补丁级别（也叫修订版）。</li>
+<li><strong>[-EXTRAVERSION] (-z)</strong>: <code>-40-generic</code> —— 特定版本标识。<code>generic</code> 表示这是 Ubuntu 通用版。</li>
+</ul>
+<p>⚠️ <strong>注意</strong>：发型版内核（比如 Ubuntu 的）可能会自己加料，不一定完全遵循这个命名法。但在 https://www.kernel.org/ 上发布的<strong>纯净内核</strong> 是严格遵守这个规矩的。</p>
+<h3 id="历史的回响偶数奇数传说">历史的回响：偶数奇数传说<a class="headerlink" href="#历史的回响偶数奇数传说" title="链接到此章节">&para;</a></h3>
+<p>在 2.6 内核之前（也就是上古时代），次版本号是有玄机的：
+*   <strong>偶数</strong>：稳定版（比如 2.4、2.6）。
+*   <strong>奇数</strong>：开发版/测试版（比如 2.5）。</p>
+<p>但现在？<strong>这个规矩已经没了</strong>。现在的版本号只和时间有关，和功能无关。</p>
+<h3 id="手脚模型-fingers-and-toes-releases">“手脚模型” (Fingers-and-toes releases)<a class="headerlink" href="#手脚模型-fingers-and-toes-releases" title="链接到此章节">&para;</a></h3>
+<p>Linus 曾经开玩笑说，他的版本号策略是“数手指和脚趾”。</p>
+<p>当一个次版本号（x）数到 20 左右（手指 10 个 + 脚趾 10 个），他就会把主版本号（w）加 1。</p>
+<ul>
+<li>3.0 到 3.19（20 个小版本）</li>
+<li>4.0 到 4.19（20 个小版本）</li>
+<li>5.0 到 5.19（20 个小版本）</li>
+<li>6.0 ……</li>
+</ul>
+<p>每两个次版本之间大概间隔 6 到 10 周。这不是功能驱动的，这是<strong>有机演化</strong>。</p>
+<hr />
+<h2 id="内核开发工作流从合并窗口到发布版">内核开发工作流：从合并窗口到发布版<a class="headerlink" href="#内核开发工作流从合并窗口到发布版" title="链接到此章节">&para;</a></h2>
+<p>很多人以为内核开发是“想到哪写到哪”，完全乱来。这是天大的误解。</p>
+<p>内核开发有着极其严格的节奏感。为了看懂这个节奏，我们可以去看看内核的 Git 记录。</p>
+<h3 id="查看-git-历史记录">查看 Git 历史记录<a class="headerlink" href="#查看-git-历史记录" title="链接到此章节">&para;</a></h3>
+<p>假设你 Clone 下来了最新的 Linus 主线树。用下面这条命令，你可以看到一条清晰的时间线：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1"></a><a href="#__codelineno-1-1"><span class="linenos" data-linenos="1 "></span></a>$<span class="w"> </span>git<span class="w"> </span>log<span class="w"> </span>--date-order<span class="w"> </span>--tags<span class="w"> </span>--simplify-by-decoration<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2"></a><a href="#__codelineno-1-2"><span class="linenos" data-linenos="2 "></span></a><span class="w">    </span>--pretty<span class="o">=</span>format:<span class="s1">&#39;%ai %h %d&#39;</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3"></a><a href="#__codelineno-1-3"><span class="linenos" data-linenos="3 "></span></a>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4"></a><a href="#__codelineno-1-4"><span class="linenos" data-linenos="4 "></span></a><span class="m">2023</span>-04-23<span class="w"> </span><span class="m">12</span>:02:52<span class="w"> </span>-0700<span class="w"> </span>457391b03803<span class="w">  </span><span class="o">(</span>tag:<span class="w"> </span>v6.3<span class="o">)</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5"></a><a href="#__codelineno-1-5"><span class="linenos" data-linenos="5 "></span></a><span class="m">2023</span>-04-16<span class="w"> </span><span class="m">15</span>:23:53<span class="w"> </span>-0700<span class="w"> </span>6a8f57ae2eb0<span class="w">  </span><span class="o">(</span>tag:<span class="w"> </span>v6.3-rc7<span class="o">)</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6"></a><a href="#__codelineno-1-6"><span class="linenos" data-linenos="6 "></span></a><span class="m">2023</span>-04-09<span class="w"> </span><span class="m">11</span>:15:57<span class="w"> </span>-0700<span class="w"> </span>09a9639e56c0<span class="w">  </span><span class="o">(</span>tag:<span class="w"> </span>v6.3-rc6<span class="o">)</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7"></a><a href="#__codelineno-1-7"><span class="linenos" data-linenos="7 "></span></a><span class="o">[</span>...<span class="o">]</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8"></a><a href="#__codelineno-1-8"><span class="linenos" data-linenos="8 "></span></a><span class="m">2022</span>-10-16<span class="w"> </span><span class="m">15</span>:36:24<span class="w"> </span>-0700<span class="w"> </span>9abf2313adc1<span class="w">  </span><span class="o">(</span>tag:<span class="w"> </span>v6.1-rc1<span class="o">)</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9"></a><a href="#__codelineno-1-9"><span class="linenos" data-linenos="9 "></span></a><span class="m">2022</span>-10-02<span class="w"> </span><span class="m">14</span>:09:07<span class="w"> </span>-0700<span class="w"> </span>4fe89d07dcc2<span class="w">  </span><span class="o">(</span>tag:<span class="w"> </span>v6.0<span class="o">)</span>
+</span></code></pre></div>
+<p>这行命令只会在 Git 树上工作。这里我们纯粹是为了演示演化过程。</p>
+<p>在这个输出里，你能看到一个完整的生命周期：
+*   <strong>v6.0</strong> 发布：也就是上一个稳定版。
+*   <strong>v6.1-rc1</strong>：合并窗口关闭，开始修 Bug。
+*   <strong>v6.1-rc7 / -rc8</strong>：发布候选版，不断的测试和修补。
+*   <strong>v6.1</strong>：最终稳定版发布。</p>
+<h3 id="时间轴上的两个关键阶段">时间轴上的两个关键阶段<a class="headerlink" href="#时间轴上的两个关键阶段" title="链接到此章节">&para;</a></h3>
+<h4 id="1-merge-window-合并窗口--只有-2-周">1. Merge Window (合并窗口) —— 只有 2 周<a class="headerlink" href="#1-merge-window-合并窗口--只有-2-周" title="链接到此章节">&para;</a></h4>
+<p>当 v6.0 发布后（2022 年 10 月 2 日），为期 <strong>两周</strong> 的合并窗口随即开启。</p>
+<p>这是整个社区最疯狂的时刻。子系统维护者们会把他们手里攒了很久的新代码一股脑合并进主线。如果你想加新功能，这是唯一的机会。</p>
+<h4 id="2-bugfix-window-修复窗口--6-到-10-周">2. Bugfix Window (修复窗口) —— 6 到 10 周<a class="headerlink" href="#2-bugfix-window-修复窗口--6-到-10-周" title="链接到此章节">&para;</a></h4>
+<p>两周后（2022 年 10 月 16 日），合并窗口关闭。<code>v6.1-rc1</code> 诞生。</p>
+<p>接下来的日子里，任何新功能都被拒之门外。只能修 Bug，只能回退有问题的代码，只能解决 Regressions（倒退）。</p>
+<p>这个过程会持续 6 到 10 周不等，直到 Linus 和核心维护者觉得“这就够了”，于是 <code>v6.1</code> 正式发布。</p>
+<h3 id="赶不上合并窗口怎么办">赶不上合并窗口怎么办？<a class="headerlink" href="#赶不上合并窗口怎么办" title="链接到此章节">&para;</a></h3>
+<p>如果你错过了一个窗口（比如没来得及把代码合进去），你只有一个选择：<strong>等</strong>。</p>
+<p>等下一个窗口，大概 2.5 到 3 个月后。这就是内核开发者的“断舍离”。</p>
+<hr />
+<h2 id="探索内核源码树的类型">探索内核源码树的类型<a class="headerlink" href="#探索内核源码树的类型" title="链接到此章节">&para;</a></h2>
+<p>内核不是只有一个版本。在这个庞大的生态里，有几种不同的源码树，每一种都有它的用途。</p>
+<h3 id="1-mainline--stable-主线--稳定版">1. Mainline / Stable (主线 / 稳定版)<a class="headerlink" href="#1-mainline--stable-主线--稳定版" title="链接到此章节">&para;</a></h3>
+<p>这是正宫娘娘。所有的 Feature 最终都会汇聚到 Mainline，然后 Mainline 会被打上补丁变成 Stable 版本。通常也是企业发行版的基础。</p>
+<h3 id="2-long-term-support-lts">2. Long Term Support (LTS)<a class="headerlink" href="#2-long-term-support-lts" title="链接到此章节">&para;</a></h3>
+<p>这是“特别稳定”的版本。维护者承诺在很长一段时间内（通常是 2 年起步，甚至更长）持续为它打补丁。</p>
+<p>按照惯例，<strong>每年 12 月发布的最后一个内核</strong>会被选为 LTS。我们这本书用的 <strong>6.1 LTS</strong> 就是这么个角色，它的预定寿命是 4 年（2022.12 - 2026.12）。</p>
+<h3 id="3--next-trees-前沿树">3. -next Trees (前沿树)<a class="headerlink" href="#3--next-trees-前沿树" title="链接到此章节">&para;</a></h3>
+<p>这是“ bleeding edge ”。如果你打算向内核提交代码，你必须在 <code>linux-next</code> 树上工作。这是所有准备进入下一个合并窗口的补丁的集合体。这里非常不稳定，不适合生产环境，但是贡献者的必经之路。</p>
+<h3 id="4-distribution-kernels-发行版内核">4. Distribution Kernels (发行版内核)<a class="headerlink" href="#4-distribution-kernels-发行版内核" title="链接到此章节">&para;</a></h3>
+<p>Red Hat、Ubuntu、Debian 他们用的内核。通常基于某个 Stable/LTS，然后加上自己的一大堆补丁和驱动。</p>
+<p>这也是为什么有时候你看到某家云厂商还在用 4.x 内核——别急着嘲笑老旧，他们可能把数万个最新的安全补丁都已经 backport 回去了。</p>
+<h3 id="5-soc-vendor-kernels-芯片厂商内核">5. SoC Vendor Kernels (芯片厂商内核)<a class="headerlink" href="#5-soc-vendor-kernels-芯片厂商内核" title="链接到此章节">&para;</a></h3>
+<p>ARM、嵌入式厂商维护的内核。这是一个<strong>重灾区</strong>。</p>
+<p>芯片厂通常会基于一个（往往很旧的）LTS 内核，然后往里面塞自己的 BSP、私有驱动。这导致他们的内核和主线差异巨大，维护起来简直是噩梦。</p>
+<p><strong>最佳实践</strong>：如果你做嵌入式，尽量用 Yocto 这种现代构建系统，它们会帮你把这些差异抹平。</p>
+<h3 id="6-super-lts-slts">6. Super LTS (SLTS)<a class="headerlink" href="#6-super-lts-slts" title="链接到此章节">&para;</a></h3>
+<p>这是给“民用基础设施”准备的（比如电网、大坝）。CIP 项目维护的 SLTS 内核，支持周期长达 <strong>10 年</strong>甚至更久。如果你做的设备要在那里跑 20 年不动窝，你就得关注这个。</p>
+<h3 id="-重要更新lts-缩水了">⚠️ 重要更新：LTS 缩水了<a class="headerlink" href="#-重要更新lts-缩水了" title="链接到此章节">&para;</a></h3>
+<p>在 2023 年 9 月，Linus 他们宣布了一个大消息：<strong>以后的 LTS 维护周期可能会缩短到 2 年</strong>。</p>
+<p>为什么？
+1.  <strong>真的没人用那么老的内核</strong>：很多厂商自己都在维护自己的分支。
+2.  <strong>维护者累挂了</strong>：同时维护 7 个 LTS 版本（4.14, 4.19... 6.6），补丁要不停地往后移植，工作量指数级增长。</p>
+<p>不过，我们这本用的 <strong>6.1 LTS</strong> 应该能苟到 2026 年 12 月，足够你折腾了。</p>
+<hr />
+<h2 id="到底该跑哪个内核">到底该跑哪个内核？<a class="headerlink" href="#到底该跑哪个内核" title="链接到此章节">&para;</a></h2>
+<p>这是个送命题，但内核社区的大佬们给出了标准答案：</p>
+<blockquote>
+<p><strong>“跑最新的稳定版。”</strong>
+—— Jon Corbet, 2023</p>
+<p><strong>“你得一路升级上来。如果你试图挑挑拣拣地打补丁，你只会得到一个既不安全又有已知 Bug 的怪胎。”</strong>
+—— Greg Kroah-Hartman</p>
+</blockquote>
+<p>别试图自己当“发行版”，让大佬们替你把关吧。</p>
+<hr />
+<h2 id="开始构建前-3-步实战">开始构建：前 3 步实战<a class="headerlink" href="#开始构建前-3-步实战" title="链接到此章节">&para;</a></h2>
+<p>好了，理论讲够了。现在我们正式开始构建 6.x 内核的旅程。</p>
+<p>我们把整个构建过程拆成了 6-7 步。这一章我们只做前三步：
+1.  <strong>获取</strong> 源码。
+2.  <strong>解压</strong> 源码。
+3.  <strong>配置</strong> 内核（这是重头戏）。</p>
+<p>接下来的 4-7 步（编译、安装模块、配置 Bootloader、安装内核）留到下一章。</p>
+<hr />
+<h3 id="step-1--获取-linux-内核源码">Step 1 – 获取 Linux 内核源码<a class="headerlink" href="#step-1--获取-linux-内核源码" title="链接到此章节">&para;</a></h3>
+<p>你有两个选择：
+1.  <strong>下载压缩包</strong>：适合大部分只想学习或者使用特定版本的人。
+2.  <strong>Clone Git 仓库</strong>：适合想贡献代码或者追到最新版的人。</p>
+<p>对于本书，我们选择第一种：<strong>下载 6.1.25 LTS 的压缩包</strong>。</p>
+<h4 id="方法-a直接下载">方法 A：直接下载<a class="headerlink" href="#方法-a直接下载" title="链接到此章节">&para;</a></h4>
+<p>最简单的方法是用 <code>wget</code> 或者 <code>curl</code>：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1"></a><a href="#__codelineno-2-1"><span class="linenos" data-linenos="1 "></span></a>wget<span class="w"> </span>--https-only<span class="w"> </span>-O<span class="w"> </span>~/Downloads/linux-6.1.25.tar.xz<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2"></a><a href="#__codelineno-2-2"><span class="linenos" data-linenos="2 "></span></a><span class="w">  </span>https://mirrors.edge.kernel.org/pub/linux/kernel/v6.x/linux-6.1.25.tar.xz
+</span></code></pre></div>
+<p>这会把大概 130MB 的源码包扔进你的 <code>~/Downloads</code>。</p>
+<h4 id="方法-bclone-git-仓库可选">方法 B：Clone Git 仓库（可选）<a class="headerlink" href="#方法-bclone-git-仓库可选" title="链接到此章节">&para;</a></h4>
+<p>如果你想体验 bleeding edge，或者想看看 <code>linux-next</code> 长啥样：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1"></a><a href="#__codelineno-3-1"><span class="linenos" data-linenos="1 "></span></a>git<span class="w"> </span>clone<span class="w"> </span>https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2"></a><a href="#__codelineno-3-2"><span class="linenos" data-linenos="2 "></span></a><span class="nb">cd</span><span class="w"> </span>linux
+</span></code></pre></div>
+<p>⚠️ <strong>注意</strong>：完整的内核 Git 历史记录非常巨大，Clone 需要很长时间和大量磁盘空间（几个 GB）。如果你只是想看一眼，可以用 <code>--depth 1</code> 来浅克隆。</p>
+<p>如果是想搞稳定版分支：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1"></a><a href="#__codelineno-4-1"><span class="linenos" data-linenos="1 "></span></a>git<span class="w"> </span>clone<span class="w"> </span>git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2"></a><a href="#__codelineno-4-2"><span class="linenos" data-linenos="2 "></span></a><span class="nb">cd</span><span class="w"> </span>linux-stable
+</span></code></pre></div>
+<p>对于本书，我们还是推荐用第一种方法，下载确定版本的 6.1.25，这样大家的环境一致，不容易出幺蛾子。</p>
+<hr />
+<h3 id="step-2--解压内核源码树">Step 2 – 解压内核源码树<a class="headerlink" href="#step-2--解压内核源码树" title="链接到此章节">&para;</a></h3>
+<p>假设你现在手里已经有了那个 <code>linux-6.1.25.tar.xz</code> 文件。</p>
+<p>解压它：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1"></a><a href="#__codelineno-5-1"><span class="linenos" data-linenos="1 "></span></a><span class="c1"># 简单粗暴法：解压到当前目录</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2"></a><a href="#__codelineno-5-2"><span class="linenos" data-linenos="2 "></span></a>tar<span class="w"> </span>xf<span class="w"> </span>~/Downloads/linux-6.1.25.tar.xz
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3"></a><a href="#__codelineno-5-3"><span class="linenos" data-linenos="3 "></span></a>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4"></a><a href="#__codelineno-5-4"><span class="linenos" data-linenos="4 "></span></a><span class="c1"># 推荐法：解压到一个专门的工作目录</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5"></a><a href="#__codelineno-5-5"><span class="linenos" data-linenos="5 "></span></a>mkdir<span class="w"> </span>-p<span class="w"> </span>~/kernels
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6"></a><a href="#__codelineno-5-6"><span class="linenos" data-linenos="6 "></span></a>tar<span class="w"> </span>xf<span class="w"> </span>~/Downloads/linux-6.1.25.tar.xz<span class="w"> </span>--directory<span class="o">=</span>~/kernels/
+</span></code></pre></div>
+<p>现在，你的 <code>~/kernels/linux-6.1.25/</code> 下面就是那个传说中的 3000 万行代码宇宙了。</p>
+<p>为了方便后续操作，我们设个环境变量：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1"></a><a href="#__codelineno-6-1"><span class="linenos" data-linenos="1 "></span></a><span class="nb">export</span><span class="w"> </span><span class="nv">LKP_KSRC</span><span class="o">=</span>~/kernels/linux-6.1.25
+</span></code></pre></div>
+<p>⚠️ <strong>别用 GUI 解压工具</strong>：真的，练练 <code>tar</code> 命令。将来你在服务器上或者是纯终端环境下（比如通过 SSH 连接的虚拟机），你会感谢这个习惯。</p>
+<hr />
+<h3 id="-额外赠送源码树结构速览">📖 额外赠送：源码树结构速览<a class="headerlink" href="#-额外赠送源码树结构速览" title="链接到此章节">&para;</a></h3>
+<p>在正式配置之前，让我们花一分钟（真的是一分钟）来看看这个庞然大物里面都有啥。</p>
+<p>这就像是你刚买了一套乐高，拆开盒子先看说明书上的零件清单。</p>
+<p><div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1"></a><a href="#__codelineno-7-1"><span class="linenos" data-linenos="1 "></span></a>$<span class="w"> </span>du<span class="w"> </span>-h<span class="w"> </span>.
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2"></a><a href="#__codelineno-7-2"><span class="linenos" data-linenos="2 "></span></a><span class="m">1</span>.5G<span class="w">    </span>.
+</span></code></pre></div>
+大概 1.5 GB。</p>
+<p>那个传说中的版本号在哪里定义？看一眼根目录的 Makefile：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1"></a><a href="#__codelineno-8-1"><span class="linenos" data-linenos="1 "></span></a>$<span class="w"> </span>head<span class="w"> </span>Makefile
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2"></a><a href="#__codelineno-8-2"><span class="linenos" data-linenos="2 "></span></a><span class="c1"># SPDX-License-Identifier: GPL-2.0</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3"></a><a href="#__codelineno-8-3"><span class="linenos" data-linenos="3 "></span></a><span class="nv">VERSION</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">6</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4"></a><a href="#__codelineno-8-4"><span class="linenos" data-linenos="4 "></span></a><span class="nv">PATCHLEVEL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5"></a><a href="#__codelineno-8-5"><span class="linenos" data-linenos="5 "></span></a><span class="nv">SUBLEVEL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">25</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6"></a><a href="#__codelineno-8-6"><span class="linenos" data-linenos="6 "></span></a><span class="nv">EXTRAVERSION</span><span class="w"> </span><span class="o">=</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7"></a><a href="#__codelineno-8-7"><span class="linenos" data-linenos="7 "></span></a><span class="nv">NAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>Hurr<span class="w"> </span>durr<span class="w"> </span>I<span class="err">&#39;</span>ma<span class="w"> </span>ninja<span class="w"> </span>sloth
+</span></code></pre></div>
+<p>你看，<code>6.1.25</code> 就在这里。那个 <code>NAME</code> 是每个内核版本的代号（Linus 的恶趣味）。</p>
+<p>下面是一个极简的“地图”，告诉你东西大概都在哪：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">目录/文件</th>
+<th style="text-align: left;">是干嘛的</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>kernel/</strong></td>
+<td style="text-align: left;">核心核心：调度器、信号、cgroups、模块管理。</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>mm/</strong></td>
+<td style="text-align: left;">内存管理。</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>fs/</strong></td>
+<td style="text-align: left;">文件系统：VFS 虚拟层、ext4、btrfs、nfs 都在这里。</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>drivers/</strong></td>
+<td style="text-align: left;">驱动程序。这里是最大的一块，也是变化最快的地方。</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>net/</strong></td>
+<td style="text-align: left;">网络协议栈。TCP/IP 的灵魂就在这。</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>block/</strong></td>
+<td style="text-align: left;">块设备 I/O 层和缓存。</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>crypto/</strong></td>
+<td style="text-align: left;">加密算法库。</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>init/</strong></td>
+<td style="text-align: left;">内核初始化代码。那个传说中的 <code>start_kernel()</code> 就在 <code>init/main.c</code> 里。</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>usr/</strong></td>
+<td style="text-align: left;">用来生成 initramfs 的代码。</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>arch/</strong></td>
+<td style="text-align: left;"><strong>架构相关代码</strong>。<code>x86</code>, <code>arm</code>, <code>arm64</code>, <code>riscv</code>... 都在这里。</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Documentation/</strong></td>
+<td style="text-align: left;"><strong>官方文档</strong>。别去百度了，答案多半在这里。</td>
+</tr>
+</tbody>
+</table>
+<p>看一眼就够了，不用死记硬背。你以后会在这些目录里迷路很多次的，那是常事。</p>
+<hr />
+<h3 id="step-3--配置-linux-内核">Step 3 – 配置 Linux 内核<a class="headerlink" href="#step-3--配置-linux-内核" title="链接到此章节">&para;</a></h3>
+<p>这是<strong>最关键</strong>的一步。</p>
+<p>Linux 内核之所以能跑在手机上，也能跑在超级计算机上，全靠这一步：<strong>配置</strong>。</p>
+<p>如果不配置，你需要面对几千个配置选项。如果配置错了，内核可能起不来，或者缺了某些关键功能（比如网络、USB）。</p>
+<p>配置的核心是一个叫 <strong>Kconfig</strong> 的系统，它负责生成一个叫 <code>.config</code> 的隐藏文件。</p>
+<h4 id="kconfig--kbuild-极简入门">Kconfig / Kbuild 极简入门<a class="headerlink" href="#kconfig--kbuild-极简入门" title="链接到此章节">&para;</a></h4>
+<p>这里有一套基础设施在默默工作：</p>
+<ul>
+<li><strong>Kconfig</strong>: 负责那个“菜单界面”。它读取 <code>Kconfig</code> 文件，显示选项，处理依赖关系（比如选了 A 才能选 B）。</li>
+<li><strong>Kbuild</strong>: 负责编译。它读取 <code>.config</code> 文件，根据里面的内容决定编译哪些文件。</li>
+</ul>
+<p>所有的配置最终都汇总到一个文件里：
+<strong><code>.config</code></strong> （就在源码树的根目录下）。</p>
+<p>在这个文件里，所有的配置项都长这样：</p>
+<div class="language-makefile highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1"></a><a href="#__codelineno-9-1"><span class="linenos" data-linenos="1 "></span></a><span class="nv">CONFIG_FOO</span><span class="o">=</span>y<span class="w">    </span><span class="c1"># y = 编进内核镜像</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2"></a><a href="#__codelineno-9-2"><span class="linenos" data-linenos="2 "></span></a><span class="nv">CONFIG_BAR</span><span class="o">=</span>m<span class="w">    </span><span class="c1"># m = 做成模块</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3"></a><a href="#__codelineno-9-3"><span class="linenos" data-linenos="3 "></span></a><span class="nv">CONFIG_BAZ</span><span class="o">=</span>n<span class="w">    </span><span class="c1"># n = 不要这个功能</span>
+</span></code></pre></div>
+<p><code>y</code> (yes) 意味着这个功能会被硬塞进内核镜像里，开机就有，但体积会变大。
+<code>m</code> (module) 意味着做成一个 <code>.ko</code> 文件，需要的时候再加载。
+<code>n</code> (no) 意味着这玩意对你来说是隐形的。</p>
+<h4 id="获取初始配置三条路">获取初始配置：三条路<a class="headerlink" href="#获取初始配置三条路" title="链接到此章节">&para;</a></h4>
+<p>对于新手，直接手写 <code>.config</code> 是不可能的。我们通常从三个起点出发：</p>
+<ol>
+<li><strong>厂家配置</strong>：直接复制当前系统正在用的配置。</li>
+<li><strong>默认配置</strong>：让内核给你一个通用的配置（通常很大）。</li>
+<li><strong>精简配置</strong>：基于当前系统已加载的模块来生成。</li>
+</ol>
+<h5 id="策略-1厂家的配置安全但臃肿">策略 1：厂家的配置（安全但臃肿）<a class="headerlink" href="#策略-1厂家的配置安全但臃肿" title="链接到此章节">&para;</a></h5>
+<p>如果你在 Ubuntu 上想自己编一个内核，最稳妥的办法就是先用现在的：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1"></a><a href="#__codelineno-10-1"><span class="linenos" data-linenos="1 "></span></a>make<span class="w"> </span>mrproper
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2"></a><a href="#__codelineno-10-2"><span class="linenos" data-linenos="2 "></span></a>cp<span class="w"> </span>/boot/config-<span class="k">$(</span>uname<span class="w"> </span>-r<span class="k">)</span><span class="w"> </span><span class="si">${</span><span class="nv">LKP_KSRC</span><span class="si">}</span>/.config
+</span></code></pre></div>
+<p>这会生成一个巨大的 <code>.config</code>，里面啥都有。这能保证内核能跑起来，但编译时间会很长，体积也会很大。</p>
+<h5 id="策略-2默认配置">策略 2：默认配置<a class="headerlink" href="#策略-2默认配置" title="链接到此章节">&para;</a></h5>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1"></a><a href="#__codelineno-11-1"><span class="linenos" data-linenos="1 "></span></a>make<span class="w"> </span>defconfig
+</span></code></pre></div>
+<p>这会根据你的 CPU 架构（比如 x86_64）给出一套标准配置。</p>
+<h5 id="策略-3精简配置--推荐给学习者">策略 3：精简配置 —— 推荐给学习者<a class="headerlink" href="#策略-3精简配置--推荐给学习者" title="链接到此章节">&para;</a></h5>
+<p>如果你想练手，或者想要一个比较苗条的内核，可以用 <code>localmodconfig</code>。</p>
+<p>它的逻辑是：<strong>看看我现在系统里加载了哪些模块（<code>lsmod</code>），然后只把这些功能编译进去</strong>。</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1"></a><a href="#__codelineno-12-1"><span class="linenos" data-linenos="1 "></span></a><span class="c1"># 先把当前加载的模块列表存下来</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2"></a><a href="#__codelineno-12-2"><span class="linenos" data-linenos="2 "></span></a>lsmod<span class="w"> </span>&gt;<span class="w"> </span>/tmp/lsmod.now
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3"></a><a href="#__codelineno-12-3"><span class="linenos" data-linenos="3 "></span></a>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4"></a><a href="#__codelineno-12-4"><span class="linenos" data-linenos="4 "></span></a><span class="c1"># 基于这个列表生成配置</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5"></a><a href="#__codelineno-12-5"><span class="linenos" data-linenos="5 "></span></a><span class="nb">cd</span><span class="w"> </span><span class="si">${</span><span class="nv">LKP_KSRC</span><span class="si">}</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6"></a><a href="#__codelineno-12-6"><span class="linenos" data-linenos="6 "></span></a>make<span class="w"> </span><span class="nv">LSMOD</span><span class="o">=</span>/tmp/lsmod.now<span class="w"> </span>localmodconfig
+</span></code></pre></div>
+<p>在运行过程中，如果新内核（6.1.25）有旧内核（5.19）没有的新选项，它会问你。这时候一般狂按 Enter（选默认值）就行。</p>
+<p>最终，你会得到一个 <strong><code>.config</code></strong> 文件。这就是你的定制配方。</p>
+<hr />
+<h3 id="step-4其实是-step-3-的延续-调整配置">Step 4（其实是 Step 3 的延续）—— 调整配置<a class="headerlink" href="#step-4其实是-step-3-的延续-调整配置" title="链接到此章节">&para;</a></h3>
+<p>拿到 <code>.config</code> 之后，我们通常还需要微调一下。</p>
+<p>这时候就需要用那个传说中的神器了：<strong><code>make menuconfig</code></strong>。</p>
+<h4 id="启动图形化菜单">启动图形化菜单<a class="headerlink" href="#启动图形化菜单" title="链接到此章节">&para;</a></h4>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1"></a><a href="#__codelineno-13-1"><span class="linenos" data-linenos="1 "></span></a><span class="nb">cd</span><span class="w"> </span><span class="si">${</span><span class="nv">LKP_KSRC</span><span class="si">}</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2"></a><a href="#__codelineno-13-2"><span class="linenos" data-linenos="2 "></span></a>make<span class="w"> </span>menuconfig
+</span></code></pre></div>
+<p>你会看到一个蓝色的、基于 ncurses 的图形界面（在 SSH 下也能用）。</p>
+<h4 id="导航与操作">导航与操作<a class="headerlink" href="#导航与操作" title="链接到此章节">&para;</a></h4>
+<ul>
+<li>方向键：移动。</li>
+<li><strong>Enter</strong>：进入子菜单。</li>
+<li><strong>Space (空格)</strong>：切换状态（在 <code>y</code>, <code>m</code>, <code>n</code> 之间循环）。</li>
+<li><strong><code>/</code> (斜杠)</strong>：搜索（比如搜你想找的驱动）。</li>
+<li><strong>Esc Esc</strong>：退出当前菜单。</li>
+</ul>
+<h4 id="符号说明">符号说明<a class="headerlink" href="#符号说明" title="链接到此章节">&para;</a></h4>
+<ul>
+<li><code>[ ]</code> : 不编译。</li>
+<li><code>[*]</code> : 编进内核。</li>
+<li><code>&lt;M&gt;</code> : 编成模块。</li>
+<li><code>---</code> : 被强制选为编译进内核（通常是依赖项）。</li>
+</ul>
+<h4 id="实战演示开启-config-查看支持">实战演示：开启 <code>.config</code> 查看支持<a class="headerlink" href="#实战演示开启-config-查看支持" title="链接到此章节">&para;</a></h4>
+<p>我们来做一个小实验，开启一个很有用的功能：<strong>让内核运行时能查看自己的配置</strong>。</p>
+<ol>
+<li>进入菜单。</li>
+<li>找到 <strong>General setup</strong> -&gt; <strong>Kernel .config support</strong>。</li>
+<li>把它从 <code>&lt;M&gt;</code> (模块) 改成 <code>[*]</code> (内置)。</li>
+<li>选中它下面的 <strong>Enable access to .config through /proc/config.gz</strong>，把它选上 <code>[*]</code>。</li>
+<li>退出并保存。</li>
+</ol>
+<p>这会启用两个配置宏：
+*   <code>CONFIG_IKCONFIG=y</code>
+*   <code>CONFIG_IKCONFIG_PROC=y</code></p>
+<p>以后内核跑起来的时候，你只要 <code>zcat /proc/config.gz</code> 就能看到它当时的编译选项了，这对调试非常有帮助。</p>
+<hr />
+<h3 id="配置进阶脚本化与差异化">配置进阶：脚本化与差异化<a class="headerlink" href="#配置进阶脚本化与差异化" title="链接到此章节">&para;</a></h3>
+<p>如果你是搞自动化构建的，<code>menuconfig</code> 那套交互界面可能不适合你。</p>
+<h4 id="脚本修改配置">脚本修改配置<a class="headerlink" href="#脚本修改配置" title="链接到此章节">&para;</a></h4>
+<p>内核源码里自带了一个脚本：<code>scripts/config</code>。</p>
+<p>你可以直接在命令行里修改 <code>.config</code>：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1"></a><a href="#__codelineno-14-1"><span class="linenos" data-linenos="1 "></span></a><span class="c1"># 禁用某个选项</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2"></a><a href="#__codelineno-14-2"><span class="linenos" data-linenos="2 "></span></a>./scripts/config<span class="w"> </span>--disable<span class="w"> </span>IKCONFIG
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3"></a><a href="#__codelineno-14-3"><span class="linenos" data-linenos="3 "></span></a>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4"></a><a href="#__codelineno-14-4"><span class="linenos" data-linenos="4 "></span></a><span class="c1"># 启用某个选项</span>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5"></a><a href="#__codelineno-14-5"><span class="linenos" data-linenos="5 "></span></a>./scripts/config<span class="w"> </span>--enable<span class="w"> </span>IKCONFIG
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6"></a><a href="#__codelineno-14-6"><span class="linenos" data-linenos="6 "></span></a>
+</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7"></a><a href="#__codelineno-14-7"><span class="linenos" data-linenos="7 "></span></a><span class="c1"># 查看某个选项的状态</span>
+</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8"></a><a href="#__codelineno-14-8"><span class="linenos" data-linenos="8 "></span></a>./scripts/config<span class="w"> </span>--state<span class="w"> </span>IKCONFIG
+</span><span id="__span-14-9"><a id="__codelineno-14-9" name="__codelineno-14-9"></a><a href="#__codelineno-14-9"><span class="linenos" data-linenos="9 "></span></a><span class="c1"># 输出: y</span>
+</span></code></pre></div>
+<p>⚠️ <strong>注意</strong>：用脚本改配置就像在黑暗里挥刀——它不管依赖关系。改完记得跑一下编译测试一下。</p>
+<h4 id="查看配置差异">查看配置差异<a class="headerlink" href="#查看配置差异" title="链接到此章节">&para;</a></h4>
+<p>你改了一堆配置，想看看到底动了哪里？用 <code>diffconfig</code>：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1"></a><a href="#__codelineno-15-1"><span class="linenos" data-linenos="1 "></span></a>./scripts/diffconfig<span class="w"> </span>.config.old<span class="w"> </span>.config
+</span></code></pre></div>
+<p>它会列出哪些选项变了，从什么值变成了什么值，一目了然。</p>
+<hr />
+<h3 id="安全加固kconfig-hardened-check">安全加固：Kconfig Hardened Check<a class="headerlink" href="#安全加固kconfig-hardened-check" title="链接到此章节">&para;</a></h3>
+<p>如果你是搞安全或者做产品的，内核配置的安全性至关重要。</p>
+<p>有一个叫 <code>kconfig-hardened-check</code> 的工具，专门用来检查你的内核配置是否符合 KSPP (Kernel Self Protection Project) 的安全建议。</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1"></a><a href="#__codelineno-16-1"><span class="linenos" data-linenos="1 "></span></a><span class="c1"># 安装</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2"></a><a href="#__codelineno-16-2"><span class="linenos" data-linenos="2 "></span></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/a13xp0p0v/kconfig-hardened-check
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3"></a><a href="#__codelineno-16-3"><span class="linenos" data-linenos="3 "></span></a><span class="nb">cd</span><span class="w"> </span>kconfig-hardened-check
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4"></a><a href="#__codelineno-16-4"><span class="linenos" data-linenos="4 "></span></a>
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5"></a><a href="#__codelineno-16-5"><span class="linenos" data-linenos="5 "></span></a><span class="c1"># 检查你的 .config</span>
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6"></a><a href="#__codelineno-16-6"><span class="linenos" data-linenos="6 "></span></a>python3<span class="w"> </span>kconfig-hardened-check.py<span class="w"> </span>--config<span class="w"> </span><span class="si">${</span><span class="nv">LKP_KSRC</span><span class="si">}</span>/.config
+</span></code></pre></div>
+<p>它会告诉你哪里开启了弱项，哪里应该加固。比如 <code>CONFIG_BUG_ON_DATA_CORRUPTION</code> 之类的。</p>
+<hr />
+<h3 id="定制-kconfig-菜单加上你自己的名字">定制 Kconfig 菜单：加上你自己的名字<a class="headerlink" href="#定制-kconfig-菜单加上你自己的名字" title="链接到此章节">&para;</a></h3>
+<p>假设你写了一个牛逼的驱动或者功能，想把它加进内核菜单里。怎么做？</p>
+<p>这其实分为两步：
+1.  <strong>Kconfig</strong>: 告诉菜单系统有个新选项。
+2.  <strong>Makefile</strong>: 告诉编译系统对应的代码在哪。</p>
+<h4 id="实验加个lkp-测试选项">实验：加个“LKP 测试选项”<a class="headerlink" href="#实验加个lkp-测试选项" title="链接到此章节">&para;</a></h4>
+<p>我们来玩个真的。在 <strong>General setup</strong> 菜单里加一个我们自己的选项。</p>
+<ol>
+<li>
+<p><strong>备份文件</strong>：
+    <div class="language-bash highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1"></a><a href="#__codelineno-17-1"><span class="linenos" data-linenos="1 "></span></a>cp<span class="w"> </span>init/Kconfig<span class="w"> </span>init/Kconfig.orig
+</span></code></pre></div></p>
+</li>
+<li>
+<p><strong>编辑文件</strong>：
+    找到 <code>init/Kconfig</code>。找个空地（比如 <code>LOCALVERSION_AUTO</code> 附近），插进去这段：</p>
+<div class="language-kconfig highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1"></a><a href="#__codelineno-18-1"><span class="linenos" data-linenos="1 "></span></a><span class="k">config</span><span class="w"> </span>LKP_OPTION1
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2"></a><a href="#__codelineno-18-2"><span class="linenos" data-linenos="2 "></span></a><span class="w">    </span><span class="nb">bool</span><span class="w"> </span><span class="s2">&quot;Test case for LKP 2e book/Ch 2: creating ...&quot;</span>
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3"></a><a href="#__codelineno-18-3"><span class="linenos" data-linenos="3 "></span></a><span class="w">    </span><span class="k">default</span><span class="w"> </span>n
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4"></a><a href="#__codelineno-18-4"><span class="linenos" data-linenos="4 "></span></a><span class="w">    </span><span class="k">help</span>
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5"></a><a href="#__codelineno-18-5"><span class="linenos" data-linenos="5 "></span></a><span class="w">      </span>This<span class="w"> </span>is<span class="w"> </span>a<span class="w"> </span>dummy<span class="w"> </span>test<span class="w"> </span><span class="k">option</span><span class="w"> </span>added<span class="w"> </span>for<span class="w"> </span>learning<span class="w"> </span>purposes.
+</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6"></a><a href="#__codelineno-18-6"><span class="linenos" data-linenos="6 "></span></a><span class="w">      </span>Selecting<span class="w"> </span>this<span class="w"> </span>does<span class="w"> </span>absolutely<span class="w"> </span>nothing<span class="w"> </span>except<span class="w"> </span>prove
+</span><span id="__span-18-7"><a id="__codelineno-18-7" name="__codelineno-18-7"></a><a href="#__codelineno-18-7"><span class="linenos" data-linenos="7 "></span></a><span class="w">      </span>that<span class="w"> </span>you<span class="w"> </span>know<span class="w"> </span>how<span class="w"> </span>to<span class="w"> </span>edit<span class="w"> </span>Kconfig<span class="w"> </span>files.
+</span></code></pre></div>
+<ul>
+<li><code>config</code>: 定义了一个宏叫 <code>CONFIG_LKP_OPTION1</code>。</li>
+<li><code>bool</code>: 这是一个布尔选项（开/关）。</li>
+<li><code>help</code>: 下面那几行就是帮助文档。</li>
+</ul>
+</li>
+<li>
+<p><strong>验证修改</strong>：
+    <div class="language-bash highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1"></a><a href="#__codelineno-19-1"><span class="linenos" data-linenos="1 "></span></a>make<span class="w"> </span>menuconfig
+</span></code></pre></div>
+    进入 <strong>General setup</strong>，往下翻，你应该能看到你的新选项了！</p>
+</li>
+<li>
+<p><strong>启用它</strong>：
+    选中它，按空格把它变成 <code>[*]</code>。保存退出。</p>
+</li>
+<li>
+<p><strong>检查结果</strong>：
+    <div class="language-bash highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1"></a><a href="#__codelineno-20-1"><span class="linenos" data-linenos="1 "></span></a>grep<span class="w"> </span><span class="s2">&quot;LKP_OPTION1&quot;</span><span class="w"> </span>.config
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2"></a><a href="#__codelineno-20-2"><span class="linenos" data-linenos="2 "></span></a><span class="c1"># CONFIG_LKP_OPTION1=y</span>
+</span></code></pre></div></p>
+<p>恭喜，你刚刚黑进了 Linux 内核的构建系统。</p>
+</li>
+<li>
+<p><strong>关联代码（高级）</strong>：
+    如果你真的写了代码（比如 <code>lkp_test.c</code>），你还得修改 Makefile：</p>
+<p>在 <code>init/Makefile</code>（或者你代码所在目录的 Makefile）里加上：
+<div class="language-makefile highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1"></a><a href="#__codelineno-21-1"><span class="linenos" data-linenos="1 "></span></a><span class="nv">obj-$(CONFIG_LKP_OPTION1)</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span>lkp_test.o
+</span></code></pre></div>
+这样，当你选 <code>Y</code> 时，它会被编译进内核；选 <code>N</code> 时，编译器会无视它。</p>
+</li>
+</ol>
+<hr />
+<h2 id="本章小结">本章小结<a class="headerlink" href="#本章小结" title="链接到此章节">&para;</a></h2>
+<p>这一章我们干了挺多事。</p>
+<p>首先，我们搞清楚了 <strong>6.x 内核的版本号是怎么来的</strong>——那是 Linus 数手指头数出来的，代表了时间，而不是功能。我们也知道了 <strong>LTS</strong> 是个什么东西，以及为什么你要选它。</p>
+<p>然后，我们上手了：<strong>下载</strong>了源码，<strong>解压</strong>了它，还花了一分钟认了认这 3000 万行代码的布局。</p>
+<p>最重要的是，我们花了大篇幅去理解 <strong>Kconfig</strong> 和 <strong>Kbuild</strong>——这是构建内核的基石。我们学会了怎么获取一个基础配置（<code>defconfig</code> 或 <code>localmodconfig</code>），怎么通过 <strong><code>make menuconfig</code></strong> 调整它，甚至怎么<strong>写自己的 Kconfig 脚本</strong>给内核加个菜单项。</p>
+<p>现在，你的工作目录里应该有一个配置好的内核源码树，里面躺着一个写满了你选择的 <code>.config</code> 文件。</p>
+<p><strong>别急着休息</strong>。下一章，我们要按下那个红色的按钮了。</p>
+<p>我们要运行 <code>make</code>。
+我们要把这 3000 万行代码变成一个二进制文件。
+我们要把它装进系统里，重启，看着屏幕上滚动的 log 变成你自己编译的内核名字。</p>
+<p>那才是真正的“Hello World”。</p>
+<hr />
+<h2 id="练习题">练习题<a class="headerlink" href="#练习题" title="链接到此章节">&para;</a></h2>
+<h3 id="练习-1版本号考古-理解">练习 1：版本号考古 ⭐（理解）<a class="headerlink" href="#练习-1版本号考古-理解" title="链接到此章节">&para;</a></h3>
+<p>找一台你手边能接触到的 Linux 机器（云服务器、虚拟机、WSL 都行），运行 <code>uname -r</code>。
+1.  它的版本号是多少？
+2.  它是 Stable 版本吗？还是发行版魔改版？怎么判断的？
+3.  如果它是 5.x 的，你能猜到它大概是哪年发布的吗？（提示：数手指）</p>
+<h3 id="练习-2配置项狩猎-应用">练习 2：配置项狩猎 ⭐⭐（应用）<a class="headerlink" href="#练习-2配置项狩猎-应用" title="链接到此章节">&para;</a></h3>
+<p>使用 <code>/</code> 搜索功能在 <code>make menuconfig</code> 中找到以下选项，并记录它们的位置和依赖关系：
+1.  <code>CONFIG_KASAN</code> (Kernel Address Sanitizer)
+2.  <code>CONFIG_DEBUG_INFO_BTF</code> (eBPF 相关)
+3.  找一个和你电脑硬件相关的驱动（比如 WiFi 或者显卡驱动），看看它依赖什么？</p>
+<h3 id="练习-3自定义模块构建-实战">练习 3：自定义模块构建 ⭐⭐⭐（实战）<a class="headerlink" href="#练习-3自定义模块构建-实战" title="链接到此章节">&para;</a></h3>
+<p>这题有难度，如果你做出来了，说明你真的懂了。</p>
+<ol>
+<li>编写一个极其简单的内核模块（只要 <code>init</code> 和 <code>exit</code> 函数打印 Hello World）。</li>
+<li>把这个文件放到内核源码树的 <code>drivers/char/</code> 目录下。</li>
+<li>修改该目录下的 <code>Makefile</code> 和 <code>Kconfig</code>，使得你可以通过 <code>make menuconfig</code> 选中你的模块。</li>
+<li>编译成模块（.ko），并成功加载。</li>
+</ol>
+<blockquote>
+<p><strong>提示</strong>：你需要参考该目录下其他驱动的写法。</p>
+</blockquote>
+<hr />
+<h2 id="附录常用命令速查">附录：常用命令速查<a class="headerlink" href="#附录常用命令速查" title="链接到此章节">&para;</a></h2>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1"></a><a href="#__codelineno-22-1"><span class="linenos" data-linenos=" 1 "></span></a><span class="c1"># 1. 准备环境（清理旧的配置）</span>
+</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2"></a><a href="#__codelineno-22-2"><span class="linenos" data-linenos=" 2 "></span></a>make<span class="w"> </span>mrproper
+</span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3"></a><a href="#__codelineno-22-3"><span class="linenos" data-linenos=" 3 "></span></a>
+</span><span id="__span-22-4"><a id="__codelineno-22-4" name="__codelineno-22-4"></a><a href="#__codelineno-22-4"><span class="linenos" data-linenos=" 4 "></span></a><span class="c1"># 2. 获取当前系统的模块列表（用于精简配置）</span>
+</span><span id="__span-22-5"><a id="__codelineno-22-5" name="__codelineno-22-5"></a><a href="#__codelineno-22-5"><span class="linenos" data-linenos=" 5 "></span></a>lsmod<span class="w"> </span>&gt;<span class="w"> </span>/tmp/lsmod.now
+</span><span id="__span-22-6"><a id="__codelineno-22-6" name="__codelineno-22-6"></a><a href="#__codelineno-22-6"><span class="linenos" data-linenos=" 6 "></span></a>
+</span><span id="__span-22-7"><a id="__codelineno-22-7" name="__codelineno-22-7"></a><a href="#__codelineno-22-7"><span class="linenos" data-linenos=" 7 "></span></a><span class="c1"># 3. 生成本地化配置（仅包含当前硬件需要的驱动）</span>
+</span><span id="__span-22-8"><a id="__codelineno-22-8" name="__codelineno-22-8"></a><a href="#__codelineno-22-8"><span class="linenos" data-linenos=" 8 "></span></a>make<span class="w"> </span><span class="nv">LSMOD</span><span class="o">=</span>/tmp/lsmod.now<span class="w"> </span>localmodconfig
+</span><span id="__span-22-9"><a id="__codelineno-22-9" name="__codelineno-22-9"></a><a href="#__codelineno-22-9"><span class="linenos" data-linenos=" 9 "></span></a>
+</span><span id="__span-22-10"><a id="__codelineno-22-10" name="__codelineno-22-10"></a><a href="#__codelineno-22-10"><span class="linenos" data-linenos="10 "></span></a><span class="c1"># 4. 打开图形化配置界面</span>
+</span><span id="__span-22-11"><a id="__codelineno-22-11" name="__codelineno-22-11"></a><a href="#__codelineno-22-11"><span class="linenos" data-linenos="11 "></span></a>make<span class="w"> </span>menuconfig
+</span><span id="__span-22-12"><a id="__codelineno-22-12" name="__codelineno-22-12"></a><a href="#__codelineno-22-12"><span class="linenos" data-linenos="12 "></span></a>
+</span><span id="__span-22-13"><a id="__codelineno-22-13" name="__codelineno-22-13"></a><a href="#__codelineno-22-13"><span class="linenos" data-linenos="13 "></span></a><span class="c1"># 5. 查看配置差异（改完配置后）</span>
+</span><span id="__span-22-14"><a id="__codelineno-22-14" name="__codelineno-22-14"></a><a href="#__codelineno-22-14"><span class="linenos" data-linenos="14 "></span></a>./scripts/diffconfig<span class="w"> </span>.config.old<span class="w"> </span>.config
+</span><span id="__span-22-15"><a id="__codelineno-22-15" name="__codelineno-22-15"></a><a href="#__codelineno-22-15"><span class="linenos" data-linenos="15 "></span></a>
+</span><span id="__span-22-16"><a id="__codelineno-22-16" name="__codelineno-22-16"></a><a href="#__codelineno-22-16"><span class="linenos" data-linenos="16 "></span></a><span class="c1"># 6. 脚本化修改配置（例如开启 IKCONFIG）</span>
+</span><span id="__span-22-17"><a id="__codelineno-22-17" name="__codelineno-22-17"></a><a href="#__codelineno-22-17"><span class="linenos" data-linenos="17 "></span></a>./scripts/config<span class="w"> </span>--enable<span class="w"> </span>IKCONFIG
+</span><span id="__span-22-18"><a id="__codelineno-22-18" name="__codelineno-22-18"></a><a href="#__codelineno-22-18"><span class="linenos" data-linenos="18 "></span></a>./scripts/config<span class="w"> </span>--enable<span class="w"> </span>IKCONFIG_PROC
+</span><span id="__span-22-19"><a id="__codelineno-22-19" name="__codelineno-22-19"></a><a href="#__codelineno-22-19"><span class="linenos" data-linenos="19 "></span></a>
+</span><span id="__span-22-20"><a id="__codelineno-22-20" name="__codelineno-22-20"></a><a href="#__codelineno-22-20"><span class="linenos" data-linenos="20 "></span></a><span class="c1"># 7. 检查内核配置安全性（需安装工具）</span>
+</span><span id="__span-22-21"><a id="__codelineno-22-21" name="__codelineno-22-21"></a><a href="#__codelineno-22-21"><span class="linenos" data-linenos="21 "></span></a>kconfig-hardened-check<span class="w"> </span>--config<span class="w"> </span>.config
+</span></code></pre></div>
+<hr />
+<h2 id="练习题_1">练习题<a class="headerlink" href="#练习题_1" title="链接到此章节">&para;</a></h2>
+<h3 id="练习-1understanding">练习 1：understanding<a class="headerlink" href="#练习-1understanding" title="链接到此章节">&para;</a></h3>
+<p><strong>题目</strong>：根据 Linux 内核版本命名规范 'w.x[.y][-z]'，内核版本号 '6.1.25-custom' 中的各个数字和字符分别代表什么含义？请结合“手脚模型”解释为什么主版本号从 5 变成了 6。</p>
+<details><summary>答案与解析</summary>
+
+
+**答案**：w=6 (主版本号), x=1 (次版本号), y=25 (补丁级别/修订版本), -z=-custom (额外版本/本地版本)。
+
+根据“Fingers-and-toes”模型，当次版本号（x）大约累积到 20 个（即从 0 到 19，手指加脚趾的总数）时，主版本号（w）就会增加。因此，内核从 5.19 演进到了 6.0。
+
+
+**解析**：本题考察对内核版本号结构和演进规则的理解。
+1. **版本号结构**：遵循 major.minor.patchlevel-extraversion 格式。
+2. **手脚模型**：这是一种非严格时间基础的版本演进策略。Linus 形象地比喻为用完手脚（20个）计数后就进一位。历史上，3.x、4.x、5.x 系列都在第 20 个次版本结束时结束了该主版本周期（例如 5.19 之后是 6.0），这并不意味着巨大的架构变更，而是有机的演进。
+
+
+</details>
+
+<h3 id="练习-2application">练习 2：application<a class="headerlink" href="#练习-2application" title="链接到此章节">&para;</a></h3>
+<p><strong>题目</strong>：在内核构建系统的 Kconfig 语言中，<code>depends on</code> 和 <code>select</code> 是两种常见的依赖关系机制。请简述这两种机制的区别，并解释为什么在编写配置选项时通常建议优先使用 <code>depends on</code> 而不是 <code>select</code>？</p>
+<details><summary>答案与解析</summary>
+
+
+**答案**：**区别**：
+- `depends on` (正向依赖)：当前选项**依赖于**指定选项。如果依赖项未满足（为 n），当前选项将不可见或不可选。
+- `select` (反向依赖/自动选择)：当前选项被选中时，**自动强制选中**另一个选项（无论用户是否意识到）。
+
+**建议原因**：
+`select` 会强制开启隐含依赖，可能导致用户无意中开启了不需要或不兼容的代码，增加内核大小或引发冲突。`depends on` 则是向用户展示依赖关系，由用户主动解决，更符合模块化设计原则。
+
+
+**解析**：本题考察在实际编写内核配置（BSP 或驱动开发）时的最佳实践。
+- `depends on` 是一种“可见性限制”，例如 `depends on NET` 表示只有在网络子系统开启时，此选项才会在菜单中显示。
+- `select` 是一种“强制的传递依赖”，例如选择了 USB 存储驱动可能会自动 `select` SCSI 支持。
+- 风险在于，如果被 `select` 的选项有它自己的依赖冲突，用户可能会面临复杂的配置错误。因此，除非必须开启某些底层基础设施（如总线或核心库），否则应尽量避免使用 `select`。
+
+
+</details>
+
+<h3 id="练习-3thinking">练习 3：thinking<a class="headerlink" href="#练习-3thinking" title="链接到此章节">&para;</a></h3>
+<p><strong>题目</strong>：假设你是一家嵌入式公司的系统工程师，正在规划一款基于新型 ARM SoC 的工业控制设备，预计产品生命周期为 10 年。你需要选择合适的 Linux 内核源树作为基础。</p>
+<p>选项 A：使用 SoC 厂商提供的基于旧版 LTS 的厂商内核（含 BSP 驱动）。
+选项 B：使用最新的主线 LTS 内核（如 6.1 LTS），并通过 Yocto 等工具集成 BSP 层。</p>
+<p>请结合内核维护周期、技术债务和安全性，分析选择选项 B 的利弊。</p>
+<details><summary>答案与解析</summary>
+
+
+**答案**：**结论**：应选择**选项 B**（最新 LTS 内核 + Yocto/社区集成）。
+
+**利（理由）**：
+1. **长期支持与可维护性**：厂商内核通常基于特定旧版本并分叉，长期维护会面临“技术债务”，难以跟上上游安全补丁。而主线 LTS（如 6.1）有社区支持，且 Yocto 等项目能提供持续的元数据更新。
+2. **安全性**：工业设备需长期运行，旧内核容易积累未修复的 CVE 漏洞。主线 LTS 能更快获得安全修复。
+3. **驱动更新**：利用设备树机制，可以更容易地将厂商的硬件支持移植到新内核，而不依赖于厂商修改的旧内核源码。
+
+**弊（挑战）**：
+1. **初期开发成本**：如果 SoC 厂商未将驱动提交到主线，你可能需要自己移植驱动或编写设备树。
+2. **兼容性风险**：新内核的 API 可能发生变化，需要验证所有 BSP 组件的兼容性。
+
+
+**解析**：本题考察对内核生态、供应链安全和工程架构的综合思考能力。
+- **SoC 厂商内核**：虽然“开箱即用”，但往往是一次性的，一旦厂商停止支持该旧内核，产品将面临巨大的安全风险和升级困难。
+- **主线 LTS 策略**：符合“上游优先”原则。虽然门槛较高，但利用 `Device Tree`（硬件描述与代码解耦）和现代构建系统（Yocto/Buildroot），可以实现长期、可持续的维护，这对于 10 年寿命周期的工业设备至关重要。
+- **Super LTS (SLTS)**：题目中提到的 CIP SLTS 也是解决此问题的方案之一，通常也是基于主线 LTS 的超长维护分支，选项 B 更符合这一思路。
+
+
+</details>
+
+<hr />
+<h2 id="要点提炼">要点提炼<a class="headerlink" href="#要点提炼" title="链接到此章节">&para;</a></h2>
+<p>理解 Linux 内核严格的开发节奏和版本规则是构建前的首要必修课。现代内核开发遵循固定的“合并窗口”与“修复窗口”周期，新功能仅在合并窗口开启的两周内被接受，其余时间仅修补 Bug。版本号（如 6.1）不再沿用旧时的奇偶数稳定/开发区分法，而是基于时间的“有机演化”；对于构建者而言，选择 <strong>LTS（长期支持）</strong> 版本（如本书使用的 6.1）通常是平衡稳定性与维护周期的最佳实践，这能确保你在数年的使用中获得持续的安全补丁支持。</p>
+<p>内核构建的基石在于掌握 <strong>Kconfig/Kbuild</strong> 配置系统，它决定了哪些代码被编译以及如何编译。内核之所以能适配从手机到超级计算机的各种硬件，全靠这一步进行定制。核心配置最终汇总为根目录下的 <code>.config</code> 文件，其中的 <code>y</code>（编译进内核）、<code>m</code>（编译为模块）和 <code>n</code>（不编译）状态决定了内核的功能集与体积。盲目手动编写该文件不可行，最佳实践是利用当前系统的配置（如 <code>/boot/config-xxx</code>）或默认配置作为起点。</p>
+<p>获取源码并正确解压是动手实战的第一步，推荐直接从 Kernel.org 下载确定版本（如 <code>linux-6.1.25.tar.xz</code>）的压缩包，以避免完整 Git 仓库克隆带来的巨大时间与空间开销。解压后，源码树呈现高度结构化的特征，核心代码如调度器（<code>kernel/</code>）、内存管理（<code>mm/</code>）、驱动（<code>drivers/</code>）和架构相关代码（<code>arch/</code>）各司其职。理解这一目录结构就像查看乐高零件清单，是后续进行针对性修改或驱动开发的基础。</p>
+<p>对于学习者或开发者，使用 <code>make menuconfig</code> 是调整配置最直观且有效的方法。这个基于 ncurses 的图形化界面允许用户通过搜索、导航来微调内核选项，例如开启 <code>Kernel .config support</code> 以便在系统运行时通过 <code>/proc/config.gz</code> 查看当前配置。若要进行自动化构建，则需掌握 <code>scripts/config</code> 等脚本工具来修改 <code>.config</code>，并使用 <code>diffconfig</code> 来检查配置变更，确保只启用了必要的功能以减小内核体积。</p>
+<p>真正的内核定制能力体现在能够“黑进”构建系统，即通过修改 <code>Kconfig</code> 和 <code>Makefile</code> 将自定义代码或选项集成进内核菜单。这一过程不仅涉及编写配置语法（定义 <code>config</code> 选项、依赖关系和帮助文档），还需要在构建脚本中正确关联对象文件（如 <code>obj-$(CONFIG_FOO) += bar.o</code>）。这种深度的干预是将内核开发从单纯的“编译”提升到“系统级编程”的关键，也是完成后续编译与安装模块的必要前提。</p>
+
+
+
+
+
+
+
+  
+    
+  
+  
+    
+  
+
+
+  <aside class="md-source-file">
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="最后更新">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年5月6日 08:06:46 CST">2026年5月6日 08:06:46</span>
+  </span>
+
+    
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="创建日期">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年5月6日 08:06:46 CST">2026年5月6日 08:06:46</span>
+  </span>
+
+    
+    
+    
+  </aside>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href="../ch01/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 第 1 章 内核编程新视界 —— 从零开始构建你的内核工作空间">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                第 1 章 内核编程新视界 —— 从零开始构建你的内核工作空间
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../ch03/" class="md-footer__link md-footer__link--next" aria-label="下一页: 第 3 章 从源码构建 6.x Linux 内核（第二部分）">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              <div class="md-ellipsis">
+                第 3 章 从源码构建 6.x Linux 内核（第二部分）
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 Charliechen - 保留所有权利
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/Awesome-Embedded-Learning-Studio" target="_blank" rel="noopener" title="GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="mailto:725610365@qq.com" target="_blank" rel="noopener" title="发送邮件" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M536.4-26.3c9.8-3.5 20.6-1 28 6.3s9.8 18.2 6.3 28l-178 496.9c-5 13.9-18.1 23.1-32.8 23.1-14.2 0-27-8.6-32.3-21.7l-64.2-158c-4.5-11-2.5-23.6 5.2-32.6l94.5-112.4c5.1-6.1 4.7-15-.9-20.6s-14.6-6-20.6-.9l-112.4 94.3c-9.1 7.6-21.6 9.6-32.6 5.2L38.1 216.8c-13.1-5.3-21.7-18.1-21.7-32.3 0-14.7 9.2-27.8 23.1-32.8z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.instant", "navigation.instant.prefetch", "navigation.instant.progress", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.prune", "navigation.path", "navigation.indexes", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.select", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.action.edit", "content.action.view"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

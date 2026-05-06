@@ -1,0 +1,5205 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="30 天嵌入式 Linux 内核学习计划">
+      
+      
+        <meta name="author" content="Charliechen">
+      
+      
+        <link rel="canonical" href="https://awesome-embedded-learning-studio.github.io/PenguinLab/%E5%8F%82%E8%80%83%E6%96%87%E6%A1%A3/notes/linux_kernel_debugging/ch09_12/">
+      
+      
+        <link rel="prev" href="../ch09_11/">
+      
+      
+        <link rel="next" href="../ch09_2/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../Awesome-Embedded.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>9.12 进阶阅读与技术地图 - PenguinLab 文档</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Sans+SC:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Noto Sans SC";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#912-进阶阅读与技术地图" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="PenguinLab 文档" class="md-header__button md-logo" aria-label="PenguinLab 文档" data-md-component="logo">
+      
+  <img src="../../../../Awesome-Embedded.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PenguinLab 文档
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              9.12 进阶阅读与技术地图
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换至暗色模式"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换至暗色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="indigo"  aria-label="切换至亮色模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换至亮色模式" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="分享" aria-label="分享" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  欢迎来到 PenguinLab
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../part1/01_%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E4%B8%8E%E6%BA%90%E7%A0%81%E6%A0%91%E5%AF%BC%E8%A7%88/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part1
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../../booklist/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  参考文档
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/week2/day08-09_%E5%86%85%E6%A0%B8%E6%A8%A1%E5%9D%97%E5%9F%BA%E7%A1%80%E8%AE%BE%E8%AE%A1/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  学习计划
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  示例代码
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="PenguinLab 文档" class="md-nav__button md-logo" aria-label="PenguinLab 文档" data-md-component="logo">
+      
+  <img src="../../../../Awesome-Embedded.png" alt="logo">
+
+    </a>
+    PenguinLab 文档
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    欢迎来到 PenguinLab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../part1/01_%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E4%B8%8E%E6%BA%90%E7%A0%81%E6%A0%91%E5%AF%BC%E8%A7%88/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part1
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    参考文档
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    参考文档
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../booklist/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    书单：嵌入式 Linux 内核学习推荐书目
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../qemu-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QEMU ARM 速查手册
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Notes
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_3" id="__nav_3_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Notes
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_3_2" id="__nav_3_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux kernel debugging
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_3_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Linux kernel debugging
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch01/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 1 章
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch01_1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 1 章 在底层失序的边缘
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch01_10/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.10 延伸阅读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch01_2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.2 软件调试——本质、溯源与迷思
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch01_3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch01 3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch01_4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch01 4
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch01_5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.7 两种内核：精打细算的生产者，与拿着显微镜的侦探
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch01_6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.7 打造你的定制生产内核
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch01_7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.7 建立我们的自定义调试内核
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch01_8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.8 看见差异——生产内核与调试内核的配置对决
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch01_9/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1.9 调试的禅意与直觉
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch02/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 2 章
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch02_1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 2 章 黑暗森林的火把
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch02_2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch02 2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch02_3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.3 内核调试方法全景图——什么时候该用什么招
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch03/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 3 章
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch03_1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.0 准备工作与本章动机
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch03_2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.1 无处不在的内核 printk
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch03_3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.3 利用 printk 进行调试
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch03_4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.4 使用内核的动态调试大杀器
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch03_5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.4 剩余的 printk 杂项与终极调试手段
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch04/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 4 章
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch04_1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 4 章 透过针眼看大象——内核探针与动态追踪
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch04_2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 4 章 透视黑盒：Kprobes 与内核 instrumentation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch04_3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch04 3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch04_4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.4 Getting started with kretprobes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch04_5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.5 Kprobe-based event tracing – minimal internal details
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch04_6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.6 设置动态 kprobe（通过 kprobe events）——在任意函数上插眼
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch04_7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    在内核模块上使用动态 kprobe 事件跟踪
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch04_8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.8 追踪进程的上帝视角——通过 perf 和 eBPF 工具探秘 execve
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch04_9/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.9 延伸阅读与探索路径
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch05/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 5 章
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch05_1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 5 章 窥视深渊 —— 内存破坏与未定义行为的动态分析
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch05_2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.2 内存到底出了什么问题？
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch05_3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.3 理解 KASAN 的基本原理
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch05_4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch05 4
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch05_5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.5 Bug hunting with KASAN
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch05_6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.6 使用 UBSAN 内核检查器捕获未定义行为
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch05_7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.7 使用 Clang 构建内核与模块
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch05_8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.8 捕获内核中的内存缺陷——对比与笔记（Part 1）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch05_9/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5.9 延伸阅读：Rust、安全深渊与工具链的尽头
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch06/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 6 章
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch06_1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 6 章 谁动了我的内存？（上）—— 捕捉内核堆栈里的幽灵
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch06_2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.2 精准打击：使用 slub_debug 参数埋雷
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch06_3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch06 3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch06_4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch06 4
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch06_5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.5 使用 slabinfo 及其配套工具
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch06_6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    使用 kmemleak
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch06_7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6.7 给开发者的几条实战建议
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch07/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 7 章
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch07_1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 7 章 当内核开始咆哮
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch07_2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.2 生成一个简单的内核 Bug 和 Oops
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch07_3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.3 细节里的魔鬼——解剖现场
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch07_4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.4 精准打击：用 objdump 和 GDB 定位罪魁祸首
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch07_5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 7 章 Oops! Interpreting the Kernel Bug Diagnostic（下）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch07_6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch07 6
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch07_7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.7 异构战场：ARM Linux 上的 Oops 与 netconsole 实战
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch08/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 8 章
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch08_1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8. Lock Debugging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch08_2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch08 2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch08_3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.3 用 KCSAN 抓住并发 Bug
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch08_4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.4 实战中的锁缺陷案例
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch08_5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8.5 Further reading
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch09/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 9 章
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch09_1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 9 章 显微镜下的内核：跟踪、剖析与黑盒的终结
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch09_10/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.10 使用 trace-cmd、KernelShark 和 perf-tools 前端工具
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch09_11/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch09 11
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.12 进阶阅读与技术地图
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.12 进阶阅读与技术地图
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#-宏观视野理解-tracing-的全景" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🗺️ 宏观视野：理解 Tracing 的全景
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-ftrace深入内核的开关" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ⚙️ Ftrace：深入内核的开关
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-工具链trace-cmd-与-kernelshark" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🛠️ 工具链：trace-cmd 与 KernelShark
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-perf-toolsbrendan-gregg-的脚本百宝箱" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📦 perf-tools：Brendan Gregg 的脚本百宝箱
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-ebpf-的延伸" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🚀 eBPF 的延伸
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-lttng高频数据的工业级方案" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📡 LTTng：高频数据的工业级方案
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-杂项特殊场景与技巧" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔧 杂项：特殊场景与技巧
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#练习题" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习题
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="练习题">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#练习-1understanding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 1：understanding
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#练习-2understanding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 2：understanding
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#练习-3application" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 3：application
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#练习-4application" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 4：application
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#练习-5thinking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 5：thinking
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#要点提炼" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        要点提炼
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch09_2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.2 内核跟踪技术全景图
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch09_3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch09 3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch09_4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.4 使用 ftrace 追踪内核流
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch09_5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.5 实用的 ftrace 过滤选项：从开火瞄准到精确制导
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch09_6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Case 1 – 用原生 ftrace 追踪单次 Ping 请求
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch09_7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Case 2 – 使用 set_event 接口跟踪单次 Ping 请求
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch09_8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ftrace – 各种杂项与遗留问题（FAQ 形式）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch09_9/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9.9 Ftrace 实战：从栈溢出监控到 Android 排毒
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch10/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 10 章
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch10_1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 10 章 永不消逝的回响：当内核决定放弃
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch10_2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.2 当内核决定放弃治疗——Panic 机制全解
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch10_3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.3 编写自定义内核恐慌处理程序
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch10_4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10.4 检测内核中的死锁与 CPU 停顿
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch10_5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch10 5
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch11/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 11 章
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch11_1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 11 章 深入内核：当调试器成为内核的一部分
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch11_2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch11 2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch11_3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch11 3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch11_4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.4 用 KGDB 狠狠地调试内核
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch11_5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.5 调试内核模块：当符号表藏进内存里
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch11_6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch11 6
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch11_7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11.7 进一步阅读
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch12/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 12 章
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch12_1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 12 章 调试的武器库：没有银弹
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch12_2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch12 2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../linux_kernel_device_drivers/ch01/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux kernel device drivers
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../linux_kernel_networking/ch01/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux kernel networking
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../linux_kernel_programming/ch01/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux kernel programming
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    
+  
+  
+  
+    <a href="../../../../%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/week2/day08-09_%E5%86%85%E6%A0%B8%E6%A8%A1%E5%9D%97%E5%9F%BA%E7%A1%80%E8%AE%BE%E8%AE%A1/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    学习计划
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    示例代码
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#-宏观视野理解-tracing-的全景" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🗺️ 宏观视野：理解 Tracing 的全景
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-ftrace深入内核的开关" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ⚙️ Ftrace：深入内核的开关
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-工具链trace-cmd-与-kernelshark" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🛠️ 工具链：trace-cmd 与 KernelShark
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-perf-toolsbrendan-gregg-的脚本百宝箱" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📦 perf-tools：Brendan Gregg 的脚本百宝箱
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-ebpf-的延伸" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🚀 eBPF 的延伸
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-lttng高频数据的工业级方案" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📡 LTTng：高频数据的工业级方案
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-杂项特殊场景与技巧" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔧 杂项：特殊场景与技巧
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#练习题" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习题
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="练习题">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#练习-1understanding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 1：understanding
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#练习-2understanding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 2：understanding
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#练习-3application" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 3：application
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#练习-4application" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 4：application
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#练习-5thinking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 5：thinking
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#要点提炼" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        要点提炼
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+  <nav class="md-path" aria-label="导航栏" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href="../../../.." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    欢迎来到 PenguinLab
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../../../booklist/" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    参考文档
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Notes
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../ch01/" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Linux kernel debugging
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="912-进阶阅读与技术地图">9.12  进阶阅读与技术地图<a class="headerlink" href="#912-进阶阅读与技术地图" title="链接到此章节">&para;</a></h1>
+<p>本章的内容到此结束，但你的探索才刚刚开始。</p>
+<p>在这一节里，我整理了一份「进阶阅读地图」。这不仅仅是把书里的链接罗列出来，而是要把它们放在你的认知地图里——告诉你哪些资源是地图，哪些是矿藏，哪些是当你遇到特定怪兽时需要拔出的专用武器。</p>
+<p>把这些资源当作你随身工具箱的扩展说明。</p>
+<hr />
+<h3 id="-宏观视野理解-tracing-的全景">🗺️ 宏观视野：理解 Tracing 的全景<a class="headerlink" href="#-宏观视野理解-tracing-的全景" title="链接到此章节">&para;</a></h3>
+<p>在深入具体的命令之前，先从高处看看这片森林。以下几篇文章适合用来建立整体认知，特别是当你搞不清楚 <code>ftrace</code>、<code>perf</code>、<code>eBPF</code> 和 <code>LTTng</code> 之间到底是什么关系时。</p>
+<ul>
+<li>
+<p><strong>Unified Tracing Platform – Bringing tracing together</strong></p>
+<ul>
+<li><em>Steven Rostedt (VMware), 2019</em></li>
+<li><a href="https://static.sched.com/hosted_files/osseu19/5f/unified-tracing-platform-oss-eu-2019.pdf">https://static.sched.com/hosted_files/osseu19/5f/unified-tracing-platform-oss-eu-2019.pdf</a></li>
+<li><strong>为什么读它</strong>：Ftrace 的主要维护者亲自画蓝图。如果你想了解这些工具未来如何统一到一个架构下，这是第一手资料。</li>
+</ul>
+</li>
+<li>
+<p><strong>Unifying kernel tracing</strong></p>
+<ul>
+<li><em>Jack Edge, LWN, Oct 2019</em></li>
+<li><a href="https://lwn.net/Articles/803347/">https://lwn.net/Articles/803347/</a></li>
+<li><strong>为什么读它</strong>：LWN 的深度一如既往。这篇主要讲如何把 tracefs、perf 和 eBPF 这三座大山连起来。</li>
+</ul>
+</li>
+<li>
+<p><strong>Linux tracing systems &amp; how they fit together</strong></p>
+<ul>
+<li><em>Julia Evans (@b0rk), July 2017</em></li>
+<li><a href="https://jvns.ca/blog/2017/07/05/linux-tracing-systems/">https://jvns.ca/blog/2017/07/05/linux-tracing-systems/</a></li>
+<li><strong>为什么读它</strong>：Julia 的图解能力是一流的。如果你觉得文字描述太抽象，看看她怎么用图表把 Ftrace、Uprobes、SystemTap 等拼在一起。</li>
+</ul>
+</li>
+<li>
+<p><strong>Using the Linux Tracing Infrastructure</strong></p>
+<ul>
+<li><em>Jan Altenberg (Linutronix GmbH), Nov 2017</em></li>
+<li><a href="https://events.static.linuxfound.org/sites/events/files/slides/praesentation_0.pdf">https://events.static.linuxfound.org/sites/events/files/slides/praesentation_0.pdf</a></li>
+<li><strong>为什么读它</strong>：实战导向的幻灯片，包含了不少实际操作中的截图和参数组合。</li>
+</ul>
+</li>
+<li>
+<p><strong>The comprehensive kernel index – all articles on tracing on LWN</strong></p>
+<ul>
+<li><a href="https://lwn.net/Kernel/Index/#Tracing">https://lwn.net/Kernel/Index/#Tracing</a></li>
+<li><strong>为什么收藏它</strong>：LWN 是内核开发者的新闻圣经。这个索引页是所有 Tracing 相关文章的总入口。</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h3 id="-ftrace深入内核的开关">⚙️ Ftrace：深入内核的开关<a class="headerlink" href="#-ftrace深入内核的开关" title="链接到此章节">&para;</a></h3>
+<p>如果你想挖掘 Ftrace 的潜力，或者只是想确认 <code>set_ftrace_pid</code> 到底怎么用，以下是核心资料。</p>
+<p><strong>官方文档与必读经典</strong></p>
+<ul>
+<li>
+<p><strong>Official kernel documentation – ftrace</strong></p>
+<ul>
+<li><a href="https://www.kernel.org/doc/html/v5.10/trace/ftrace.html">https://www.kernel.org/doc/html/v5.10/trace/ftrace.html</a></li>
+<li><strong>定位</strong>：案头手册。详细到你可能不想一次性读完，但遇到问题时必须查。</li>
+</ul>
+</li>
+<li>
+<p><strong>Ftrace: The hidden light switch</strong></p>
+<ul>
+<li><em>Brendan Gregg, Aug 2014</em></li>
+<li><a href="https://lwn.net/Articles/608497/">https://lwn.net/Articles/608497/</a></li>
+<li><strong>定位</strong>：概念引入。如果你对「为什么 Ftrace 开销这么小」感兴趣，这篇必看。</li>
+</ul>
+</li>
+<li>
+<p><strong>Ftrace internals</strong></p>
+<ul>
+<li><em>Brendan Gregg, Oct 2019</em></li>
+<li><a href="https://www.brendangregg.com/blog/2019-10-15/kernelrecipes-kernel-ftrace-internals.html">https://www.brendangregg.com/blog/2019-10-15/kernelrecipes-kernel-ftrace-internals.html</a></li>
+<li><strong>定位</strong>：硬核内核机制。讲述了 <code>mcount</code>、蹦床和动态插桩的底层黑魔法。</li>
+</ul>
+</li>
+</ul>
+<p><strong>老而弥坚的系列文章</strong>
+虽然年代久远，但 Steven Rostedt（Ftrace 之父）的这三篇文章依然是理解设计逻辑的佳作：</p>
+<ul>
+<li>
+<p><strong>Debugging the kernel using Ftrace - part 1 &amp; 2</strong></p>
+<ul>
+<li><em>LWN, Dec 2009</em></li>
+<li><a href="https://lwn.net/Articles/365835/">Part 1</a> | <a href="https://lwn.net/Articles/366796/">Part 2</a></li>
+</ul>
+</li>
+<li>
+<p><strong>Secrets of the Ftrace function tracer</strong></p>
+<ul>
+<li><em>LWN, Jan 2010</em></li>
+<li><a href="https://lwn.net/Articles/370423/">https://lwn.net/Articles/370423/</a></li>
+</ul>
+</li>
+</ul>
+<p><strong>新手入门与速查表</strong></p>
+<ul>
+<li>
+<p><strong>Welcome to ftrace &amp; the Start of Your Journey...</strong></p>
+<ul>
+<li><em>Steven Rostedt, Nov 2019</em></li>
+<li><a href="https://blogs.vmware.com/opensource/2019/11/12/ftrace-linux-kernel/">https://blogs.vmware.com/opensource/2019/11/12/ftrace-linux-kernel/</a></li>
+</ul>
+</li>
+<li>
+<p><strong>ftrace: trace your kernel functions!</strong></p>
+<ul>
+<li><em>Julia Evans, Mar 2017</em></li>
+<li><a href="https://jvns.ca/blog/2017/03/19/getting-started-with-ftrace/">https://jvns.ca/blog/2017/03/19/getting-started-with-ftrace/</a></li>
+<li><strong>定位</strong>：如果你只想看一个教程快速上手，看 Julia 的这篇就够了。</li>
+</ul>
+</li>
+<li>
+<p><strong>Ftrace cheat sheets</strong></p>
+<ul>
+<li>常用命令速查：<a href="http://linux-tipps.blogspot.com/2011/05/ftrace-favorites-cheat-sheet-fun.html">Linux-tipps Cheat Sheet</a></li>
+<li>通用 Kernel Tracing 速查：<a href="https://lzone.de/cheat-sheet/Kernel%20Tracing">lzone.de</a></li>
+<li><strong>建议</strong>：把这几个页面打印出来贴在显示器旁边，直到你把常用的 <code>echo</code> 命令烂熟于心。</li>
+</ul>
+</li>
+</ul>
+<p><strong>内核栈深度专题</strong>
+本章我们提到了栈溢出的风险。如果你想深入了解内核栈的机制（特别是 <code>CONFIG_VMAP_STACK</code>），这两篇 LWN 文章是必读的：</p>
+<ul>
+<li><strong>Virtually mapped kernel stacks</strong><ul>
+<li><em>Jon Corbet, June 2016</em></li>
+<li><a href="https://lwn.net/Articles/692208/">https://lwn.net/Articles/692208/</a></li>
+</ul>
+</li>
+<li><strong>Virtually mapped stacks 2: thread_info strikes back</strong><ul>
+<li><em>Jon Corbet, June 2016</em></li>
+<li><a href="https://lwn.net/Articles/692953/">https://lwn.net/Articles/692953/</a></li>
+</ul>
+</li>
+</ul>
+<hr />
+<h3 id="-工具链trace-cmd-与-kernelshark">🛠️ 工具链：trace-cmd 与 KernelShark<a class="headerlink" href="#-工具链trace-cmd-与-kernelshark" title="链接到此章节">&para;</a></h3>
+<p>虽然我们演示了直接操作 <code>tracefs</code>，但在实际工作中，你更需要这些前端工具。</p>
+<p><strong>trace-cmd (命令行前端)</strong></p>
+<ul>
+<li>
+<p><strong>trace-cmd: A front-end for Ftrace</strong></p>
+<ul>
+<li><em>Steven Rostedt, LWN, Oct 2010</em></li>
+<li><a href="https://lwn.net/Articles/410200/">https://lwn.net/Articles/410200/</a></li>
+</ul>
+</li>
+<li>
+<p><strong>Kernel tracing with trace-cmd</strong></p>
+<ul>
+<li><em>G Kamathe (RedHat), July 2021</em></li>
+<li><a href="https://opensource.com/article/21/7/linux-kernel-trace-cmd">https://opensource.com/article/21/7/linux-kernel-trace-cmd</a></li>
+<li><strong>实战价值</strong>：包含具体的 <code>trace-cmd record</code> 和 <code>report</code> 示例。</li>
+</ul>
+</li>
+</ul>
+<p><strong>KernelShark (图形化神器)</strong></p>
+<ul>
+<li><strong>Official KernelShark Documentation</strong><ul>
+<li><a href="https://www.kernelshark.org/Documentation.html">https://www.kernelshark.org/Documentation.html</a></li>
+</ul>
+</li>
+<li><strong>Swimming with the New KernelShark</strong><ul>
+<li><em>Yordan Karadzhov (VMware), 2018</em></li>
+<li><a href="https://events19.linuxfoundation.org/wp-content/uploads/2017/12/Swimming-with-the-New-KernelShark-Yordan-Karadzhov-VMware.pdf">PDF</a></li>
+<li><strong>提示</strong>：KernelShark v2 有了巨大的架构重写（基于 Qt），这篇 PPT 能带你快速了解新特性。</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h3 id="-perf-toolsbrendan-gregg-的脚本百宝箱">📦 perf-tools：Brendan Gregg 的脚本百宝箱<a class="headerlink" href="#-perf-toolsbrendan-gregg-的脚本百宝箱" title="链接到此章节">&para;</a></h3>
+<p>不要被名字迷惑，<code>perf-tools</code> 实际上是大量基于 Ftrace 和 tracefs 的 Bash 脚本封装。在 eBPF 还没普及的年代，它们是主力军，现在依然因为「无需编译、直接运行」而极具价值。</p>
+<ul>
+<li><strong>GitHub Repository</strong><ul>
+<li><a href="https://github.com/brendangregg/perf-tools/">https://github.com/brendangregg/perf-tools/</a></li>
+</ul>
+</li>
+<li>
+<p><strong>Examples Directory</strong></p>
+<ul>
+<li><a href="https://github.com/brendangregg/perf-tools/tree/master/examples">https://github.com/brendangregg/perf-tools/tree/master/examples</a></li>
+<li><strong>建议</strong>：直接去读这些脚本的源码——它们就是最好的 Ftrace 使用教程。你可以看到作者是如何组装简单的 <code>echo</code> 命令来实现复杂功能的。</li>
+</ul>
+</li>
+<li>
+<p><strong>Linux Performance Analysis: New Tools and Old Secrets</strong></p>
+<ul>
+<li><em>Brendan Gregg, USENIX LISA14, Nov 2014</em></li>
+<li><a href="https://www.usenix.org/conference/lisa14/conference-program/presentation/gregg">Video</a> | <a href="https://www.slideshare.net/brendangregg/linux-performance-analysis-new-tools-and-old-secrets">Slides</a></li>
+<li><strong>地位</strong>：经典演讲。如果你想系统性地学习 Linux 性能分析的方法论，而不是单纯学工具，看这个视频的时间花得最值。</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h3 id="-ebpf-的延伸">🚀 eBPF 的延伸<a class="headerlink" href="#-ebpf-的延伸" title="链接到此章节">&para;</a></h3>
+<p>我们在第 4 章讨论过 Kprobes 和 Instrumentation。eBPF 已经彻底改变了内核跟踪的格局。
+虽然本章重点在 Ftrace，但你必须知道它们的关系：Ftrace 是底层的基石，eBPF 是在上层构建的高级大厦。</p>
+<ul>
+<li><strong>eBPF and frontends resources</strong><ul>
+<li>参见 <strong>Chapter 4 (Debug via Instrumentation – Kprobes)</strong> 的 "Further reading" 部分。</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h3 id="-lttng高频数据的工业级方案">📡 LTTng：高频数据的工业级方案<a class="headerlink" href="#-lttng高频数据的工业级方案" title="链接到此章节">&para;</a></h3>
+<p>当 Ftrace 的开销在高频事件下成为瓶颈，或者你需要分析用户空间和内核空间的关联时，LTTng 是最佳选择。</p>
+<ul>
+<li>
+<p><strong>LTTng Main Website &amp; Quick start</strong></p>
+<ul>
+<li><a href="https://lttng.org/">https://lttng.org/</a></li>
+<li><a href="https://lttng.org/docs/v2.13/#doc-getting-started">Documentation v2.13+</a></li>
+</ul>
+</li>
+<li>
+<p><strong>Babeltrace 2 (CLI Tool)</strong></p>
+<ul>
+<li><a href="https://lttng.org/blog/2020/06/01/bt2-cli/">https://lttng.org/blog/2020/06/01/bt2-cli/</a></li>
+<li><strong>说明</strong>：LTTng 生成的 CTF (Common Trace Format) 数据是二进制的，<code>babeltrace2</code> 是用来把它转成人能读的文本的工具。</li>
+</ul>
+</li>
+<li>
+<p><strong>Finding the Root Cause of a Web Request Latency</strong></p>
+<ul>
+<li><em>Julien Desfossez, Feb 2015</em></li>
+<li><a href="https://lttng.org/blog/2015/02/04/web-request-latency-root-cause/">https://lttng.org/blog/2015/02/04/web-request-latency-root-cause/</a></li>
+<li><strong>案例价值</strong>：展示了如何结合内核和用户空间跟踪来定位一个真实的业务问题。</li>
+</ul>
+</li>
+<li>
+<p><strong>Tutorial: Remotely tracing an embedded Linux system</strong></p>
+<ul>
+<li><em>C Babeux, Mar 2016</em></li>
+<li><a href="https://lttng.org/blog/2016/03/07/tutorial-remote-tracing/">https://lttng.org/blog/2016/03/07/tutorial-remote-tracing/</a></li>
+<li><strong>适用场景</strong>：正如我们在本章结尾提到的，嵌入式板子资源有限。这篇教程教你在板子上采集，在主机上分析的正确姿势。</li>
+</ul>
+</li>
+<li>
+<p><strong>LTTng: A Comprehensive User's Guide (version 2.3)</strong></p>
+<ul>
+<li><em>Daniel U. Thibault (DRDC Valcartier Research Centre)</em></li>
+<li><a href="https://cradpdf.drdc-rddc.gc.ca/PDFS/unc246/p804561_A1b.pdf">PDF</a></li>
+<li><strong>说明</strong>：这是一本小书。如果你需要一本纸质书（或 PDF）放在案头从头读到尾，选这个。</li>
+</ul>
+</li>
+</ul>
+<p><strong>Trace Compass (LTTng 的可视化前端)</strong></p>
+<ul>
+<li><strong>Trace Compass Website</strong><ul>
+<li><a href="https://www.eclipse.org/tracecompass/#home">https://www.eclipse.org/tracecompass/#home</a></li>
+</ul>
+</li>
+<li><strong>Alternate tracing tools</strong><ul>
+<li><a href="https://lttng.org/docs/v2.13/#doc-lttng-alternatives">https://lttng.org/docs/v2.13/#doc-lttng-alternatives</a></li>
+<li><strong>比较</strong>：这里列出了 LTTng 与其他工具（如 SystemTap, perf）的对比，帮你决定在什么时候用 LTTng。</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h3 id="-杂项特殊场景与技巧">🔧 杂项：特殊场景与技巧<a class="headerlink" href="#-杂项特殊场景与技巧" title="链接到此章节">&para;</a></h3>
+<p>最后，这里有几个在特定场景下能救命的资源：</p>
+<ul>
+<li>
+<p><strong>Boot-time tracing via ftrace</strong></p>
+<ul>
+<li><a href="https://www.kernel.org/doc/html/latest/trace/boottime-trace.html">Documentation</a></li>
+<li><strong>痛点解决</strong>：如何跟踪内核启动早期的过程？那时候 <code>/sys</code> 还没挂载呢。这篇文章教你通过内核参数 (<code>ftrace=</code>) 来解决这个问题。</li>
+</ul>
+</li>
+<li>
+<p><strong>Trace Linux System Calls with Least Impact on Performance</strong></p>
+<ul>
+<li><em>PingCAP, Dec 2020</em></li>
+<li><a href="https://en.engpic.com/blog/how-to-trace-linux-system-calls-in-production-with-minimal-impact-on-performance/">https://en.engpic.com/blog/how-to-trace-linux-system-calls-in-production-with-minimal-impact-on-performance/</a></li>
+<li><strong>场景</strong>：在生产环境（Production）进行系统调用跟踪。这里讨论了如何在不拖垮业务的前提下获取数据。</li>
+</ul>
+</li>
+</ul>
+<hr />
+<p>把所有这些工具都装进你的工具箱里。在不同的场景下，针对不同的问题，选择最锋利的那把刀。</p>
+<p>下一章，我们要面对一个更沉重的话题：<strong>Kernel Panic</strong>。别慌，有了今天的调试利器，哪怕是内核崩溃，我们也能从尸体里读出点东西来。</p>
+<hr />
+<h2 id="练习题">练习题<a class="headerlink" href="#练习题" title="链接到此章节">&para;</a></h2>
+<h3 id="练习-1understanding">练习 1：understanding<a class="headerlink" href="#练习-1understanding" title="链接到此章节">&para;</a></h3>
+<p><strong>题目</strong>：比较 Tracing（跟踪）和 Profiling（性能分析）的主要区别。如果内核开发者想要获取某个系统调用在内核内部完整的函数调用流程，应该使用哪种技术？为什么？</p>
+<details><summary>答案与解析</summary>
+
+
+**答案**：应使用 Tracing。
+
+区别：
+1. Tracing 是捕获性的，记录代码执行路径上的所有细节（函数调用、参数、时间戳等），提供完整的执行历史。
+2. Profiling 是统计性的，通过周期性采样来捕获事件，不捕获所有细节，主要用于发现性能热点。
+
+原因：获取“完整的函数调用流程”需要记录代码执行的每一个步骤，而不是统计样本，因此必须使用 Tracing。
+
+
+**解析**：这道题考察对核心概念的定义辨析。根据章节开头定义，Tracing 类似于“黑匣子”，记录所有细节；而 Profiling 旨在通过采样进行性能监控。Strace 是系统调用边界的 Tracing，而 Ftrace 则深入内核进行 Tracing。要查看内部流程，必须使用具有完整记录能力的 Tracing 技术。
+
+
+</details>
+
+<h3 id="练习-2understanding">练习 2：understanding<a class="headerlink" href="#练习-2understanding" title="链接到此章节">&para;</a></h3>
+<p><strong>题目</strong>：在 Linux 内核配置中，<code>CONFIG_DYNAMIC_FTRACE</code> 选项的作用是什么？如果没有开启这个选项，直接使用 <code>-pg</code> 编译器选项进行插桩，会对生产环境的内核性能产生什么影响？</p>
+<details><summary>答案与解析</summary>
+
+
+**答案**：作用：允许内核在运行时动态修改机器指令（将函数入口处的指令替换为 NOP 指令或跳转到 Trampoline），从而在不跟踪时实现零性能损耗。
+
+影响：如果没有开启此选项，内核将保留编译器插入的 `mcount` 调用。每个函数调用的入口都会执行判断逻辑（类似 `if tracing_enabled { ... }`），这会带来巨大的 CPU 开销，不适合在生产环境开启。
+
+
+**解析**：考察对 Ftrace 实现机制的理解。普通的编译器插桩（`-pg`）会永久性地在每个函数入口添加代码，导致性能下降。而动态 Ftrace 利用了内核的自我修改代码能力，在未开启跟踪时通过填空指令来维持原生性能。
+
+
+</details>
+
+<h3 id="练习-3application">练习 3：application<a class="headerlink" href="#练习-3application" title="链接到此章节">&para;</a></h3>
+<p><strong>题目</strong>：假设你正在调试一个随机的内核崩溃，并且怀疑崩溃发生在一系列复杂的内核函数调用之后。你希望在崩溃发生时自动捕获 Ftrace 缓冲区中的数据，以便分析崩溃前的执行流。请给出具体的操作步骤或配置方法。</p>
+<details><summary>答案与解析</summary>
+
+
+**答案**：可以通过以下方法之一实现：
+
+1. **内核参数启动配置**：在内核启动参数中加入 `ftrace_dump_on_oops`。
+   例如：`ftrace_dump_on_oops=1`（在 Oops 时向控制台转储）或 `ftrace_dump_on_oops=2`（转储更多原始缓冲区内容）。
+
+2. **运行时配置（Procfs）**：在系统运行时，通过 Proc 文件系统接口开启：
+   `echo 1 > /proc/sys/kernel/ftrace_dump_on_oops`
+
+这样，一旦内核发生 Panic 或 Oops，Ftrace 会自动将 Ring Buffer 中的跟踪日志转储到控制台和日志中，供事后分析。
+
+
+**解析**：考察实际调试场景的应用能力。知识点来自 `ftrace_dump_on_oops`。这是处理“事后分析”类问题的关键技巧，因为一旦内核崩溃，通常无法手动执行命令复制 trace 文件，必须依赖内核的自动转储机制。
+
+
+</details>
+
+<h3 id="练习-4application">练习 4：application<a class="headerlink" href="#练习-4application" title="链接到此章节">&para;</a></h3>
+<p><strong>题目</strong>：你正在使用 <code>function_graph</code> 跟踪器分析一个延迟敏感的内核模块。为了过滤掉噪音，你只想跟踪与该模块相关的函数，并且只想观察执行时间超过 100 微秒的函数调用。请结合 <code>set_ftrace_filter</code> 和 Ftrace 的延迟标记特性，描述如何配置。</p>
+<details><summary>答案与解析</summary>
+
+
+**答案**：配置步骤如下：
+
+1. **设置过滤器**：将模块相关的函数名写入 `set_ftrace_filter`。
+   `echo 'mod:*' > /sys/kernel/tracing/set_ftrace_filter`
+   (注：`mod:` 是一个过滤命令，用于匹配特定模块的所有函数，假设已知模块名，也可以直接使用通配符如 `my_module_*`)
+
+2. **启用延迟标记**：虽然 `function_graph` 本身会显示 Duration（持续时间），但 Ftrace 提供了延迟标记功能来直观地突显异常。
+   确保 `options/funcgraph-cpu` 和 `options/funcgraph-duration` 已开启（默认通常开启）。
+   在 Trace 输出中，持续时间列左侧出现的符号（如 `!`）表示函数执行时间超过了特定的阈值（例如 `!` 通常代表超过 100us 或更高阈值，具体取决于内核配置）。
+
+3. **读取分析**：
+   `cat /sys/kernel/tracing/trace` | grep '!' 
+
+或者，如果使用 `perf-tools`，可以直接使用 `funcslower` 脚本：
+ `./funcslower 100` (这会直接显示超过 100us 的函数)。
+
+
+**解析**：考察对 Ftrace 过滤功能和输出解读的综合应用。题目要求结合 `set_ftrace_filter`（缩小跟踪范围）和对延迟标记的理解（识别长耗时函数）。实际操作中，利用 `mod:` 过滤命令或通配符是常见的排查手段，而观察 Duration 列的符号（如 $, +, !）是快速定位性能瓶颈的关键。
+
+
+</details>
+
+<h3 id="练习-5thinking">练习 5：thinking<a class="headerlink" href="#练习-5thinking" title="链接到此章节">&para;</a></h3>
+<p><strong>题目</strong>：在阅读 Ftrace 的 <code>function_graph</code> 输出时，你注意到某个特定的内核线程（PID 123）在日志中显示了函数调用的缩进和持续时间，但根据你的理解，该线程当时应该完全处于休眠状态。请分析可能产生这种“幽灵”跟踪数据的原因，并说明如何利用 Ftrace 的 <code>latency-format</code> 选项来验证你的推测。</p>
+<details><summary>答案与解析</summary>
+
+
+**答案**：**可能原因分析**：
+这种现象最可能的原因是**中断上下文的干扰**。虽然日志显示的是“PID 123 线程”上下文，但实际上记录的是硬件中断（Hard IRQ）或软中断在该线程被调度出去、或者是刚刚准备运行时切入到内核模式执行的处理函数。在 `function_graph` 默认输出下，中断处理函数的执行往往归入当前被中断进程的上下文中，容易造成误解。
+
+**验证方法**：
+1. 启用 `latency-format` 选项：
+   `echo 1 > /sys/kernel/tracing/options/latency-format`
+2. 再次查看 Trace 输出。该格式会增加一列详细信息，显示中断状态、抢占计数器和上下文标志。
+3. **分析标志**：查看新增列中的标志位（如 `dN` 表示中断深度，`X` 表示存在 NMI 等）。如果看到中断标志位被置起，或者 `irqs-off` 相关的标记，就证明这些函数实际上是在中断上下文中执行的，而非 PID 123 线程主动发起的调用。
+
+这揭示了 `function_graph` 默认视图的一个局限性：它倾向于将底层活动的“账”算在当前运行的任务头上。
+
+
+**解析**：这是一道深度思考题，考察对内核执行上下文（进程上下文 vs 中断上下文）以及 Tracing 工具本身局限性的理解。单纯看 PID 可能会被误导，理解 `latency-format` 提供的底层硬件状态（如中断是否关闭、抢占是否禁用）是区分“进程主动行为”和“中断被动行为”的关键。
+
+
+</details>
+
+<hr />
+<h2 id="要点提炼">要点提炼<a class="headerlink" href="#要点提炼" title="链接到此章节">&para;</a></h2>
+<p>本章的核心在于如何利用 Linux 内核的跟踪技术揭开系统运行的“黑盒”。<strong>Ftrace</strong> 作为内核自带的跟踪引擎，通过 <strong>tracefs</strong> 文件系统提供了控制接口，利用编译器插桩技术（如将函数入口替换为 NOP 指令）实现了在不开启跟踪时对性能零损耗。理解 <strong>Tracing（跟踪）</strong> 与 <strong>Profiling（剖析）</strong> 的区别是选对工具的前提：前者关注连续的流程细节，记录每一次函数调用以回答“在某一时刻具体发生了什么”；后者关注统计热点，通过采样回答“时间都去哪儿了”。</p>
+<p>要实现有效的内核观测，仅仅开启跟踪器是不够的，必须掌握上下文识别与高级过滤技巧。通过开启 <code>latency-format</code> 和 <code>funcgraph-proc</code> 等选项，用户可以解码出 <code>d.h2</code> 这种内核状态密码，从而区分代码是运行在进程上下文还是硬中断上下文，以及是否持有锁。同时，利用 <code>set_ftrace_filter</code> 配合 Glob 匹配或基于索引的过滤，能够将海量的函数调用日志精简到特定范围（如仅限 TCP 协议栈或特定驱动模块），这是在信息洪流中定位问题的关键。</p>
+<p>在实际调试中，通过跟踪 <strong>Tracepoints（跟踪点）</strong> 比单纯跟踪函数调用能获取更多有价值的信息。Tracepoints 是内核开发者预先埋好的“钩子”，位于调度器、中断等关键路径上。使用 <code>set_event</code> 接口监听这些事件（如 <code>net:*</code> 或 <code>skb:*</code>），虽然可能牺牲了函数调用的层级缩进图，但能获取具体的<strong>函数参数值</strong>，这对于排查“参数错误导致丢包”等问题至关重要。</p>
+<p>针对动态插入调试信息的需求，内核提供了 <strong><code>trace_printk()</code></strong> 这一轻量级 API，它优于传统的 <code>printk</code>。<code>trace_printk</code> 仅写入内存环形缓冲区，避免了控制台 I/O 带来的性能损耗和时序干扰，且不会因缓冲区溢出而丢失关键数据。结合 <code>trace_pipe</code> 实时流式输出，开发者可以在不中断系统运行的情况下，像观看直播一样监控内核行为，真正实现了对内核“显微镜”般的动态观测。</p>
+
+
+
+
+
+
+
+  
+    
+  
+  
+    
+  
+
+
+  <aside class="md-source-file">
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="最后更新">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年5月6日 08:06:46 CST">2026年5月6日 08:06:46</span>
+  </span>
+
+    
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="创建日期">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年5月6日 08:06:46 CST">2026年5月6日 08:06:46</span>
+  </span>
+
+    
+    
+    
+  </aside>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href="../ch09_11/" class="md-footer__link md-footer__link--prev" aria-label="上一页: Ch09 11">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                Ch09 11
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../ch09_2/" class="md-footer__link md-footer__link--next" aria-label="下一页: 9.2 内核跟踪技术全景图">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              <div class="md-ellipsis">
+                9.2 内核跟踪技术全景图
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 Charliechen - 保留所有权利
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/Awesome-Embedded-Learning-Studio" target="_blank" rel="noopener" title="GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="mailto:725610365@qq.com" target="_blank" rel="noopener" title="发送邮件" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M536.4-26.3c9.8-3.5 20.6-1 28 6.3s9.8 18.2 6.3 28l-178 496.9c-5 13.9-18.1 23.1-32.8 23.1-14.2 0-27-8.6-32.3-21.7l-64.2-158c-4.5-11-2.5-23.6 5.2-32.6l94.5-112.4c5.1-6.1 4.7-15-.9-20.6s-14.6-6-20.6-.9l-112.4 94.3c-9.1 7.6-21.6 9.6-32.6 5.2L38.1 216.8c-13.1-5.3-21.7-18.1-21.7-32.3 0-14.7 9.2-27.8 23.1-32.8z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.instant", "navigation.instant.prefetch", "navigation.instant.progress", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.prune", "navigation.path", "navigation.indexes", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.select", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.action.edit", "content.action.view"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

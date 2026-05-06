@@ -1,0 +1,2928 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="30 天嵌入式 Linux 内核学习计划">
+      
+      
+        <meta name="author" content="Charliechen">
+      
+      
+        <link rel="canonical" href="https://awesome-embedded-learning-studio.github.io/PenguinLab/%E5%8F%82%E8%80%83%E6%96%87%E6%A1%A3/notes/linux_kernel_programming/ch10/">
+      
+      
+        <link rel="prev" href="../ch09/">
+      
+      
+        <link rel="next" href="../ch11/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../Awesome-Embedded.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>第 10 章 CPU 调度器（第 1 部分） - PenguinLab 文档</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Sans+SC:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Noto Sans SC";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#第-10-章-cpu-调度器第-1-部分" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="PenguinLab 文档" class="md-header__button md-logo" aria-label="PenguinLab 文档" data-md-component="logo">
+      
+  <img src="../../../../Awesome-Embedded.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PenguinLab 文档
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              第 10 章 CPU 调度器（第 1 部分）
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换至暗色模式"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换至暗色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="indigo"  aria-label="切换至亮色模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换至亮色模式" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="分享" aria-label="分享" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  欢迎来到 PenguinLab
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../part1/01_%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E4%B8%8E%E6%BA%90%E7%A0%81%E6%A0%91%E5%AF%BC%E8%A7%88/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part1
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../../booklist/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  参考文档
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/week2/day08-09_%E5%86%85%E6%A0%B8%E6%A8%A1%E5%9D%97%E5%9F%BA%E7%A1%80%E8%AE%BE%E8%AE%A1/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  学习计划
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  示例代码
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="PenguinLab 文档" class="md-nav__button md-logo" aria-label="PenguinLab 文档" data-md-component="logo">
+      
+  <img src="../../../../Awesome-Embedded.png" alt="logo">
+
+    </a>
+    PenguinLab 文档
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    欢迎来到 PenguinLab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../part1/01_%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E4%B8%8E%E6%BA%90%E7%A0%81%E6%A0%91%E5%AF%BC%E8%A7%88/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part1
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    参考文档
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    参考文档
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../booklist/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    书单：嵌入式 Linux 内核学习推荐书目
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../qemu-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QEMU ARM 速查手册
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Notes
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_3" id="__nav_3_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Notes
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../linux_kernel_debugging/ch01/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux kernel debugging
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../linux_kernel_device_drivers/ch01/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux kernel device drivers
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../linux_kernel_networking/ch01/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux kernel networking
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_3_5" id="__nav_3_3_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux kernel programming
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_3_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_3_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Linux kernel programming
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch01/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 1 章 内核编程新视界 —— 从零开始构建你的内核工作空间
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch02/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 2: Building the 6.x Linux Kernel from Source – Part 1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch03/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 3 章 从源码构建 6.x Linux 内核（第二部分）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch04/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch04
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch05/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 5 章 编写你的第一个内核模块——第二部分
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch06/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6. 内核机制 essentials —— 进程与线程
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch07/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch07
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch08/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 8 章 内核内存分配器：伙伴系统与 Slab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch09/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 9 章 内核内存分配进阶：选择、回收与生存
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 10 章 CPU 调度器（第 1 部分）
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 10 章 CPU 调度器（第 1 部分）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#章节引子" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        章节引子
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#101-cpu-调度器内核机理第一部分必修背景知识" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.1 CPU 调度器内核机理（第一部分）：必修背景知识
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10.1 CPU 调度器内核机理（第一部分）：必修背景知识">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1011-linux-的内核可调度实体kse到底是哪个" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.1.1 Linux 的内核可调度实体（KSE）到底是哪个？
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1012-linux-进程线程状态机" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.1.2 Linux 进程（线程）状态机
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1013-posix-调度策略" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.1.3 POSIX 调度策略
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1014-可视化调度流" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.1.4 可视化调度流
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10.1.4 可视化调度流">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#方法一使用-gnome-system-monitor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        方法一：使用 gnome-system-monitor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#方法二使用-perf-工具" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        方法二：使用 perf 工具
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#练习题" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习题
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="练习题">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#练习-1understanding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 1：understanding
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#练习-2application" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 2：application
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#练习-3application" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 3：application
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#练习-4thinking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 4：thinking
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#要点提炼" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        要点提炼
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch11/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 11 章 CPU 调度器（第二部分）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch12/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 12 章 并发的代价 —— 内核同步机制 Part 1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch13/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 13 章 内核同步（下半部分）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    
+  
+  
+  
+    <a href="../../../../%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/week2/day08-09_%E5%86%85%E6%A0%B8%E6%A8%A1%E5%9D%97%E5%9F%BA%E7%A1%80%E8%AE%BE%E8%AE%A1/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    学习计划
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    示例代码
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#章节引子" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        章节引子
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#101-cpu-调度器内核机理第一部分必修背景知识" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.1 CPU 调度器内核机理（第一部分）：必修背景知识
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10.1 CPU 调度器内核机理（第一部分）：必修背景知识">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1011-linux-的内核可调度实体kse到底是哪个" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.1.1 Linux 的内核可调度实体（KSE）到底是哪个？
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1012-linux-进程线程状态机" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.1.2 Linux 进程（线程）状态机
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1013-posix-调度策略" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.1.3 POSIX 调度策略
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1014-可视化调度流" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.1.4 可视化调度流
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10.1.4 可视化调度流">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#方法一使用-gnome-system-monitor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        方法一：使用 gnome-system-monitor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#方法二使用-perf-工具" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        方法二：使用 perf 工具
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#练习题" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习题
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="练习题">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#练习-1understanding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 1：understanding
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#练习-2application" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 2：application
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#练习-3application" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 3：application
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#练习-4thinking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 4：thinking
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#要点提炼" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        要点提炼
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+  <nav class="md-path" aria-label="导航栏" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href="../../../.." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    欢迎来到 PenguinLab
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../../../booklist/" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    参考文档
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Notes
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../ch01/" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Linux kernel programming
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="第-10-章-cpu-调度器第-1-部分">第 10 章  CPU 调度器（第 1 部分）<a class="headerlink" href="#第-10-章-cpu-调度器第-1-部分" title="链接到此章节">&para;</a></h1>
+<h2 id="章节引子">章节引子<a class="headerlink" href="#章节引子" title="链接到此章节">&para;</a></h2>
+<p>前两章我们在内存管理的泥潭里摸爬滚打——MGLRU、DAMON、OOM Killer，这些名字现在听起来应该既熟悉又让人头大。我们要么在动态分配内存，要么在拼命回收内存，总之，我们一直在围着内存转。</p>
+<p>现在，让我们换个频道。</p>
+<p>这章和下一章，我们要把注意力从内存移到 CPU 上。准确地说，是 CPU 调度——也就是操作系统决定“谁该在 CPU 上跑，谁该滚下去等待”的那套机制。这不仅是写内核和驱动必须懂的基础，作为一个系统架构师，如果你想让你的用户空间程序在高并发环境下不卡顿、不崩，你也必须理解这块东西。</p>
+<p>我们将从零开始：首先要搞清楚内核到底在调度谁（是进程还是线程？），然后理解 POSIX 定义的那些调度策略到底是个什么玩意儿。接着，我们会拿起 <code>perf</code> 这把“手术刀”，把 CPU 的运行时剖开来看——亲眼看着线程在核心之间跳来跳去。</p>
+<p>在掌握了这些可视化工具之后，我们会像剥洋葱一样剥开内核内部，看看 Linux 是如何通过“模块化调度类”来实现复杂的调度逻辑的。最后，我们将深入代码级细节，搞清楚调度器函数到底是谁在调用、什么时候调用，以及上下文切换到底发生了什么。</p>
+<p>但在我们一头扎进代码之前，有一个经常被误解的事实需要澄清：CPU 是一种共享资源，但这并不意味着只有进程在抢它。Linux 有一个更深层的资源管理框架——cgroups（控制组）。如果你看过前面的图 10.1，你可能会注意到顶部有一个模糊的“cgroups”层。现在先别管它，我们会在下一章专门讲它。但你要知道，最终的调度决策，往往是调度器和 cgroups 共同作用的结果。</p>
+<p>准备好了吗？这趟旅程可能会有点晕车，但绝对值得。</p>
+<hr />
+<h2 id="101-cpu-调度器内核机理第一部分必修背景知识">10.1  CPU 调度器内核机理（第一部分）：必修背景知识<a class="headerlink" href="#101-cpu-调度器内核机理第一部分必修背景知识" title="链接到此章节">&para;</a></h2>
+<p>在看复杂的调度算法之前，我们需要先把几个最基础的概念钉死在脑子里。这些是理解后面所有逻辑的地基。</p>
+<h3 id="1011-linux-的内核可调度实体kse到底是哪个">10.1.1  Linux 的内核可调度实体（KSE）到底是哪个？<a class="headerlink" href="#1011-linux-的内核可调度实体kse到底是哪个" title="链接到此章节">&para;</a></h3>
+<p>我们在第 6 章讲进程和线程时提到过，每一个活着的用户模式线程，内核都会给它分配一个 <code>task_struct</code> 结构体，以及一个用户栈和一个内核栈。内核线程虽然也有 <code>task_struct</code>，但它们只有内核栈。</p>
+<p>现在的关键问题是：<strong>当调度器说“该换人干活了”的时候，它换的到底是“谁”？</strong></p>
+<p>在操作系统术语里，这东西叫 <strong>Kernel Schedulable Entity (KSE)</strong>。</p>
+<p>很多人直觉上认为“进程”是调度的基本单位。但在 Linux 上，这个直觉是<strong>错的</strong>。</p>
+<p>Linux 的 KSE 是 <strong>线程</strong>，不是进程（当然，每个进程至少包含一个线程）。调度器是以线程为粒度进行操作的。</p>
+<p>让我们用一个假想的场景来“锚定”这个认知。</p>
+<p>假设你的系统只有 <strong>1 个 CPU 核心</strong>，上面跑了 3 个用户空间进程：
+- <strong>P1</strong>：只有 1 个线程。
+- <strong>P2</strong>：有 2 个线程。
+- <strong>P3</strong>：有 5 个线程。</p>
+<p>除此之外，内核里还跑着 3 个内核线程。</p>
+<p>那么，现在有多少个实体在抢这一个 CPU 核心？</p>
+<p>不是 3（进程数），也不是 6（进程+内核线程数）。
+答案是 <strong>1 + 2 + 5 + 3 = 11 个线程</strong>。</p>
+<p>这 11 个线程，如果都处于“可运行”状态（也就是 Ready），它们就会在 CPU 的“运行队列”里打架。至于它们属于哪个进程，调度器并不关心。调度器眼里只有线程。</p>
+<blockquote>
+<p><strong>类比时刻 1：建立映射</strong>
+你可以把调度器想象成一个<strong>交通指挥员</strong>。
+进程就是<strong>车队</strong>，而线程是车队里的<strong>每一辆车</strong>。
+调度员并不指挥“车队”走，他指挥的是“每一辆车”。一个车队可能有一辆车，也可能有十辆车，但这跟调度员没关系，他只看车。</p>
+<p><strong>类比时刻 2：揭示距离</strong>
+但这个类比在<strong>优先级</strong>上会失效。
+在现实交通中，车队里的车通常是一起走的。
+但在 Linux 里，同一个进程（车队）里的不同线程（车），可以一个在高速上狂奔（高优先级），另一个在路边趴窝（低优先级）。它们在调度器眼里是独立的个体，没什么“兄弟情义”。</p>
+<p><strong>类比时刻 3：回收验证</strong>
+回到那个交通指挥员。
+当我们说“系统负载很高”时，实际上是指马路上有 11 辆车在抢道（11 个线程），而不是只有 3 个车队在跑。
+如果 P3 车队里的 5 辆车都在疯狂踩油门，那调度员就会一直盯着这 5 辆车，而根本不管 P1 车队那辆孤零零的车。</p>
+</blockquote>
+<p>现在我们搞清楚了：<strong>KSE 是线程</strong>。所以接下来的讨论中，我们都会用“线程”这个词，而不是“进程”。如果你习惯看老式的 OS 教科书，它们可能还在说“进程状态机”，但现在请你在脑子里自动把它替换成“线程状态机”。</p>
+<h3 id="1012-linux-进程线程状态机">10.1.2  Linux 进程（线程）状态机<a class="headerlink" href="#1012-linux-进程线程状态机" title="链接到此章节">&para;</a></h3>
+<p>每个 Linux 线程在它的生命周期里，都会在不同的状态之间流转。把这些状态画出来，就是一个状态机。</p>
+<p>既然我们已经确立了 KSE 是线程，那我们接下来就用标准的 Linux 术语来描述这些状态。<code>ps</code> 命令通常用一个字母来表示这些状态，比如 <code>R</code>、<code>S</code>、<code>D</code> 等。</p>
+<p><strong>核心状态列表</strong></p>
+<ol>
+<li>
+<p><strong><code>TASK_RUNNING</code> (R state)</strong>：</p>
+<ul>
+<li><strong>别名</strong>：Ready-to-run 或 Running。</li>
+<li><strong>含义</strong>：这是最容易被误解的状态。它并不代表“正在运行”。它代表<strong>“正在运行”或者“准备好运行”</strong>。</li>
+<li><strong>关键点</strong>：只要线程在这个状态，它就在<strong>运行队列</strong>里。Linux 不会刻意区分“正在 CPU 上跑”和“在队列里排队跑”，这两者都是 <code>R</code>。它们都是候选人，随时可能上 CPU。</li>
+</ul>
+</li>
+<li>
+<p><strong><code>TASK_INTERRUPTIBLE</code> (S state)</strong>：</p>
+<ul>
+<li><strong>别名</strong>：可中断睡眠。</li>
+<li><strong>含义</strong>：线程在睡觉（等待某个事件，比如网络包、磁盘 IO）。</li>
+<li><strong>特征</strong>：虽然是“睡眠”，但它是可以被打扰的。如果这时候给它发个信号（Signal），它会被强行唤醒去处理信号。</li>
+</ul>
+</li>
+<li>
+<p><strong><code>TASK_UNINTERRUPTIBLE</code> (D state)</strong>：</p>
+<ul>
+<li><strong>别名</strong>：不可中断睡眠。</li>
+<li><strong>含义</strong>：线程在睡觉，而且<strong>雷打不动</strong>。</li>
+<li><strong>特征</strong>：通常用于极其关键的 IO 等待，这时候不能被信号干扰。如果系统中出现大量 <code>D</code> 状态的进程，通常意味着存储系统挂了或者很慢。这也是为什么 <code>ps</code> 里它显示为 <code>D</code>（Dead？不，是 Disk Wait）。</li>
+</ul>
+</li>
+<li>
+<p><strong><code>TASK_STOPPED</code> (T state)</strong>：</p>
+<ul>
+<li><strong>含义</strong>：线程被暂停了。通常是收到了 <code>SIGSTOP</code> 信号，或者正在被调试器跟踪。</li>
+</ul>
+</li>
+<li>
+<p><strong><code>TASK_DEAD / TASK_ZOMBIE</code> (X / Z state)</strong>：</p>
+<ul>
+<li><strong>含义</strong>：线程已经挂了，或者变成了僵尸。</li>
+<li><strong>僵尸</strong>：线程执行完了，父进程还没来给它“收尸”（调用 <code>wait()</code>）。这是一种半死不活的状态，必须在系统中被清理掉。</li>
+</ul>
+</li>
+</ol>
+<p><strong>状态的动态流转</strong></p>
+<p>当一个线程刚被 <code>fork()</code> 或 <code>pthread_create()</code> 造出来后，内核会把它设为 <code>TASK_RUNNING</code>（<code>R</code> 状态）。这时它进了运行队列，时刻准备着被调度器选中。</p>
+<p>如果这个线程需要等待某个资源（比如读文件），它就会调用调度器相关的睡眠函数，把自己的状态从 <code>R</code> 改成 <code>S</code> 或 <code>D</code>，并从运行队列里拿出来，放到一个<strong>等待队列</strong>里。</p>
+<p>当它等待的事件发生了（比如磁盘数据读上来了），内核会把它“唤醒”。这实际上做了两件事：
+1. 把它从等待队列里摘掉。
+2. 把它重新挂回 CPU 的运行队列，状态改回 <code>TASK_RUNNING</code>。</p>
+<p>注意，被唤醒并不意味着<strong>立刻</strong>就在 CPU 上跑了。它只是又变成了 <code>R</code> 状态的候选人，得排队等调度器翻它的牌子。</p>
+<p><strong>代码视角：<code>__state</code></strong></p>
+<p>在代码层面，这一切是怎么实现的？答案在 <code>task_struct</code> 结构体里。</p>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1"></a><a href="#__codelineno-0-1"><span class="linenos" data-linenos="1 "></span></a><span class="k">struct</span><span class="w"> </span><span class="nc">task_struct</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2"></a><a href="#__codelineno-0-2"><span class="linenos" data-linenos="2 "></span></a><span class="w">    </span><span class="c1">// ...</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3"></a><a href="#__codelineno-0-3"><span class="linenos" data-linenos="3 "></span></a><span class="w">    </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">__state</span><span class="p">;</span><span class="w">   </span><span class="c1">// 注意：以前叫 &#39;state&#39;</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4"></a><a href="#__codelineno-0-4"><span class="linenos" data-linenos="4 "></span></a><span class="w">    </span><span class="c1">// ...</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5"></a><a href="#__codelineno-0-5"><span class="linenos" data-linenos="5 "></span></a><span class="p">};</span>
+</span></code></pre></div>
+<p>这个成员 <code>__state</code> 就是一个整数位掩码。当它是 <code>TASK_RUNNING</code> 时，线程就在跑；当它是 <code>TASK_INTERRUPTIBLE</code> 时，线程就在睡。</p>
+<blockquote>
+<p><strong>⚠️ 踩坑预警</strong>
+千万别以为系统里只有一个全局的运行队列，也千万别以为只有一个等待队列。
+<strong>Linux 为每个 CPU 核心都维护了一个独立的运行队列。</strong>
+等待队列则是到处都是，每个驱动程序、内核模块想用就能建一个。</p>
+</blockquote>
+<p>有了这些背景知识，我们接下来看看 Linux 具体支持哪些调度策略——也就是，它是根据什么规则从运行队列里挑人的。</p>
+<h3 id="1013-posix-调度策略">10.1.3  POSIX 调度策略<a class="headerlink" href="#1013-posix-调度策略" title="链接到此章节">&para;</a></h3>
+<p>你可以把“调度策略”大致理解为“选拔人才的算法”。</p>
+<p>Linux 并不是只有一种调度算法。POSIX 标准强制要求任何合规的操作系统至少得实现三种策略。Linux 不光实现了这三种，还加了几种自己的，并且通过<strong>模块化调度类</strong>的设计把它们完美地融合在了一起。</p>
+<p>首先，我们需要建立一个大前提：<strong>系统里的每一个线程，在任何一个时刻，都必然绑定着一种特定的调度策略。</strong> 这个策略是可以动态改的。</p>
+<p>下面这个表是 Linux 调度策略的速查表，建议你先扫一眼，有点印象，我们后面会挑重点细讲。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">调度策略</th>
+<th style="text-align: left;">关键特性</th>
+<th style="text-align: left;">优先级范围</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong><code>SCHED_OTHER</code></strong> <br> (也叫 <code>SCHED_NORMAL</code>)</td>
+<td style="text-align: left;"><strong>默认策略</strong>。它是“普通人”的策略，追求的是<strong>公平</strong>和<strong>整体吞吐量</strong>。它属于 CFS（完全公平调度器）类。</td>
+<td style="text-align: left;">Nice 值：<br> -20 (最高) ~ +19 (最低) <br> 默认为 0</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><code>SCHED_FIFO</code></strong></td>
+<td style="text-align: left;"><strong>非常激进的实时策略</strong>。一旦上了 CPU，除非自己愿意下来（阻塞/退出），或者被更高优先级的线程踹下去，否则它<strong>一直占着</strong>，时间片无限大。</td>
+<td style="text-align: left;">实时优先级：<br> 1 ~ 99 <br> 数字越大越猛</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><code>SCHED_RR</code></strong></td>
+<td style="text-align: left;"><strong>轮转式实时策略</strong>。跟 <code>FIFO</code> 一样猛，但它有<strong>时间片</strong>（默认 100ms）。时间片用完了，如果优先级相同，就换人玩，大家轮流上。</td>
+<td style="text-align: left;">实时优先级：<br> 1 ~ 99</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><code>SCHED_BATCH</code></strong></td>
+<td style="text-align: left;"><strong>适合批处理任务</strong>。适合那种不跟人交互、闷头计算的程序。内核会尽量减少对它的抢占，以此来提高吞吐量。</td>
+<td style="text-align: left;">Nice 值：-20 ~ +19</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><code>SCHED_IDLE</code></strong></td>
+<td style="text-align: left;"><strong>极其卑微的策略</strong>。优先级比 Nice 19 还低。只有当 CPU 没事儿干的时候，才会让它跑跑。PID 0 的 <code>swapper</code> 空闲线程就是这类。</td>
+<td style="text-align: left;">最低（比 nice 19 还低）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>表 10.1：Linux（POSIX 兼容）调度策略一览</strong></p>
+<blockquote>
+<p><strong>⚠️ 概念区分：硬实时 vs 软实时</strong>
+这里的 <code>SCHED_FIFO</code> 和 <code>SCHED_RR</code> 被称为<strong>软实时</strong>策略。Linux 作为一个通用操作系统（GPOS），默认<strong>不是</strong>硬实时操作系统（RTOS）。
+“硬实时”意味着“万无一失，必须在 deadline 前做完”，而“软实时”意味着“尽量快，但不保命”。
+你可以通过打补丁把 Linux 变成硬实时系统，但我们通常跑的都是通用版。</p>
+</blockquote>
+<p><strong>深入细节：<code>SCHED_FIFO</code> vs <code>SCHED_RR</code></strong></p>
+<p>虽然它们都是实时策略，但有个微妙的区别，这在使用中非常关键：</p>
+<ul>
+<li><strong><code>SCHED_FIFO</code></strong>：<strong>没有时间片概念</strong>。如果两个 <code>FIFO</code> 线程优先级相同（比如都是 50），那么先跑的那个会一直跑，直到它主动阻塞或者被高优先级打断。另一个同优先级的线程只能干瞪眼。<strong>后果</strong>：如果你设计不好，同一个优先级下可能会有线程饿死。</li>
+<li><strong><code>SCHED_RR</code></strong>：<strong>有时间片</strong>（Round Robin）。同优先级的线程大家轮流上，时间片到了就换下一个。这比 <code>FIFO</code> 友好一点。</li>
+</ul>
+<p><strong>中断的至高地位</strong></p>
+<p>这里必须插入一个“安全刹车”机制。</p>
+<p>不管你的线程是 <code>SCHED_FIFO</code> 优先级 99（理论上最高），<strong>硬件中断和软件中断永远比它高</strong>。中断来了，你的线程也得乖乖让路。这是系统稳定性的最后一道防线。</p>
+<p><strong>线程优先级的层级</strong></p>
+<p>现在我们把视角拉高，看看 Linux 整个优先级的阶梯图（见图 10.3）。</p>
+<ol>
+<li><strong>实时优先级 (1 ~ 99)</strong>：<ul>
+<li>给 <code>SCHED_FIFO</code> 和 <code>SCHED_RR</code> 用的。</li>
+<li><strong>规则</strong>：只要有一个实时线程在运行队列里，所有的 <code>SCHED_OTHER</code>（普通线程）都靠边站。它们不在一个竞技场里。</li>
+</ul>
+</li>
+<li><strong>普通优先级 (Nice 值: -20 ~ +19)</strong>：<ul>
+<li>给 <code>SCHED_OTHER</code> 用的。</li>
+<li>Nice 值越小，优先级越高。0 是默认值。</li>
+<li>这就是个“好人卡”系统：你越“Nice”（大度），你让 CPU 的次数就越多（优先级越低）。</li>
+</ul>
+</li>
+</ol>
+<blockquote>
+<p><strong>⚠️ 实战经验：Autogroups 的干扰</strong>
+很多现代发行版开启了 <code>CONFIG_SCHED_AUTOGROUP</code>。这会利用 cgroups 技术给终端窗口下的进程“加成”优先级。这会导致传统的 <code>nice</code> 值看起来失效了。如果你在测试时发现 nice 值不起作用，查一下这个内核选项。</p>
+</blockquote>
+<p>现在我们知道了有哪些策略。接下来，我们需要直观地看一看，这些策略到底是如何在 CPU 上运转的。</p>
+<h3 id="1014-可视化调度流">10.1.4  可视化调度流<a class="headerlink" href="#1014-可视化调度流" title="链接到此章节">&para;</a></h3>
+<p>多核系统让线程可以在不同的 CPU 上并行执行。这提高了吞吐量，但也带来了调试的噩梦。如果几个线程同时操作一块共享内存，谁先谁后？这很难肉眼看出来。</p>
+<p>我们需要一种方法，能像看回放一样，看到哪个线程在哪个时刻占了哪个 CPU 核心。</p>
+<p>这里有两个工具：一个是简单的 GUI 工具 <code>gnome-system-monitor</code>，另一个是内功深厚的 <code>perf</code>。</p>
+<h4 id="方法一使用-gnome-system-monitor">方法一：使用 <code>gnome-system-monitor</code><a class="headerlink" href="#方法一使用-gnome-system-monitor" title="链接到此章节">&para;</a></h4>
+<p>这是 GNOME 桌面环境自带的系统监控工具。</p>
+<p>为了看到有趣的现象，我们需要制造点“负载”。我们将运行三个 CPU 密集型的进程，并手动把它们绑死在不同的 CPU 核心上。</p>
+<p>这里我们要用到一个强力工具：<code>taskset</code>（属于 util-linux 包）。</p>
+<p><strong>实验步骤</strong></p>
+<p>假设你的系统有 6 个核心（编号 0 到 5）。</p>
+<ol>
+<li>在 CPU 1 上跑一个 <code>yes</code> 进程（这是一个无限循环打印 'y' 的程序，CPU 杀手）：
+    <div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1"></a><a href="#__codelineno-1-1"><span class="linenos" data-linenos="1 "></span></a>taskset<span class="w"> </span>-c<span class="w"> </span><span class="m">1</span><span class="w"> </span>yes<span class="w"> </span>&gt;<span class="w"> </span>/dev/null<span class="w"> </span><span class="p">&amp;</span>
+</span></code></pre></div></li>
+<li>同理，在 CPU 2 和 CPU 3 上也各跑一个：
+    <div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1"></a><a href="#__codelineno-2-1"><span class="linenos" data-linenos="1 "></span></a>taskset<span class="w"> </span>-c<span class="w"> </span><span class="m">2</span><span class="w"> </span>yes<span class="w"> </span>&gt;<span class="w"> </span>/dev/null<span class="w"> </span><span class="p">&amp;</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2"></a><a href="#__codelineno-2-2"><span class="linenos" data-linenos="2 "></span></a>taskset<span class="w"> </span>-c<span class="w"> </span><span class="m">3</span><span class="w"> </span>yes<span class="w"> </span>&gt;<span class="w"> </span>/dev/null<span class="w"> </span><span class="p">&amp;</span>
+</span></code></pre></div></li>
+</ol>
+<p>现在打开 <code>gnome-system-monitor</code>，点击“资源”标签页。</p>
+<p>你会看到类似图 10.4 的画面：CPU 2、3、4（注意 GUI 显示编号通常从 1 开始，所以对应核心 1、2、3）的负载直接拉满到 100%。这就是直观的并发和并行。</p>
+<p>用 <code>pkill yes</code> 可以结束这场闹剧。</p>
+<h4 id="方法二使用-perf-工具">方法二：使用 <code>perf</code> 工具<a class="headerlink" href="#方法二使用-perf-工具" title="链接到此章节">&para;</a></h4>
+<p>如果你觉得 <code>gnome-system-monitor</code> 太玩具，那 <code>perf</code> 绝对能满足你的极客心。它是 Linux 内核自带的性能分析神器。</p>
+<blockquote>
+<p><strong>⚠️ 前置条件</strong>
+<code>perf</code> 是跟内核版本强绑定的。在 Ubuntu 上你需要装 <code>linux-tools-$(uname -r)</code>。
+如果你编译的是自己魔改过的内核（比如书里自带的 6.1），可能没有对应的 perf 包。建议用发行版自带的内核来做这个实验。</p>
+</blockquote>
+<p><strong>1. 命令行模式：<code>perf sched map</code></strong></p>
+<p>还是刚才的实验场景。为了方便，书里提供了一个脚本 <code>ch10/concurrent_exercise/concurrency</code>，它可以一次性在所有核心上起 <code>yes</code> 进程。</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1"></a><a href="#__codelineno-3-1"><span class="linenos" data-linenos="1 "></span></a><span class="nb">cd</span><span class="w"> </span>ch10/concurrent_exercise
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2"></a><a href="#__codelineno-3-2"><span class="linenos" data-linenos="2 "></span></a>./concurrency<span class="w"> </span><span class="m">6</span><span class="w">  </span><span class="c1"># 在 6 个核心上各起一个 yes</span>
+</span></code></pre></div>
+<p>在另一个终端窗口，开始录制调度事件：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1"></a><a href="#__codelineno-4-1"><span class="linenos" data-linenos="1 "></span></a>sudo<span class="w"> </span>perf<span class="w"> </span>sched<span class="w"> </span>record
+</span></code></pre></div>
+<p>让它跑个十几秒，然后按 <code>Ctrl+C</code> 停止。这会生成一个名为 <code>perf.data</code> 的二进制文件。</p>
+<p>现在，让我们把它变成人能看懂的“地图”：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1"></a><a href="#__codelineno-5-1"><span class="linenos" data-linenos="1 "></span></a>sudo<span class="w"> </span>perf<span class="w"> </span>sched<span class="w"> </span>map<span class="w"> </span>&gt;<span class="w"> </span>mymap.txt
+</span></code></pre></div>
+<p>打开 <code>mymap.txt</code>，你会看到一堆字符流。这看起来像乱码，但仔细看非常有规律（参考图 10.5）。</p>
+<ul>
+<li>每一行代表一个时间点。</li>
+<li>每一列代表一个 CPU 核心。</li>
+<li>两个字符的代号代表线程。比如 <code>A0</code> 是迁移线程，<code>B0</code> 是我们的 <code>yes</code> 线程。</li>
+</ul>
+<p>最震撼的是，如果你用 vim 搜索 <code>B0..D0..F0...</code>，你会发现这几个字符<strong>在同一行</strong>同时出现（如图 10.6）。这证明了什么？证明了它们真的在并行运行！</p>
+<p><strong>2. 图形化模式：<code>perf timechart</code></strong></p>
+<p>如果字符流看着眼晕，<code>perf</code> 还能生成 SVG 矢量图，用浏览器打开，视觉效果拉满。</p>
+<p>命令如下：</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1"></a><a href="#__codelineno-6-1"><span class="linenos" data-linenos="1 "></span></a>sudo<span class="w"> </span>perf<span class="w"> </span>timechart<span class="w"> </span>-i<span class="w"> </span>./perf.data
+</span></code></pre></div>
+<p>这会生成一个 <code>output.svg</code> 文件。用 Firefox 或 Chrome 打开它（如图 10.7 和 10.8）。</p>
+<p>你会看到彩色的条形图。
+*   <strong>蓝色</strong>代表 <code>Running</code> 状态。
+*   你会清晰地看到我们的 <code>yes</code> 进程像长城一样铺在 CPU 核心上，没完没了地跑。
+*   下面还穿插着其他进程，大部分是灰色的（睡眠状态）。</p>
+<p>这种可视化的能力对于分析性能瓶颈（比如为什么我的应用一秒卡顿了两次）简直是救命稻草。</p>
+<hr />
+<p>有了这些直观的感受和背景知识，我们现在可以潜入内核深处，看看这套复杂的机制到底是怎么设计出来的。下一节，我们将深入剖析 <strong>模块化调度类</strong>。</p>
+<hr />
+<h2 id="练习题">练习题<a class="headerlink" href="#练习题" title="链接到此章节">&para;</a></h2>
+<h3 id="练习-1understanding">练习 1：understanding<a class="headerlink" href="#练习-1understanding" title="链接到此章节">&para;</a></h3>
+<p><strong>题目</strong>：在 Linux 调度器的状态机模型中，TASK_UNINTERRUPTIBLE (D 状态) 和 TASK_INTERRUPTIBLE (S 状态) 都表示进程处于睡眠状态。请从系统管理的角度分析：为什么 Linux 需要 D 状态？如果系统出现大量处于 D 状态的进程且无法恢复，通常暗示了什么系统层面的问题？</p>
+<details><summary>答案与解析</summary>
+
+
+**答案**：D 状态用于处理不可中断的睡眠，通常应用于等待关键 I/O 操作（如磁盘 swap 写入）的场景，以防止进程在数据写入过程中被信号中断而导致数据损坏。如果系统出现大量且无法恢复的 D 状态进程，通常暗示底层存储子系统（如 NFS 挂载无响应、磁盘故障或由于 I/O 栈拥塞导致的“卡死”）出现了严重的阻塞。
+
+
+**解析**：本题考察对进程状态机中 S 和 D 状态区别的理解。
+1. **概念区分**：S 状态允许被信号唤醒（如用户按 Ctrl+C），适用于大多数等待；D 状态忽略信号，必须等待等待的事件（如硬件 I/O 完成）发生。
+2. **设计意图**：D 状态保证了某些关键操作（如写入磁盘数据结构）的原子性，防止进程在持有锁或操作硬件关键路径时被意外终止。
+3. **故障排查**：D 状态通常是短暂的。如果进程永久处于 D 状态，意味着它在等待的资源永远无法就绪（例如服务器宕机导致网络 I/O 挂起），这被称为“ uninterruptible sleep deadlock”，是系统管理员需要高度警惕的故障信号。
+
+
+</details>
+
+<h3 id="练习-2application">练习 2：application<a class="headerlink" href="#练习-2application" title="链接到此章节">&para;</a></h3>
+<p><strong>题目</strong>：假设你正在开发一个高性能计算应用，其中一个线程需要进行密集的数学运算。默认情况下，该线程使用 SCHED_OTHER 策略。为了保证该线程获得最大的 CPU 时间片且尽可能减少被其他普通进程抢占，在不使用实时策略（SCHED_FIFO/RR）的前提下，你应该如何调整其 Nice 值？对应的命令是什么？</p>
+<details><summary>答案与解析</summary>
+
+
+**答案**：应将 Nice 值调整为 -20（最高优先级）。可以使用命令 `nice -n -20 ./your_program` 启动程序，或使用 `renice -n -20 -p <PID>` 修改运行中进程的 Nice 值。
+
+
+**解析**：本题考察对 SCHED_OTHER 策略中 Nice 值的实际应用。
+1. **策略限制**：SCHED_OTHER 是 Linux 普通进程的默认策略，基于 CFS 算法。它与实时进程（优先级 1-99）不同，无法通过改变策略来抢占。
+2. **Nice 值范围**：-20 到 +19。-20 代表最高优先级，+19 代表最低。
+3. **应用场景**：对于 CPU 密集型任务，将 Nice 值设为 -20 会让 CFS 调度器在计算 vruntime（虚拟运行时间）时给予该任务更高的权重（更小的 vruntime 增长），从而使其在红黑树中更倾向于被调度，减少被其他低优先级（Nice 值大）任务抢占的频率。
+
+
+</details>
+
+<h3 id="练习-3application">练习 3：application<a class="headerlink" href="#练习-3application" title="链接到此章节">&para;</a></h3>
+<p><strong>题目</strong>：在一个单核 CPU 系统中，有两个线程：
+- 线程 A：SCHED_FIFO 策略，优先级 10，执行一个无限循环（<code>while(1);</code>）。
+- 线程 B：SCHED_FIFO 策略，优先级 5，试图计算 1+1。
+- 系统中还有若干中断服务程序（ISR）在运行。</p>
+<p>请问：线程 B 能有机会运行吗？中断服务程序能运行吗？请详细解释调度器的行为。</p>
+<details><summary>答案与解析</summary>
+
+
+**答案**：线程 B 没有机会运行（直到线程 A 主动让出 CPU 或退出）。中断服务程序（ISR）可以正常运行并抢占线程 A。
+
+
+**解析**：本题考察对 SCHED_FIFO 抢占模型和中断优先级的理解。
+1. **线程间调度**：SCHED_FIFO 是实时抢占策略。线程 A (Prio 10) 的优先级高于线程 B (Prio 5)。根据规则，只有当高优先级任务（A）阻塞（I/O）、退出或主动放弃 CPU 时，低优先级任务（B）才能运行。由于 A 是无限循环且无阻塞，B 将永久饥饿。
+2. **中断与进程的优先级**：Linux 内核的中断（硬件和软中断）优先级高于所有进程（包括 SCHED_FIFO 的优先级 99）。因此，尽管 A 占据了 CPU，当硬件中断发生时（如时钟中断或网络包到达），CPU 仍然会暂停线程 A，转而去执行 ISR。ISR 执行完毕后，才会恢复线程 A 的执行。
+3. **结论**：B 饥饿，中断不受影响。这就是为什么编写 SCHED_FIFO 程序时必须小心，避免死循环导致系统软死机（忽略干预的话）。
+
+
+</details>
+
+<h3 id="练习-4thinking">练习 4：thinking<a class="headerlink" href="#练习-4thinking" title="链接到此章节">&para;</a></h3>
+<p><strong>题目</strong>：Linux 内核源码中有一个被称为“黄金法则”的调度器设计原则：<strong>“调度器代码永远不能在原子上下文（包括中断上下文）中运行。”</strong> 请思考：如果打破这个原则，允许在持有自旋锁或处于中断上下文时调用 <code>schedule()</code> 进行进程切换，会发生什么灾难性的后果？请结合中断处理和锁机制进行深度分析。</p>
+<details><summary>答案与解析</summary>
+
+
+**答案**：如果打破该原则，会导致“双重获取锁”或死锁，甚至导致系统彻底死锁或内核崩溃。核心原因是 `schedule()` 会触发 `switch_to`，切换到另一个可能也试图获取同一个自旋锁的进程，或者在同一 CPU 上再次触发中断。
+
+
+**解析**：本题考察对内核调度深层原理和并发控制的综合理解。
+1. **原子上下文的定义**：原子上下文意味着内核正在执行临界区代码（持有自旋锁 `spinlock`）或正在处理中断。此时不能睡眠，不能发生进程调度。
+2. **死锁场景分析（自旋锁视角）**：
+   - 假设进程 P1 在 CPU0 上持有自旋锁 L（此时禁止抢占），进入临界区。
+   - 如果允许在持有锁时调用 `schedule()`，调度器将 P1 移出运行队列，换入进程 P2。
+   - 如果 P2（在 CPU0 上运行）也试图获取锁 L，它将自旋等待 P1 释放锁。
+   - 然而，P1 只有在被重新调度回 CPU0 并执行时才能释放锁。
+   - **结果**：P2 等待 P1，P1 等待 P2（调度器资源），形成死锁。系统将失去响应。
+3. **中断上下文分析**：
+   - 中断处理程序（ISR）并不属于任何进程，它是“借”当前进程的栈和资源运行的。
+   - 如果 ISR 中调用 `schedule()`，内核将尝试保存“中断上下文”并恢复“进程上下文”。这不仅是逻辑混乱（谁在中断里睡觉？），而且如果中断再次发生（递归中断），内核栈可能溢出或状态完全错乱。
+4. **设计哲学**：因此，Linux 强制要求所有可能引起睡眠（进而调用调度器）的函数路径都必须是非原子上下文，这是保证内核并发安全的最基本底线。
+
+
+</details>
+
+<hr />
+<h2 id="要点提炼">要点提炼<a class="headerlink" href="#要点提炼" title="链接到此章节">&para;</a></h2>
+<p>Linux 的内核可调度实体（KSE）是线程而非进程，调度器以线程为粒度进行操作，同一个进程内的不同线程在调度器眼中是完全独立的个体，没有任何“兄弟情义”或必然的同步关系。</p>
+<p>理解线程状态流转的关键在于区分 <code>TASK_RUNNING</code> 与实际执行的区别，<code>R</code> 状态仅代表线程处于运行队列中（正在执行或准备好执行），而非 <code>R</code> 状态（如 <code>S</code> 或 <code>D</code>）则意味着线程已放弃 CPU 并进入等待队列，唤醒操作仅是将其重新放回运行队列，并不代表立即获得 CPU。</p>
+<p>Linux 将线程优先级严格划分为实时（1-99）和普通两类，只要运行队列中存在实时线程，普通线程无论 Nice 值如何都会被靠边站，且即便是最高优先级的实时线程也必须服从硬件中断和软中断的绝对权威。</p>
+<p>虽然 <code>SCHED_FIFO</code> 和 <code>SCHED_RR</code> 均为软实时策略，但前者一旦占用 CPU 只要自身不阻塞或被更高优先级抢占就会一直运行，容易导致同优先级线程饿死，而后者引入了时间片机制，保证了同优先级线程间的公平轮转。</p>
+<p>利用 <code>perf sched map</code> 和 <code>perf timechart</code> 等工具可以将 CPU 的运行时数据可视化为字符地图或 SVG 图谱，这不仅能直观验证多核并行性（不同核心同时运行线程），更是诊断复杂调度场景和性能瓶颈的“手术刀”。</p>
+
+
+
+
+
+
+
+  
+    
+  
+  
+    
+  
+
+
+  <aside class="md-source-file">
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="最后更新">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年5月6日 08:06:46 CST">2026年5月6日 08:06:46</span>
+  </span>
+
+    
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="创建日期">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年5月6日 08:06:46 CST">2026年5月6日 08:06:46</span>
+  </span>
+
+    
+    
+    
+  </aside>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href="../ch09/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 第 9 章 内核内存分配进阶：选择、回收与生存">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                第 9 章 内核内存分配进阶：选择、回收与生存
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../ch11/" class="md-footer__link md-footer__link--next" aria-label="下一页: 第 11 章 CPU 调度器（第二部分）">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              <div class="md-ellipsis">
+                第 11 章 CPU 调度器（第二部分）
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 Charliechen - 保留所有权利
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/Awesome-Embedded-Learning-Studio" target="_blank" rel="noopener" title="GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="mailto:725610365@qq.com" target="_blank" rel="noopener" title="发送邮件" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M536.4-26.3c9.8-3.5 20.6-1 28 6.3s9.8 18.2 6.3 28l-178 496.9c-5 13.9-18.1 23.1-32.8 23.1-14.2 0-27-8.6-32.3-21.7l-64.2-158c-4.5-11-2.5-23.6 5.2-32.6l94.5-112.4c5.1-6.1 4.7-15-.9-20.6s-14.6-6-20.6-.9l-112.4 94.3c-9.1 7.6-21.6 9.6-32.6 5.2L38.1 216.8c-13.1-5.3-21.7-18.1-21.7-32.3 0-14.7 9.2-27.8 23.1-32.8z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.instant", "navigation.instant.prefetch", "navigation.instant.progress", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.prune", "navigation.path", "navigation.indexes", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.select", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.action.edit", "content.action.view"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

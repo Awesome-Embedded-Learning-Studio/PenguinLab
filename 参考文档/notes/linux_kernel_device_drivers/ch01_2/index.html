@@ -1,0 +1,3564 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="30 天嵌入式 Linux 内核学习计划">
+      
+      
+        <meta name="author" content="Charliechen">
+      
+      
+        <link rel="canonical" href="https://awesome-embedded-learning-studio.github.io/PenguinLab/%E5%8F%82%E8%80%83%E6%96%87%E6%A1%A3/notes/linux_kernel_device_drivers/ch01_2/">
+      
+      
+        <link rel="prev" href="../ch01_1/">
+      
+      
+        <link rel="next" href="../ch02/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../Awesome-Embedded.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Ch01 2 - PenguinLab 文档</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Sans+SC:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Noto Sans SC";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#12-技术准备与环境" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="PenguinLab 文档" class="md-header__button md-logo" aria-label="PenguinLab 文档" data-md-component="logo">
+      
+  <img src="../../../../Awesome-Embedded.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PenguinLab 文档
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Ch01 2
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换至暗色模式"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换至暗色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="indigo"  aria-label="切换至亮色模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换至亮色模式" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="分享" aria-label="分享" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  欢迎来到 PenguinLab
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../part1/01_%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E4%B8%8E%E6%BA%90%E7%A0%81%E6%A0%91%E5%AF%BC%E8%A7%88/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part1
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../../booklist/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  参考文档
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/week2/day08-09_%E5%86%85%E6%A0%B8%E6%A8%A1%E5%9D%97%E5%9F%BA%E7%A1%80%E8%AE%BE%E8%AE%A1/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  学习计划
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  示例代码
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="PenguinLab 文档" class="md-nav__button md-logo" aria-label="PenguinLab 文档" data-md-component="logo">
+      
+  <img src="../../../../Awesome-Embedded.png" alt="logo">
+
+    </a>
+    PenguinLab 文档
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    欢迎来到 PenguinLab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../part1/01_%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E4%B8%8E%E6%BA%90%E7%A0%81%E6%A0%91%E5%AF%BC%E8%A7%88/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part1
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    参考文档
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    参考文档
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../booklist/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    书单：嵌入式 Linux 内核学习推荐书目
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../qemu-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QEMU ARM 速查手册
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Notes
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_3" id="__nav_3_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Notes
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../linux_kernel_debugging/ch01/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux kernel debugging
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_3_3" id="__nav_3_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux kernel device drivers
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_3_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Linux kernel device drivers
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch01/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 1 章
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch01_1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 1 章 跨越界限：从用户空间到内核的第一步
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch01 2
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch01 2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#12-技术准备与环境" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2 技术准备与环境
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-开始编写一个简单的-misc-字符设备驱动" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.3 开始编写一个简单的 misc 字符设备驱动
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1.3 开始编写一个简单的 misc 字符设备驱动">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#理解设备的基础" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        理解设备的基础
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="理解设备的基础">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#字符设备-vs-块设备" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        字符设备 vs 块设备
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#那-misc-类又是怎么回事" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        那 misc 类又是怎么回事？
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#linux-设备模型ldm速览" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Linux 设备模型（LDM）速览
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#编写-misc-驱动代码--第一部分骨架" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        编写 misc 驱动代码 —— 第一部分：骨架
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="编写 misc 驱动代码 —— 第一部分：骨架">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#代码拆解" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        代码拆解
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#理解进程驱动与内核之间的连接" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        理解进程、驱动与内核之间的连接
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="理解进程、驱动与内核之间的连接">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#处理不支持的方法" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        处理不支持的方法
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#编写-misc-驱动代码--第二部分功能实现" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        编写 misc 驱动代码 —— 第二部分：功能实现
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#真正的数据搬运用户空间与内核空间" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        真正的数据搬运：用户空间与内核空间
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="真正的数据搬运：用户空间与内核空间">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#使用-copy_to_user" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        使用 copy_to_user
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#进阶实战带秘密的-misc-驱动" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        进阶实战：带“秘密”的 misc 驱动
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="进阶实战：带“秘密”的 misc 驱动">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#初始化" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        初始化
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#read-方法实现" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Read 方法实现
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#write-方法实现" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Write 方法实现
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#安全问题当驱动成为噩梦" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        安全问题：当驱动成为噩梦
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="安全问题：当驱动成为噩梦">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#场景一read-的坑" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        场景一：Read 的坑
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#场景二write-的坑--提权攻击" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        场景二：Write 的坑 —— 提权攻击
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#本章回响" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        本章回响
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#练习题" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习题
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="练习题">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#练习-1understanding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 1：understanding
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#练习-2application" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 2：application
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#练习-3application" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 3：application
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#练习-4thinking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 4：thinking
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#要点提炼" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        要点提炼
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch02/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 2 章
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch02_1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 2 章 内核与用户的边界
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch02_2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.2 技术准备与通信路径全景
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch02_3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.3 Questions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch03/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 3 章
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch03_1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 3 章 内存之外——当内核试图触碰硬件
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch03_2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3.2 访问内核中的硬件 I/O 内存
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch04/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 4 章
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch04_1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 4 章 硬件中断与内核的应答之道
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch04_2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch04 2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch04_3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4.3 练习题与思考
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch05/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 5 章
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch05_1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch05 1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch05_2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 5 章 内核里的时间与异步工作
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch06/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 6 独占的代价：临界区与原子性
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch07/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 7 章
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch07_1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 7 章 无锁的艺术与陷阱
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch07_2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7.2 实战中的内存屏障：一次与硬件的「小心翼翼」的对话
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch07_3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch07 3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../linux_kernel_networking/ch01/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux kernel networking
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../linux_kernel_programming/ch01/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux kernel programming
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    
+  
+  
+  
+    <a href="../../../../%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/week2/day08-09_%E5%86%85%E6%A0%B8%E6%A8%A1%E5%9D%97%E5%9F%BA%E7%A1%80%E8%AE%BE%E8%AE%A1/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    学习计划
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    示例代码
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#12-技术准备与环境" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2 技术准备与环境
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-开始编写一个简单的-misc-字符设备驱动" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.3 开始编写一个简单的 misc 字符设备驱动
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1.3 开始编写一个简单的 misc 字符设备驱动">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#理解设备的基础" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        理解设备的基础
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="理解设备的基础">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#字符设备-vs-块设备" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        字符设备 vs 块设备
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#那-misc-类又是怎么回事" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        那 misc 类又是怎么回事？
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#linux-设备模型ldm速览" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Linux 设备模型（LDM）速览
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#编写-misc-驱动代码--第一部分骨架" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        编写 misc 驱动代码 —— 第一部分：骨架
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="编写 misc 驱动代码 —— 第一部分：骨架">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#代码拆解" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        代码拆解
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#理解进程驱动与内核之间的连接" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        理解进程、驱动与内核之间的连接
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="理解进程、驱动与内核之间的连接">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#处理不支持的方法" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        处理不支持的方法
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#编写-misc-驱动代码--第二部分功能实现" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        编写 misc 驱动代码 —— 第二部分：功能实现
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#真正的数据搬运用户空间与内核空间" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        真正的数据搬运：用户空间与内核空间
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="真正的数据搬运：用户空间与内核空间">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#使用-copy_to_user" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        使用 copy_to_user
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#进阶实战带秘密的-misc-驱动" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        进阶实战：带“秘密”的 misc 驱动
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="进阶实战：带“秘密”的 misc 驱动">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#初始化" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        初始化
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#read-方法实现" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Read 方法实现
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#write-方法实现" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Write 方法实现
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#安全问题当驱动成为噩梦" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        安全问题：当驱动成为噩梦
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="安全问题：当驱动成为噩梦">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#场景一read-的坑" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        场景一：Read 的坑
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#场景二write-的坑--提权攻击" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        场景二：Write 的坑 —— 提权攻击
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#本章回响" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        本章回响
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#练习题" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习题
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="练习题">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#练习-1understanding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 1：understanding
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#练习-2application" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 2：application
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#练习-3application" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 3：application
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#练习-4thinking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 4：thinking
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#要点提炼" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        要点提炼
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+  <nav class="md-path" aria-label="导航栏" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href="../../../.." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    欢迎来到 PenguinLab
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../../../booklist/" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    参考文档
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Notes
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../ch01/" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Linux kernel device drivers
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+  <h1>Ch01 2</h1>
+
+<h2 id="12-技术准备与环境">1.2  技术准备与环境<a class="headerlink" href="#12-技术准备与环境" title="链接到此章节">&para;</a></h2>
+<p>在真正动手敲代码之前，我们需要确保环境就绪，并且对即将面对的这个“怪兽”——Linux 内核驱动模型——有一个心理准备。</p>
+<blockquote>
+<p>本章假设你已经浏览了前言部分，并在 Ubuntu 18.04 LTS（或更新版本）的虚拟机中安装了所有必要的包。如果还没做，强烈建议先完成这一步。</p>
+<p>为了获得最佳体验，请务必克隆本书的 GitHub 仓库（<a href="https://github.com/PacktPublishing/Linux-Kernel-Programming-Part-2">Linux-Kernel-Programming-Part-2</a>），并准备随时动手。</p>
+</blockquote>
+<p>想象你站在内核的大门口。手里虽然有钥匙（源码），但如果没有地图（文档）和正确的鞋子（开发环境），走两步就会迷路或者崴脚。我们这一节的任务就是把装备整理好，然后试着推开门缝往里看一眼。</p>
+<hr />
+<h2 id="13-开始编写一个简单的-misc-字符设备驱动">1.3  开始编写一个简单的 misc 字符设备驱动<a class="headerlink" href="#13-开始编写一个简单的-misc-字符设备驱动" title="链接到此章节">&para;</a></h2>
+<p>这一节将是你的第一次实战。我们会先铺垫一些背景知识——关于设备文件、设备号和内核模型。然后，通过编写一个名为 <code>misc</code> 的字符驱动骨架，你将亲眼看到内核是如何将用户的请求“魔术般”地转化为驱动里的函数调用的。</p>
+<h3 id="理解设备的基础">理解设备的基础<a class="headerlink" href="#理解设备的基础" title="链接到此章节">&para;</a></h3>
+<p>在 Unix/Linux 的哲学里，<strong>一切皆文件</strong>。这句话你听得耳朵都起茧子了，但在驱动开发里，它意味着什么？</p>
+<p><strong>设备驱动</strong> 是连接 OS 和硬件的桥梁。它可以编译进内核镜像，也可以作为一个内核模块（LKM）动态加载。不管哪种形式，它都运行在内核空间，拥有最高权限（Ring 0）。</p>
+<p>用户空间的程序要和硬件说话，必须经过这道门。为了不打破“一切皆文件”的设计，内核把设备也抽象成了一种特殊的文件——<strong>设备文件</strong> 或 <strong>设备节点</strong>。它们通常住在 <code>/dev</code> 目录下。</p>
+<p>为了区分成千上万的设备，内核给每个设备发了两张“身份证”：
+1.  <strong>类型</strong>：是字符设备还是块设备。
+2.  <strong>设备号</strong>：一个 32 位的数字，分为<strong>主设备号</strong> 和 <strong>次设备号</strong>。</p>
+<p>你可以把这棵树想象成一张巨大的地图：
+*   树根是设备类型。
+*   树枝是主设备号（代表了设备类别，比如 SCSI 硬盘、键盘、显卡）。
+*   树叶是次设备号（代表了具体实例，比如第二块硬盘的第三个分区）。</p>
+<h4 id="字符设备-vs-块设备">字符设备 vs 块设备<a class="headerlink" href="#字符设备-vs-块设备" title="链接到此章节">&para;</a></h4>
+<p>这二者的区别经常让人混淆，其实核心只有一个：<strong>能不能被挂载</strong>。</p>
+<ul>
+<li><strong>块设备</strong>：支持随机访问，能被挂载到文件系统。通常是存储设备（硬盘、U 盘）。</li>
+<li><strong>字符设备</strong>：不能被挂载，数据像流一样按顺序进出。除了存储和网络设备，你见到的大多是字符设备。</li>
+</ul>
+<blockquote>
+<p><strong>类比：水管 vs 纸箱</strong>
+你可以把<strong>字符设备</strong>想象成一根<strong>水管</strong>。水（数据）只能从一头流进去，从另一头流出来，你不能直接跳到中间去舀一勺，也不需要把水管“挂载”到墙上才能用。
+而<strong>块设备</strong>就像一排<strong>储物箱</strong>。你可以随意打开第 5 个箱子拿东西，也可以把这排箱子挂到墙上（挂载文件系统）统一管理。</p>
+</blockquote>
+<p>回到那张地图。从 Linux 2.6 开始，设备号被压缩进了一个 32 位的 <code>dev_t</code> 类型里：
+*   高 <strong>12 位</strong>：主设备号（最多 4096 个）。
+*   低 <strong>20 位</strong>：次设备号（每个主设备号下最多 100 万个）。</p>
+<p>这意味着：理论上，字符设备树和块设备树，各自都能容纳 4096 个大类，每大类下有 100 万个具体设备。这在很长一段时间内是够用的。</p>
+<h4 id="那-misc-类又是怎么回事">那 misc 类又是怎么回事？<a class="headerlink" href="#那-misc-类又是怎么回事" title="链接到此章节">&para;</a></h4>
+<p>有个问题一直困扰着内核开发者：主设备号资源快用光了。</p>
+<p>为了解决这个问题，内核决定把一堆“杂牌军”——鼠标、传感器、触摸板——收编成一个特殊的杂项类，这就是 <strong>misc 类</strong>。
+*   <strong>类型</strong>：字符设备。
+*   <strong>主设备号</strong>：固定为 10。
+*   <strong>次设备号</strong>：在这个类里，次设备号变成了“二级主设备号”，用来区分具体的 misc 设备。</p>
+<p>这就是为什么我们选择从 misc 驱动开始：不需要申请专门的主设备号，内核会自动分配，省去了很多行政流程。</p>
+<h3 id="linux-设备模型ldm速览">Linux 设备模型（LDM）速览<a class="headerlink" href="#linux-设备模型ldm速览" title="链接到此章节">&para;</a></h3>
+<p>在深入代码之前，我们还得稍微抬头看一眼宏观架构。现代 Linux 内核（2.6+）有一个统一的 <strong>Linux Device Model (LDM)</strong>。</p>
+<p>这是一个非常“天才”的设计。LDM 在内核里维护了一棵巨大的树，把系统中的总线、设备、驱动全部串联起来。这棵树通过 <strong>sysfs</strong>（挂载在 <code>/sys</code>）展示给用户空间。</p>
+<blockquote>
+<p><strong>类比：树状的家族企业</strong>
+你可以把 LDM 看作一个家族企业的组织架构图（<code>/sys</code>）。
+*   <strong>总线</strong> 是各个部门。
+*   <strong>设备</strong> 是部门里的员工。
+*   <strong>驱动</strong> 是员工的具体岗位说明书。
+当一个新员工（设备）加入公司时，部门主管（总线驱动）会根据招聘启事（驱动）找到匹配的岗位，然后把员工安排进去。这个过程叫 <strong>Probe（探测）</strong>。</p>
+</blockquote>
+<p><strong>核心原则</strong>：每一个设备都必须挂在某条总线上。
+*   USB 设备挂在 USB 总线上。
+*   PCI 设备挂在 PCI 总线上。
+*   那些集成在 SoC 里、没有物理总线的外设怎么办？内核发明了一条虚拟总线——<strong>Platform Bus（平台总线）</strong>。</p>
+<p>当一个驱动注册到总线时，如果发现有匹配的设备，内核会调用驱动的 <code>probe()</code> 方法（初始化资源）；反之，设备移除或模块卸载时，调用 <code>remove()</code> 方法（清理资源）。</p>
+<p><strong>回到我们的 misc 驱动</strong>：
+为了保持简单，我们编写的 misc 驱动<strong>不需要</strong>显式地注册到任何总线，也不需要实现 <code>probe/remove</code>。它直接注册到 misc 框架，就像是一个个体户，不需要挂靠在某个大部门下。</p>
+<hr />
+<h3 id="编写-misc-驱动代码--第一部分骨架">编写 misc 驱动代码 —— 第一部分：骨架<a class="headerlink" href="#编写-misc-驱动代码--第一部分骨架" title="链接到此章节">&para;</a></h3>
+<p>好了，地图看完了，该开始铺路了。我们要写一个最简单的骨架驱动。</p>
+<p>在驱动的初始化代码中，我们需要向内核注册我们的设备。对于 misc 设备，使用的 API 是 <code>misc_register()</code>。它只需要一个参数：一个指向 <code>miscdevice</code> 结构体的指针，在这个结构体里，我们描述了设备的各种属性。</p>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1"></a><a href="#__codelineno-0-1"><span class="linenos" data-linenos=" 1 "></span></a><span class="c1">// ch1/miscdrv/miscdrv.c</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2"></a><a href="#__codelineno-0-2"><span class="linenos" data-linenos=" 2 "></span></a><span class="cp">#define pr_fmt(fmt) &quot;%s:%s(): &quot; fmt, KBUILD_MODNAME, __func__</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3"></a><a href="#__codelineno-0-3"><span class="linenos" data-linenos=" 3 "></span></a>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4"></a><a href="#__codelineno-0-4"><span class="linenos" data-linenos=" 4 "></span></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;linux/miscdevice.h&gt;</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5"></a><a href="#__codelineno-0-5"><span class="linenos" data-linenos=" 5 "></span></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;linux/fs.h&gt;</span><span class="c1">              /* fops, file 数据结构 */</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6"></a><a href="#__codelineno-0-6"><span class="linenos" data-linenos=" 6 "></span></a>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7"></a><a href="#__codelineno-0-7"><span class="linenos" data-linenos=" 7 "></span></a><span class="k">static</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">miscdevice</span><span class="w"> </span><span class="n">llkd_miscdev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8"></a><a href="#__codelineno-0-8"><span class="linenos" data-linenos=" 8 "></span></a><span class="w">    </span><span class="p">.</span><span class="n">minor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MISC_DYNAMIC_MINOR</span><span class="p">,</span><span class="w"> </span><span class="cm">/* 让内核动态分配一个空闲的次设备号 */</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9"></a><a href="#__codelineno-0-9"><span class="linenos" data-linenos=" 9 "></span></a><span class="w">    </span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;llkd_miscdrv&quot;</span><span class="p">,</span><span class="w">      </span><span class="cm">/* 设备名，注册后内核会自动创建 /dev/llkd_miscdrv */</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10"></a><a href="#__codelineno-0-10"><span class="linenos" data-linenos="10 "></span></a><span class="w">    </span><span class="p">.</span><span class="n">mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mo">0666</span><span class="p">,</span><span class="w">                </span><span class="cm">/* 设备节点权限：所有用户可读写 */</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11"></a><a href="#__codelineno-0-11"><span class="linenos" data-linenos="11 "></span></a><span class="w">    </span><span class="p">.</span><span class="n">fops</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">llkd_misc_fops</span><span class="p">,</span><span class="w">     </span><span class="cm">/* 指向驱动功能实现的钩子 */</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12"></a><a href="#__codelineno-0-12"><span class="linenos" data-linenos="12 "></span></a><span class="p">};</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13"></a><a href="#__codelineno-0-13"><span class="linenos" data-linenos="13 "></span></a>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14"></a><a href="#__codelineno-0-14"><span class="linenos" data-linenos="14 "></span></a><span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">__init</span><span class="w"> </span><span class="nf">miscdrv_init</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15"></a><a href="#__codelineno-0-15"><span class="linenos" data-linenos="15 "></span></a><span class="p">{</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16"></a><a href="#__codelineno-0-16"><span class="linenos" data-linenos="16 "></span></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">ret</span><span class="p">;</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17"></a><a href="#__codelineno-0-17"><span class="linenos" data-linenos="17 "></span></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">device</span><span class="w"> </span><span class="o">*</span><span class="n">dev</span><span class="p">;</span>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18"></a><a href="#__codelineno-0-18"><span class="linenos" data-linenos="18 "></span></a>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19"></a><a href="#__codelineno-0-19"><span class="linenos" data-linenos="19 "></span></a><span class="w">    </span><span class="n">ret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">misc_register</span><span class="p">(</span><span class="o">&amp;</span><span class="n">llkd_miscdev</span><span class="p">);</span>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20"></a><a href="#__codelineno-0-20"><span class="linenos" data-linenos="20 "></span></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ret</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21"></a><a href="#__codelineno-0-21"><span class="linenos" data-linenos="21 "></span></a><span class="w">        </span><span class="n">pr_notice</span><span class="p">(</span><span class="s">&quot;misc device registration failed, aborting</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22"></a><a href="#__codelineno-0-22"><span class="linenos" data-linenos="22 "></span></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">ret</span><span class="p">;</span>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23"></a><a href="#__codelineno-0-23"><span class="linenos" data-linenos="23 "></span></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24"></a><a href="#__codelineno-0-24"><span class="linenos" data-linenos="24 "></span></a><span class="w">    </span><span class="cm">/* 获取设备指针，用于日志输出 */</span>
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25"></a><a href="#__codelineno-0-25"><span class="linenos" data-linenos="25 "></span></a><span class="w">    </span><span class="n">dev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">llkd_miscdev</span><span class="p">.</span><span class="n">this_device</span><span class="p">;</span>
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26"></a><a href="#__codelineno-0-26"><span class="linenos" data-linenos="26 "></span></a><span class="w">    </span><span class="n">pr_info</span><span class="p">(</span><span class="s">&quot;LLKD misc driver (major # 10) registered, minor# = %d, &quot;</span>
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27"></a><a href="#__codelineno-0-27"><span class="linenos" data-linenos="27 "></span></a><span class="w">            </span><span class="s">&quot;dev node is /dev/%s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">llkd_miscdev</span><span class="p">.</span><span class="n">minor</span><span class="p">,</span><span class="w"> </span><span class="n">llkd_miscdev</span><span class="p">.</span><span class="n">name</span><span class="p">);</span>
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28"></a><a href="#__codelineno-0-28"><span class="linenos" data-linenos="28 "></span></a>
+</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29"></a><a href="#__codelineno-0-29"><span class="linenos" data-linenos="29 "></span></a><span class="w">    </span><span class="n">dev_info</span><span class="p">(</span><span class="n">dev</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;sample dev_info(): minor# = %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">llkd_miscdev</span><span class="p">.</span><span class="n">minor</span><span class="p">);</span>
+</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30"></a><a href="#__codelineno-0-30"><span class="linenos" data-linenos="30 "></span></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w">        </span><span class="cm">/* success */</span>
+</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31"></a><a href="#__codelineno-0-31"><span class="linenos" data-linenos="31 "></span></a><span class="p">}</span>
+</span></code></pre></div>
+<h4 id="代码拆解">代码拆解<a class="headerlink" href="#代码拆解" title="链接到此章节">&para;</a></h4>
+<ol>
+<li><strong><code>MISC_DYNAMIC_MINOR</code></strong>：这是一个宏。我们告诉内核：“帮我挑一个没人用的次设备号”。注册成功后，内核会把分配好的号码填回 <code>llkd_miscdev.minor</code>。</li>
+<li><strong><code>.name</code></strong>：名字很重要。misc 框架会利用这个名字，自动在 <code>/dev</code> 下创建一个同名的设备节点。这省得我们自己去敲 <code>mknod</code> 命令了。</li>
+<li><strong><code>.mode</code></strong>：<code>0666</code> 意味着所有人都可以读写这个设备。这在生产环境是大忌，但在调试阶段能省去很多权限问题的麻烦。</li>
+<li><strong><code>.fops</code></strong>：这是最关键的一环。它把设备节点和具体的 C 函数连接起来。我们下节细讲。</li>
+</ol>
+<p>编译并插入这个模块后，你应该能在 <code>/dev</code> 下看到 <code>llkd_miscdrv</code>，并且内核日志会显示它被分配到的次设备号（比如 56）。</p>
+<h3 id="理解进程驱动与内核之间的连接">理解进程、驱动与内核之间的连接<a class="headerlink" href="#理解进程驱动与内核之间的连接" title="链接到此章节">&para;</a></h3>
+<p>现在驱动的“身体”（结构体）已经注册好了，但它的“灵魂”在哪里？</p>
+<p>在 Unix/Linux 系统中，当用户空间进程对一个文件（包括设备文件）发起系统调用（比如 <code>read</code>, <code>write</code>）时，内核的 <strong>VFS（虚拟文件系统）</strong> 层会拦截这个调用。</p>
+<p>VFS 是怎么知道该调用哪个驱动的函数呢？
+答案就在那个 <code>.fops</code> 指向的 <strong><code>file_operations</code></strong> 结构体里。</p>
+<p>你可以把 <code>file_operations</code> 想象成一张<strong>函数指针表</strong>（或者说 C++ 里的纯虚函数接口）。表里每一项都对应一个系统调用：<code>open</code>, <code>read</code>, <code>write</code>, <code>llseek</code>, <code>mmap</code> 等等。</p>
+<p>当我们执行：
+<div class="language-c highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1"></a><a href="#__codelineno-1-1"><span class="linenos" data-linenos="1 "></span></a><span class="kt">int</span><span class="w"> </span><span class="n">fd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">open</span><span class="p">(</span><span class="s">&quot;/dev/llkd_miscdrv&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">O_RDWR</span><span class="p">);</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2"></a><a href="#__codelineno-1-2"><span class="linenos" data-linenos="2 "></span></a><span class="n">read</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span><span class="w"> </span><span class="n">buf</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">);</span>
+</span></code></pre></div></p>
+<p>内核内部发生了这样的流程（伪代码）：
+<div class="language-c highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1"></a><a href="#__codelineno-2-1"><span class="linenos" data-linenos="1 "></span></a><span class="cm">/* 内核 VFS 层逻辑 */</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2"></a><a href="#__codelineno-2-2"><span class="linenos" data-linenos="2 "></span></a><span class="k">struct</span><span class="w"> </span><span class="nc">file</span><span class="w"> </span><span class="o">*</span><span class="n">filp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">...;</span><span class="w"> </span><span class="c1">// 代表打开的文件对象</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3"></a><a href="#__codelineno-2-3"><span class="linenos" data-linenos="3 "></span></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">filp</span><span class="o">-&gt;</span><span class="n">f_op</span><span class="o">-&gt;</span><span class="n">read</span><span class="p">)</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4"></a><a href="#__codelineno-2-4"><span class="linenos" data-linenos="4 "></span></a><span class="w">    </span><span class="n">filp</span><span class="o">-&gt;</span><span class="n">f_op</span><span class="o">-&gt;</span><span class="n">read</span><span class="p">(...);</span><span class="w"> </span><span class="c1">// 调用驱动注册的 read 函数</span>
+</span></code></pre></div></p>
+<p>这就是连接的本质：<strong>注册时，我们把驱动里的函数地址填入 VFS 的槽位；调用时，VFS 直接跳转执行。</strong></p>
+<h4 id="处理不支持的方法">处理不支持的方法<a class="headerlink" href="#处理不支持的方法" title="链接到此章节">&para;</a></h4>
+<p>如果一个驱动不支持某个操作（比如 <code>lseek</code>），我们可以不实现它，对应的指针为 <code>NULL</code>。此时 VFS 会返回一个默认的错误（通常是 <code>EINVAL</code>）。</p>
+<p>⚠️ <strong>注意：有一个坑</strong>
+对于 <code>llseek</code>，如果你不设置它，它可能返回一个随机值，导致用户空间误以为成功了。
+<strong>正确的做法</strong>是：
+1.  将 <code>.llseek</code> 显式赋值为 <code>no_llseek</code>。
+2.  在你的 <code>open</code> 方法里调用 <code>nonseekable_open()</code>。</p>
+<p>这样用户空间调用 <code>lseek</code> 时会得到明确的 <code>-ESPIPE</code>（Illegal seek）错误。</p>
+<h3 id="编写-misc-驱动代码--第二部分功能实现">编写 misc 驱动代码 —— 第二部分：功能实现<a class="headerlink" href="#编写-misc-驱动代码--第二部分功能实现" title="链接到此章节">&para;</a></h3>
+<p>有了上面的理解，现在我们可以看看具体的函数实现了。</p>
+<p>首先，定义 <code>file_operations</code> 结构体实例：
+<div class="language-c highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1"></a><a href="#__codelineno-3-1"><span class="linenos" data-linenos="1 "></span></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">file_operations</span><span class="w"> </span><span class="n">llkd_misc_fops</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2"></a><a href="#__codelineno-3-2"><span class="linenos" data-linenos="2 "></span></a><span class="w">    </span><span class="p">.</span><span class="n">open</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">open_miscdrv</span><span class="p">,</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3"></a><a href="#__codelineno-3-3"><span class="linenos" data-linenos="3 "></span></a><span class="w">    </span><span class="p">.</span><span class="n">read</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">read_miscdrv</span><span class="p">,</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4"></a><a href="#__codelineno-3-4"><span class="linenos" data-linenos="4 "></span></a><span class="w">    </span><span class="p">.</span><span class="n">write</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">write_miscdrv</span><span class="p">,</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5"></a><a href="#__codelineno-3-5"><span class="linenos" data-linenos="5 "></span></a><span class="w">    </span><span class="p">.</span><span class="n">release</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">close_miscdrv</span><span class="p">,</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6"></a><a href="#__codelineno-3-6"><span class="linenos" data-linenos="6 "></span></a><span class="w">    </span><span class="p">.</span><span class="n">llseek</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">no_llseek</span><span class="p">,</span><span class="w"> </span><span class="cm">/* 明确声明不支持 seek */</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7"></a><a href="#__codelineno-3-7"><span class="linenos" data-linenos="7 "></span></a><span class="p">};</span>
+</span></code></pre></div></p>
+<p>然后，我们实现 <code>open</code> 方法。在这个方法里，我们可以做权限检查、资源初始化，或者像现在这样，只是打印一些调试信息。</p>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1"></a><a href="#__codelineno-4-1"><span class="linenos" data-linenos=" 1 "></span></a><span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">open_miscdrv</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">inode</span><span class="w"> </span><span class="o">*</span><span class="n">inode</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">file</span><span class="w"> </span><span class="o">*</span><span class="n">filp</span><span class="p">)</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2"></a><a href="#__codelineno-4-2"><span class="linenos" data-linenos=" 2 "></span></a><span class="p">{</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3"></a><a href="#__codelineno-4-3"><span class="linenos" data-linenos=" 3 "></span></a><span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">buf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">kzalloc</span><span class="p">(</span><span class="n">PATH_MAX</span><span class="p">,</span><span class="w"> </span><span class="n">GFP_KERNEL</span><span class="p">);</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4"></a><a href="#__codelineno-4-4"><span class="linenos" data-linenos=" 4 "></span></a>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5"></a><a href="#__codelineno-4-5"><span class="linenos" data-linenos=" 5 "></span></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">unlikely</span><span class="p">(</span><span class="o">!</span><span class="n">buf</span><span class="p">))</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6"></a><a href="#__codelineno-4-6"><span class="linenos" data-linenos=" 6 "></span></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="o">-</span><span class="n">ENOMEM</span><span class="p">;</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7"></a><a href="#__codelineno-4-7"><span class="linenos" data-linenos=" 7 "></span></a>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8"></a><a href="#__codelineno-4-8"><span class="linenos" data-linenos=" 8 "></span></a><span class="w">    </span><span class="n">PRINT_CTX</span><span class="p">();</span><span class="w"> </span><span class="c1">// 打印当前进程上下文信息</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9"></a><a href="#__codelineno-4-9"><span class="linenos" data-linenos=" 9 "></span></a><span class="w">    </span><span class="n">pr_info</span><span class="p">(</span><span class="s">&quot; opening </span><span class="se">\&quot;</span><span class="s">%s</span><span class="se">\&quot;</span><span class="s"> now; wrt open file: f_flags = 0x%x</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10"></a><a href="#__codelineno-4-10"><span class="linenos" data-linenos="10 "></span></a><span class="w">        </span><span class="n">file_path</span><span class="p">(</span><span class="n">filp</span><span class="p">,</span><span class="w"> </span><span class="n">buf</span><span class="p">,</span><span class="w"> </span><span class="n">PATH_MAX</span><span class="p">),</span><span class="w"> </span><span class="n">filp</span><span class="o">-&gt;</span><span class="n">f_flags</span><span class="p">);</span>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11"></a><a href="#__codelineno-4-11"><span class="linenos" data-linenos="11 "></span></a><span class="w">    </span><span class="n">kfree</span><span class="p">(</span><span class="n">buf</span><span class="p">);</span>
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12"></a><a href="#__codelineno-4-12"><span class="linenos" data-linenos="12 "></span></a>
+</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13"></a><a href="#__codelineno-4-13"><span class="linenos" data-linenos="13 "></span></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">nonseekable_open</span><span class="p">(</span><span class="n">inode</span><span class="p">,</span><span class="w"> </span><span class="n">filp</span><span class="p">);</span>
+</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14"></a><a href="#__codelineno-4-14"><span class="linenos" data-linenos="14 "></span></a><span class="p">}</span>
+</span></code></pre></div>
+<p>这里用到了 <code>file_path()</code> API 来获取设备节点的路径名。注意，它需要一个内核缓冲区（<code>buf</code>），用完记得 <code>kfree</code>。</p>
+<p>接下来是 <code>read</code> 方法。这是最简单的实现：
+<div class="language-c highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1"></a><a href="#__codelineno-5-1"><span class="linenos" data-linenos="1 "></span></a><span class="k">static</span><span class="w"> </span><span class="kt">ssize_t</span><span class="w"> </span><span class="nf">read_miscdrv</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">file</span><span class="w"> </span><span class="o">*</span><span class="n">filp</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">__user</span><span class="w"> </span><span class="o">*</span><span class="n">ubuf</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">count</span><span class="p">,</span><span class="w"> </span><span class="n">loff_t</span><span class="w"> </span><span class="o">*</span><span class="n">off</span><span class="p">)</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2"></a><a href="#__codelineno-5-2"><span class="linenos" data-linenos="2 "></span></a><span class="p">{</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3"></a><a href="#__codelineno-5-3"><span class="linenos" data-linenos="3 "></span></a><span class="w">    </span><span class="n">pr_info</span><span class="p">(</span><span class="s">&quot;to read %zd bytes</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">count</span><span class="p">);</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4"></a><a href="#__codelineno-5-4"><span class="linenos" data-linenos="4 "></span></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">count</span><span class="p">;</span><span class="w"> </span><span class="cm">/* 假装读取了 count 字节 */</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5"></a><a href="#__codelineno-5-5"><span class="linenos" data-linenos="5 "></span></a><span class="p">}</span>
+</span></code></pre></div>
+此时，如果你用 <code>dd if=/dev/llkd_miscdrv of=readtest bs=4k count=1</code> 去测试，<code>dd</code> 会成功，并且得到一个全是 0 的文件。为什么？因为我们的驱动并没有真的把数据拷贝到 <code>ubuf</code>，只是返回了成功（count）。用户空间 <code>dd</code> 的缓冲区原本就是 0，所以它读到了 0。</p>
+<h3 id="真正的数据搬运用户空间与内核空间">真正的数据搬运：用户空间与内核空间<a class="headerlink" href="#真正的数据搬运用户空间与内核空间" title="链接到此章节">&para;</a></h3>
+<p>上一个驱动是“假”的。一个真正的驱动，需要把硬件数据（或内核数据）搬运给用户。</p>
+<p>这就涉及到了一个核心问题：<strong>内核空间和用户空间的内存是隔离的。</strong> 你不能简单地用 <code>memcpy()</code> 在两者之间拷贝数据，这不仅不安全，而且在某些架构上直接就挂了。</p>
+<p>内核提供了两个专用的一级 API：
+1.  <strong><code>copy_to_user(void __user *to, const void *from, unsigned long n)</code></strong>：从内核拷贝到用户。
+2.  <strong><code>copy_from_user(void *to, const void __user *from, unsigned long n)</code></strong>：从用户拷贝到内核。</p>
+<p>这两个函数会检查用户空间的地址是否合法、是否可写。它们可能会触发缺页异常，导致进程休眠，所以<strong>绝对不能在中断上下文或持有自旋锁时使用它们</strong>。</p>
+<h4 id="使用-copy_to_user">使用 copy_to_user<a class="headerlink" href="#使用-copy_to_user" title="链接到此章节">&para;</a></h4>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1"></a><a href="#__codelineno-6-1"><span class="linenos" data-linenos=" 1 "></span></a><span class="k">static</span><span class="w"> </span><span class="kt">ssize_t</span><span class="w"> </span><span class="nf">read_method</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">file</span><span class="w"> </span><span class="o">*</span><span class="n">filp</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">__user</span><span class="w"> </span><span class="o">*</span><span class="n">ubuf</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">count</span><span class="p">,</span><span class="w"> </span><span class="n">loff_t</span><span class="w"> </span><span class="o">*</span><span class="n">off</span><span class="p">)</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2"></a><a href="#__codelineno-6-2"><span class="linenos" data-linenos=" 2 "></span></a><span class="p">{</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3"></a><a href="#__codelineno-6-3"><span class="linenos" data-linenos=" 3 "></span></a><span class="w">     </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">kbuf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">kzalloc</span><span class="p">(...);</span><span class="w"> </span><span class="c1">// 内核缓冲区</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4"></a><a href="#__codelineno-6-4"><span class="linenos" data-linenos=" 4 "></span></a><span class="w">     </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">kbuf</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="o">-</span><span class="n">ENOMEM</span><span class="p">;</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5"></a><a href="#__codelineno-6-5"><span class="linenos" data-linenos=" 5 "></span></a>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6"></a><a href="#__codelineno-6-6"><span class="linenos" data-linenos=" 6 "></span></a><span class="w">     </span><span class="cm">/* 假设这里已经从硬件读到了 kbuf 里 */</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7"></a><a href="#__codelineno-6-7"><span class="linenos" data-linenos=" 7 "></span></a>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8"></a><a href="#__codelineno-6-8"><span class="linenos" data-linenos=" 8 "></span></a><span class="w">     </span><span class="cm">/* 拷贝到用户空间 */</span>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9"></a><a href="#__codelineno-6-9"><span class="linenos" data-linenos=" 9 "></span></a><span class="w">     </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">copy_to_user</span><span class="p">(</span><span class="n">ubuf</span><span class="p">,</span><span class="w"> </span><span class="n">kbuf</span><span class="p">,</span><span class="w"> </span><span class="n">count</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10"></a><a href="#__codelineno-6-10"><span class="linenos" data-linenos="10 "></span></a><span class="w">         </span><span class="n">dev_warn</span><span class="p">(</span><span class="n">dev</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;copy_to_user() failed</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11"></a><a href="#__codelineno-6-11"><span class="linenos" data-linenos="11 "></span></a><span class="w">         </span><span class="n">kfree</span><span class="p">(</span><span class="n">kbuf</span><span class="p">);</span>
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12"></a><a href="#__codelineno-6-12"><span class="linenos" data-linenos="12 "></span></a><span class="w">         </span><span class="k">return</span><span class="w"> </span><span class="o">-</span><span class="n">EFAULT</span><span class="p">;</span>
+</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13"></a><a href="#__codelineno-6-13"><span class="linenos" data-linenos="13 "></span></a><span class="w">     </span><span class="p">}</span>
+</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14"></a><a href="#__codelineno-6-14"><span class="linenos" data-linenos="14 "></span></a>
+</span><span id="__span-6-15"><a id="__codelineno-6-15" name="__codelineno-6-15"></a><a href="#__codelineno-6-15"><span class="linenos" data-linenos="15 "></span></a><span class="w">     </span><span class="n">kfree</span><span class="p">(</span><span class="n">kbuf</span><span class="p">);</span>
+</span><span id="__span-6-16"><a id="__codelineno-6-16" name="__codelineno-6-16"></a><a href="#__codelineno-6-16"><span class="linenos" data-linenos="16 "></span></a><span class="w">     </span><span class="k">return</span><span class="w"> </span><span class="n">count</span><span class="p">;</span><span class="w"> </span><span class="cm">/* 返回成功读取的字节数 */</span>
+</span><span id="__span-6-17"><a id="__codelineno-6-17" name="__codelineno-6-17"></a><a href="#__codelineno-6-17"><span class="linenos" data-linenos="17 "></span></a><span class="p">}</span>
+</span></code></pre></div>
+<p>如果 <code>copy_to_user</code> 返回非 0，说明没有完全拷贝成功（通常是用户空间地址非法），此时返回 <code>-EFAULT</code> 是标准做法。</p>
+<h3 id="进阶实战带秘密的-misc-驱动">进阶实战：带“秘密”的 misc 驱动<a class="headerlink" href="#进阶实战带秘密的-misc-驱动" title="链接到此章节">&para;</a></h3>
+<p>现在，我们要写一个更完整的驱动：<strong>ch1/miscdrv_rdwr</strong>。
+这个驱动会在内核里保存一个“秘密字符串”。用户可以 <code>read</code> 它来获取秘密，也可以 <code>write</code> 它来更新秘密。</p>
+<p>为了做到这一点，我们需要定义一个<strong>驱动上下文结构体</strong>（Private Data），用来存储全局状态。</p>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1"></a><a href="#__codelineno-7-1"><span class="linenos" data-linenos="1 "></span></a><span class="cm">/* 驱动上下文结构体 */</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2"></a><a href="#__codelineno-7-2"><span class="linenos" data-linenos="2 "></span></a><span class="k">struct</span><span class="w"> </span><span class="nc">drv_ctx</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3"></a><a href="#__codelineno-7-3"><span class="linenos" data-linenos="3 "></span></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">device</span><span class="w"> </span><span class="o">*</span><span class="n">dev</span><span class="p">;</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4"></a><a href="#__codelineno-7-4"><span class="linenos" data-linenos="4 "></span></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">tx</span><span class="p">,</span><span class="w"> </span><span class="n">rx</span><span class="p">,</span><span class="w"> </span><span class="n">err</span><span class="p">;</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5"></a><a href="#__codelineno-7-5"><span class="linenos" data-linenos="5 "></span></a><span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">oursecret</span><span class="p">[</span><span class="mi">128</span><span class="p">];</span><span class="w"> </span><span class="cm">/* 秘密存储地 */</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6"></a><a href="#__codelineno-7-6"><span class="linenos" data-linenos="6 "></span></a><span class="p">};</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7"></a><a href="#__codelineno-7-7"><span class="linenos" data-linenos="7 "></span></a><span class="k">static</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">drv_ctx</span><span class="w"> </span><span class="o">*</span><span class="n">ctx</span><span class="p">;</span>
+</span></code></pre></div>
+<h4 id="初始化">初始化<a class="headerlink" href="#初始化" title="链接到此章节">&para;</a></h4>
+<p>在 <code>init</code> 函数中，我们分配内存并初始化：
+<div class="language-c highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1"></a><a href="#__codelineno-8-1"><span class="linenos" data-linenos="1 "></span></a><span class="n">ctx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">devm_kzalloc</span><span class="p">(</span><span class="n">dev</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">drv_ctx</span><span class="p">),</span><span class="w"> </span><span class="n">GFP_KERNEL</span><span class="p">);</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2"></a><a href="#__codelineno-8-2"><span class="linenos" data-linenos="2 "></span></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">unlikely</span><span class="p">(</span><span class="o">!</span><span class="n">ctx</span><span class="p">))</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3"></a><a href="#__codelineno-8-3"><span class="linenos" data-linenos="3 "></span></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="o">-</span><span class="n">ENOMEM</span><span class="p">;</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4"></a><a href="#__codelineno-8-4"><span class="linenos" data-linenos="4 "></span></a>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5"></a><a href="#__codelineno-8-5"><span class="linenos" data-linenos="5 "></span></a><span class="n">ctx</span><span class="o">-&gt;</span><span class="n">dev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dev</span><span class="p">;</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6"></a><a href="#__codelineno-8-6"><span class="linenos" data-linenos="6 "></span></a><span class="n">strscpy</span><span class="p">(</span><span class="n">ctx</span><span class="o">-&gt;</span><span class="n">oursecret</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;initmsg&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="p">);</span><span class="w"> </span><span class="cm">/* 初始化秘密 */</span>
+</span></code></pre></div></p>
+<p>注意这里使用了 <code>devm_kzalloc</code>。这是<strong>资源管理</strong> 版本的 <code>kzalloc</code>。当驱动卸载时，内核会自动释放这块内存，不需要我们手动 <code>kfree</code>。这大大减少了内存泄漏的风险。</p>
+<h4 id="read-方法实现">Read 方法实现<a class="headerlink" href="#read-方法实现" title="链接到此章节">&para;</a></h4>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1"></a><a href="#__codelineno-9-1"><span class="linenos" data-linenos=" 1 "></span></a><span class="k">static</span><span class="w"> </span><span class="kt">ssize_t</span><span class="w"> </span><span class="nf">read_miscdrv_rdwr</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">file</span><span class="w"> </span><span class="o">*</span><span class="n">filp</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">__user</span><span class="w"> </span><span class="o">*</span><span class="n">ubuf</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">count</span><span class="p">,</span><span class="w"> </span><span class="n">loff_t</span><span class="w"> </span><span class="o">*</span><span class="n">off</span><span class="p">)</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2"></a><a href="#__codelineno-9-2"><span class="linenos" data-linenos=" 2 "></span></a><span class="p">{</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3"></a><a href="#__codelineno-9-3"><span class="linenos" data-linenos=" 3 "></span></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">secret_len</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">strlen</span><span class="p">(</span><span class="n">ctx</span><span class="o">-&gt;</span><span class="n">oursecret</span><span class="p">);</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4"></a><a href="#__codelineno-9-4"><span class="linenos" data-linenos=" 4 "></span></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">device</span><span class="w"> </span><span class="o">*</span><span class="n">dev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ctx</span><span class="o">-&gt;</span><span class="n">dev</span><span class="p">;</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5"></a><a href="#__codelineno-9-5"><span class="linenos" data-linenos=" 5 "></span></a>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6"></a><a href="#__codelineno-9-6"><span class="linenos" data-linenos=" 6 "></span></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">count</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">secret_len</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="o">-</span><span class="n">EINVAL</span><span class="p">;</span><span class="w"> </span><span class="cm">/* 缓冲区太小 */</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7"></a><a href="#__codelineno-9-7"><span class="linenos" data-linenos=" 7 "></span></a>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8"></a><a href="#__codelineno-9-8"><span class="linenos" data-linenos=" 8 "></span></a><span class="w">    </span><span class="cm">/* 核心操作：把秘密发给用户 */</span>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9"></a><a href="#__codelineno-9-9"><span class="linenos" data-linenos=" 9 "></span></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">copy_to_user</span><span class="p">(</span><span class="n">ubuf</span><span class="p">,</span><span class="w"> </span><span class="n">ctx</span><span class="o">-&gt;</span><span class="n">oursecret</span><span class="p">,</span><span class="w"> </span><span class="n">secret_len</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10"></a><a href="#__codelineno-9-10"><span class="linenos" data-linenos="10 "></span></a><span class="w">        </span><span class="n">dev_warn</span><span class="p">(</span><span class="n">dev</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;copy_to_user() failed</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11"></a><a href="#__codelineno-9-11"><span class="linenos" data-linenos="11 "></span></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="o">-</span><span class="n">EFAULT</span><span class="p">;</span>
+</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12"></a><a href="#__codelineno-9-12"><span class="linenos" data-linenos="12 "></span></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13"></a><a href="#__codelineno-9-13"><span class="linenos" data-linenos="13 "></span></a>
+</span><span id="__span-9-14"><a id="__codelineno-9-14" name="__codelineno-9-14"></a><a href="#__codelineno-9-14"><span class="linenos" data-linenos="14 "></span></a><span class="w">    </span><span class="cm">/* 更新统计信息 */</span>
+</span><span id="__span-9-15"><a id="__codelineno-9-15" name="__codelineno-9-15"></a><a href="#__codelineno-9-15"><span class="linenos" data-linenos="15 "></span></a><span class="w">    </span><span class="n">ctx</span><span class="o">-&gt;</span><span class="n">tx</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">secret_len</span><span class="p">;</span>
+</span><span id="__span-9-16"><a id="__codelineno-9-16" name="__codelineno-9-16"></a><a href="#__codelineno-9-16"><span class="linenos" data-linenos="16 "></span></a><span class="w">    </span><span class="n">dev_info</span><span class="p">(</span><span class="n">dev</span><span class="p">,</span><span class="w"> </span><span class="s">&quot; %d bytes read, returning... (stats: tx=%d rx=%d)</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span>
+</span><span id="__span-9-17"><a id="__codelineno-9-17" name="__codelineno-9-17"></a><a href="#__codelineno-9-17"><span class="linenos" data-linenos="17 "></span></a><span class="w">            </span><span class="n">secret_len</span><span class="p">,</span><span class="w"> </span><span class="n">ctx</span><span class="o">-&gt;</span><span class="n">tx</span><span class="p">,</span><span class="w"> </span><span class="n">ctx</span><span class="o">-&gt;</span><span class="n">rx</span><span class="p">);</span>
+</span><span id="__span-9-18"><a id="__codelineno-9-18" name="__codelineno-9-18"></a><a href="#__codelineno-9-18"><span class="linenos" data-linenos="18 "></span></a>
+</span><span id="__span-9-19"><a id="__codelineno-9-19" name="__codelineno-9-19"></a><a href="#__codelineno-9-19"><span class="linenos" data-linenos="19 "></span></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">secret_len</span><span class="p">;</span>
+</span><span id="__span-9-20"><a id="__codelineno-9-20" name="__codelineno-9-20"></a><a href="#__codelineno-9-20"><span class="linenos" data-linenos="20 "></span></a><span class="p">}</span>
+</span></code></pre></div>
+<h4 id="write-方法实现">Write 方法实现<a class="headerlink" href="#write-方法实现" title="链接到此章节">&para;</a></h4>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1"></a><a href="#__codelineno-10-1"><span class="linenos" data-linenos=" 1 "></span></a><span class="k">static</span><span class="w"> </span><span class="kt">ssize_t</span><span class="w"> </span><span class="nf">write_miscdrv_rdwr</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">file</span><span class="w"> </span><span class="o">*</span><span class="n">filp</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">__user</span><span class="w"> </span><span class="o">*</span><span class="n">ubuf</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">count</span><span class="p">,</span><span class="w"> </span><span class="n">loff_t</span><span class="w"> </span><span class="o">*</span><span class="n">off</span><span class="p">)</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2"></a><a href="#__codelineno-10-2"><span class="linenos" data-linenos=" 2 "></span></a><span class="p">{</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3"></a><a href="#__codelineno-10-3"><span class="linenos" data-linenos=" 3 "></span></a><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">kbuf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4"></a><a href="#__codelineno-10-4"><span class="linenos" data-linenos=" 4 "></span></a><span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">device</span><span class="w"> </span><span class="o">*</span><span class="n">dev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ctx</span><span class="o">-&gt;</span><span class="n">dev</span><span class="p">;</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5"></a><a href="#__codelineno-10-5"><span class="linenos" data-linenos=" 5 "></span></a>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6"></a><a href="#__codelineno-10-6"><span class="linenos" data-linenos=" 6 "></span></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">unlikely</span><span class="p">(</span><span class="n">count</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">MAXBYTES</span><span class="p">))</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="o">-</span><span class="n">EFBIG</span><span class="p">;</span><span class="w"> </span><span class="cm">/* 数据太大 */</span>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7"></a><a href="#__codelineno-10-7"><span class="linenos" data-linenos=" 7 "></span></a>
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8"></a><a href="#__codelineno-10-8"><span class="linenos" data-linenos=" 8 "></span></a><span class="w">    </span><span class="cm">/* 分配临时内核缓冲区 */</span>
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9"></a><a href="#__codelineno-10-9"><span class="linenos" data-linenos=" 9 "></span></a><span class="w">    </span><span class="n">kbuf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">kvmalloc</span><span class="p">(</span><span class="n">count</span><span class="p">,</span><span class="w"> </span><span class="n">GFP_KERNEL</span><span class="p">);</span>
+</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10"></a><a href="#__codelineno-10-10"><span class="linenos" data-linenos="10 "></span></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">unlikely</span><span class="p">(</span><span class="o">!</span><span class="n">kbuf</span><span class="p">))</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="o">-</span><span class="n">ENOMEM</span><span class="p">;</span>
+</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11"></a><a href="#__codelineno-10-11"><span class="linenos" data-linenos="11 "></span></a>
+</span><span id="__span-10-12"><a id="__codelineno-10-12" name="__codelineno-10-12"></a><a href="#__codelineno-10-12"><span class="linenos" data-linenos="12 "></span></a><span class="w">    </span><span class="cm">/* 从用户拿数据 */</span>
+</span><span id="__span-10-13"><a id="__codelineno-10-13" name="__codelineno-10-13"></a><a href="#__codelineno-10-13"><span class="linenos" data-linenos="13 "></span></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">copy_from_user</span><span class="p">(</span><span class="n">kbuf</span><span class="p">,</span><span class="w"> </span><span class="n">ubuf</span><span class="p">,</span><span class="w"> </span><span class="n">count</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-10-14"><a id="__codelineno-10-14" name="__codelineno-10-14"></a><a href="#__codelineno-10-14"><span class="linenos" data-linenos="14 "></span></a><span class="w">        </span><span class="n">dev_warn</span><span class="p">(</span><span class="n">dev</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;copy_from_user() failed</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span id="__span-10-15"><a id="__codelineno-10-15" name="__codelineno-10-15"></a><a href="#__codelineno-10-15"><span class="linenos" data-linenos="15 "></span></a><span class="w">        </span><span class="n">kvfree</span><span class="p">(</span><span class="n">kbuf</span><span class="p">);</span>
+</span><span id="__span-10-16"><a id="__codelineno-10-16" name="__codelineno-10-16"></a><a href="#__codelineno-10-16"><span class="linenos" data-linenos="16 "></span></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="o">-</span><span class="n">EFAULT</span><span class="p">;</span>
+</span><span id="__span-10-17"><a id="__codelineno-10-17" name="__codelineno-10-17"></a><a href="#__codelineno-10-17"><span class="linenos" data-linenos="17 "></span></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-10-18"><a id="__codelineno-10-18" name="__codelineno-10-18"></a><a href="#__codelineno-10-18"><span class="linenos" data-linenos="18 "></span></a>
+</span><span id="__span-10-19"><a id="__codelineno-10-19" name="__codelineno-10-19"></a><a href="#__codelineno-10-19"><span class="linenos" data-linenos="19 "></span></a><span class="w">    </span><span class="cm">/* 更新秘密 */</span>
+</span><span id="__span-10-20"><a id="__codelineno-10-20" name="__codelineno-10-20"></a><a href="#__codelineno-10-20"><span class="linenos" data-linenos="20 "></span></a><span class="w">    </span><span class="n">strscpy</span><span class="p">(</span><span class="n">ctx</span><span class="o">-&gt;</span><span class="n">oursecret</span><span class="p">,</span><span class="w"> </span><span class="n">kbuf</span><span class="p">,</span><span class="w"> </span><span class="n">count</span><span class="p">);</span>
+</span><span id="__span-10-21"><a id="__codelineno-10-21" name="__codelineno-10-21"></a><a href="#__codelineno-10-21"><span class="linenos" data-linenos="21 "></span></a>
+</span><span id="__span-10-22"><a id="__codelineno-10-22" name="__codelineno-10-22"></a><a href="#__codelineno-10-22"><span class="linenos" data-linenos="22 "></span></a><span class="w">    </span><span class="cm">/* 更新统计 */</span>
+</span><span id="__span-10-23"><a id="__codelineno-10-23" name="__codelineno-10-23"></a><a href="#__codelineno-10-23"><span class="linenos" data-linenos="23 "></span></a><span class="w">    </span><span class="n">ctx</span><span class="o">-&gt;</span><span class="n">rx</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">count</span><span class="p">;</span>
+</span><span id="__span-10-24"><a id="__codelineno-10-24" name="__codelineno-10-24"></a><a href="#__codelineno-10-24"><span class="linenos" data-linenos="24 "></span></a><span class="w">    </span><span class="n">dev_info</span><span class="p">(</span><span class="n">dev</span><span class="p">,</span><span class="w"> </span><span class="s">&quot; %zd bytes written, returning... (stats: tx=%d rx=%d)</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span>
+</span><span id="__span-10-25"><a id="__codelineno-10-25" name="__codelineno-10-25"></a><a href="#__codelineno-10-25"><span class="linenos" data-linenos="25 "></span></a><span class="w">            </span><span class="n">count</span><span class="p">,</span><span class="w"> </span><span class="n">ctx</span><span class="o">-&gt;</span><span class="n">tx</span><span class="p">,</span><span class="w"> </span><span class="n">ctx</span><span class="o">-&gt;</span><span class="n">rx</span><span class="p">);</span>
+</span><span id="__span-10-26"><a id="__codelineno-10-26" name="__codelineno-10-26"></a><a href="#__codelineno-10-26"><span class="linenos" data-linenos="26 "></span></a>
+</span><span id="__span-10-27"><a id="__codelineno-10-27" name="__codelineno-10-27"></a><a href="#__codelineno-10-27"><span class="linenos" data-linenos="27 "></span></a><span class="w">    </span><span class="n">kvfree</span><span class="p">(</span><span class="n">kbuf</span><span class="p">);</span>
+</span><span id="__span-10-28"><a id="__codelineno-10-28" name="__codelineno-10-28"></a><a href="#__codelineno-10-28"><span class="linenos" data-linenos="28 "></span></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">count</span><span class="p">;</span>
+</span><span id="__span-10-29"><a id="__codelineno-10-29" name="__codelineno-10-29"></a><a href="#__codelineno-10-29"><span class="linenos" data-linenos="29 "></span></a><span class="p">}</span>
+</span></code></pre></div>
+<p>现在，你可以编译这个驱动，写一个用户态程序去 <code>read</code> 和 <code>write</code>，你会看到“秘密”在内核和用户之间传递。</p>
+<hr />
+<h3 id="安全问题当驱动成为噩梦">安全问题：当驱动成为噩梦<a class="headerlink" href="#安全问题当驱动成为噩梦" title="链接到此章节">&para;</a></h3>
+<p>这里有一个非常严肃的转折点。你可能觉得上面的代码逻辑很简单，但哪怕是一行代码写错，内核的安全大门就会洞开。</p>
+<p>还记得引子里提到的“为什么不能随意写内核”吗？因为你在 Ring 0。</p>
+<p>我们来看看如果<strong>故意</strong>写错一个指针，会发生什么。我们编写一个“坏”驱动 <code>bad_miscdrv</code>。</p>
+<h4 id="场景一read-的坑">场景一：Read 的坑<a class="headerlink" href="#场景一read-的坑" title="链接到此章节">&para;</a></h4>
+<p>假设我们在 <code>read</code> 中，不小心把目标地址写错了，或者用户传了一个恶意地址。
+<div class="language-c highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1"></a><a href="#__codelineno-11-1"><span class="linenos" data-linenos="1 "></span></a><span class="cm">/* 错误示范 */</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2"></a><a href="#__codelineno-11-2"><span class="linenos" data-linenos="2 "></span></a><span class="n">new_dest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ubuf</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="mi">512</span><span class="o">*</span><span class="mi">1024</span><span class="p">);</span><span class="w"> </span><span class="cm">/* 指向非法位置 */</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3"></a><a href="#__codelineno-11-3"><span class="linenos" data-linenos="3 "></span></a><span class="n">copy_to_user</span><span class="p">(</span><span class="n">new_dest</span><span class="p">,</span><span class="w"> </span><span class="n">ctx</span><span class="o">-&gt;</span><span class="n">oursecret</span><span class="p">,</span><span class="w"> </span><span class="n">secret_len</span><span class="p">);</span>
+</span></code></pre></div>
+现代内核有 <strong>KASAN (Kernel Address Sanitizer)</strong> 和 <code>access_ok()</code> 检查。这种非法访问通常会导致 <code>copy_to_user</code> 失败，返回 <code>-EFAULT</code>，用户空间会收到 "Bad address" 错误。这虽然会导致程序崩溃，但至少不会立刻导致系统提权。</p>
+<h4 id="场景二write-的坑--提权攻击">场景二：Write 的坑 —— 提权攻击<a class="headerlink" href="#场景二write-的坑--提权攻击" title="链接到此章节">&para;</a></h4>
+<p>这才是恐怖的地方。<code>copy_from_user</code> 的目标地址是内核缓冲区。如果我们能控制这个目标地址，我们就能向内核内存的任意位置写入数据。</p>
+<p>Linux 进程的权限信息保存在 <code>task_struct</code> 里的 <code>struct cred</code> 结构中。其中 <code>uid</code> 如果为 0，就是 Root。</p>
+<p>想象一下，如果驱动的 <code>write</code> 方法里有这样的漏洞：
+<div class="language-c highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1"></a><a href="#__codelineno-12-1"><span class="linenos" data-linenos="1 "></span></a><span class="cm">/* 假设驱动里有一个逻辑漏洞，导致 new_dest 被我们控制 */</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2"></a><a href="#__codelineno-12-2"><span class="linenos" data-linenos="2 "></span></a><span class="n">new_dest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">current</span><span class="o">-&gt;</span><span class="n">cred</span><span class="o">-&gt;</span><span class="n">uid</span><span class="p">;</span><span class="w"> </span><span class="cm">/* 极其危险的写法！ */</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3"></a><a href="#__codelineno-12-3"><span class="linenos" data-linenos="3 "></span></a><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span><span class="p">;</span><span class="w"> </span><span class="cm">/* uid 是 32 位整数 */</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4"></a><a href="#__codelineno-12-4"><span class="linenos" data-linenos="4 "></span></a><span class="n">copy_from_user</span><span class="p">(</span><span class="n">new_dest</span><span class="p">,</span><span class="w"> </span><span class="n">ubuf</span><span class="p">,</span><span class="w"> </span><span class="n">count</span><span class="p">);</span>
+</span></code></pre></div></p>
+<p>如果用户空间发送 4 个字节的 0，这段代码就会把当前进程的 UID 覆盖为 0。</p>
+<p><strong>后果</strong>：
+1.  <code>write</code> 系统调用返回。
+2.  用户进程检查自己的 UID —— 变成了 0（Root）。
+3.  进程弹出一个 Root Shell。</p>
+<p>这就是<strong>内核提权</strong> 最经典的原理。虽然这只是一个演示代码，但历史上无数 CVE 都是由于类似的指针错误、边界检查缺失导致的。</p>
+<blockquote>
+<p><strong>还记得开头那个问题吗</strong> —— 为什么驱动开发不能像写 Python 那样随意？
+现在你应该能回答了：因为任何一次随意的内存访问，都可能变成通向 Root 的一扇后门。我们写的每一行 <code>copy_from_user</code> 和边界检查，其实都是在加固这扇门。</p>
+</blockquote>
+<hr />
+<h3 id="本章回响">本章回响<a class="headerlink" href="#本章回响" title="链接到此章节">&para;</a></h3>
+<p>本章真正在做的事情，是建立 <strong>“用户态与内核态交互”</strong> 这个认知的底层形式。表面上我们在配置一个 misc 设备，实际上我们在理解为什么 <code>copy_to_user</code> 必须存在，以及为什么 <code>struct cred</code>（进程凭证）是内核安全的最后一道防线。</p>
+<p>我们不仅写了代码，还拆解了代码背后的数据流：从用户空间的 <code>open()</code> 调用，穿透 VFS 层，最终落入驱动模块的 C 函数指针上。这就像是看到汽车的引擎盖下，火花塞是如何点火的。</p>
+<p>下一章我们会把这个机制推进到一个新的场景里——届时你会发现，今天建立的直觉会以一种意想不到的方式派上用场：当真正的硬件中断发生时，这个简单的读写模型会变得更加复杂，也更加迷人。</p>
+<hr />
+<h2 id="练习题">练习题<a class="headerlink" href="#练习题" title="链接到此章节">&para;</a></h2>
+<h3 id="练习-1understanding">练习 1：understanding<a class="headerlink" href="#练习-1understanding" title="链接到此章节">&para;</a></h3>
+<p><strong>题目</strong>：在 Linux 设备模型中，如果查看 /dev 目录下的设备节点 <code>miscdrv</code>，其属性显示为 <code>crw-rw-rw- 1 root root 10, 56, ...</code>。请根据本章内容解释这三个数字分别代表什么含义？它们是如何在系统启动或驱动加载时确立的？</p>
+<details><summary>答案与解析</summary>
+
+
+**答案**：10 代表主设备号，56 代表次设备号，1 代表硬链接计数（这里显示的不是设备号，而是节点属性）。
+
+
+**解析**：在 Linux 设备驱动中，`10` 是该设备的主设备号，标识设备类型（此处为 misc 杂项字符设备）。`56` 是次设备号，由内核动态分配或驱动指定，用于区分同一主设备号下的不同设备实例。`1` 是文件系统层面的硬链接计数，不是设备标识。
+
+本章提到，misc 类设备共享主设备号 10。当驱动调用 `misc_register()` 并传入 `MISC_DYNAMIC_MINOR` 时，内核会自动分配一个空闲的次设备号（此处为 56）。主设备号是内核静态分配给 misc 类的，用于在 VFS 层索引到正确的驱动处理函数。
+
+
+</details>
+
+<h3 id="练习-2application">练习 2：application<a class="headerlink" href="#练习-2application" title="链接到此章节">&para;</a></h3>
+<p><strong>题目</strong>：假设你正在编写一个字符设备驱动，并且需要在 <code>read</code> 方法中将内核缓冲区 <code>kbuf</code> 中的 100 字节数据安全地传输给用户空间。为了保证内核安全性并正确处理可能的页面错误，你应该使用哪个内核 API？如果直接使用 <code>memcpy</code> 会导致什么后果？</p>
+<details><summary>答案与解析</summary>
+
+
+**答案**：应使用 `copy_to_user`。直接使用 `memcpy` 会导致内核安全性崩溃或系统不稳定（因为用户空间指针可能无效或触发页面错误，内核无法直接处理）。
+
+
+**解析**：根据章节内容，内核空间和用户空间的内存访问受到严格限制。`copy_to_user` 专门用于将数据从内核空间复制到用户空间，它不仅执行复制，还会检查用户空间地址的有效性。如果指针无效，它会返回未复制的字节数而不是导致系统崩溃。
+
+直接使用 `memcpy` 会绕过这些安全检查，如果用户空间提供的地址是无效的（例如映射了只读内存或未映射地址），内核会触发异常，通常导致 Oops（内核崩溃）。
+
+
+</details>
+
+<h3 id="练习-3application">练习 3：application<a class="headerlink" href="#练习-3application" title="链接到此章节">&para;</a></h3>
+<p><strong>题目</strong>：在设计 misc 驱动的 <code>file_operations</code> 时，如果我们不打算支持 <code>llseek</code> 功能，仅仅将 <code>.llseek</code> 成员设为 <code>NULL</code> 是不够的。为什么？正确的做法是什么？</p>
+<details><summary>答案与解析</summary>
+
+
+**答案**：因为 VFS 层对于 `llseek` 默认处理机制可能返回随机的正数（模拟成功），而不是返回错误。正确做法是将 `.llseek` 赋值为 `no_llseek`，并在 `open` 方法中调用 `nonseekable_open`。
+
+
+**解析**：根据章节 'Handling unsupported methods' 的描述，如果简单地将 `llseek` 设为 `NULL`，默认的 VFS 处理可能会修改文件位置指针并返回一个看似成功的随机正值，这会误导用户空间程序。
+
+为了明确告知用户空间该设备不支持 seek，必须将 `.llseek` 显式设置为内核提供的 `no_llseek` 函数。此外，最佳实践是在驱动的 `open` 回调中调用 `nonseekable_open(inode, filp)` 来彻底标记该文件不可寻址。
+
+
+</details>
+
+<h3 id="练习-4thinking">练习 4：thinking<a class="headerlink" href="#练习-4thinking" title="链接到此章节">&para;</a></h3>
+<p><strong>题目</strong>：本章介绍了 <code>devm_kzalloc</code>（资源管理分配）用于驱动内存分配。请思考并分析：在驱动的 <code>probe</code> 方法（或 <code>init</code> 函数）中分配内存时，使用传统的 <code>kmalloc</code> + <code>kfree</code> 手动管理方式与使用 <code>devm_kzalloc</code> 相比，在处理“设备初始化失败”或“驱动卸载”这两种错误路径时，哪一个更容易出现资源泄漏？为什么？</p>
+<details><summary>答案与解析</summary>
+
+
+**答案**：传统手动管理（`kmalloc`/`kfree`）更容易出现资源泄漏。
+
+
+**解析**：在驱动开发中，初始化流程往往包含多个步骤（分配内存、注册设备、申请 IRQ 等）。如果在中间某一步失败，传统方式必须小心地回滚并释放之前分配的所有资源，这容易遗漏某些 `kfree` 调用，导致内存泄漏。
+
+而 `devm_kzalloc` 将内存生命周期绑定到设备本身。当设备从内核移除或驱动卸载时，内核会自动释放所有通过 `devm` API 分配的资源。这消除了编写繁琐的错误处理回滚代码的需求，大大降低了在复杂初始化逻辑中发生资源泄漏的风险。这体现了现代 Linux 内核设计中利用对象生命周期管理来简化驱动开发的思路。
+
+
+</details>
+
+<hr />
+<h2 id="要点提炼">要点提炼<a class="headerlink" href="#要点提炼" title="链接到此章节">&para;</a></h2>
+<p>用户空间与内核空间存在严格的界限，内核驱动运行在最高特权级，任何微小的内存访问错误都可能导致系统崩溃或严重的安全漏洞，因此不能像编写用户态程序那样随意。驱动开发本质上是在建立一条受控的通道，让普通程序能够安全地通过内核与硬件交互，这种从“被保护”到“裸奔”的环境转换是开发者首先需要建立的心理认知。</p>
+<p>Linux 通过“一切皆文件”的抽象将设备接入系统，VFS（虚拟文件系统）层充当了用户请求与驱动代码之间的调度员。当用户程序调用 <code>read</code> 或 <code>write</code> 时，请求并非直达硬件，而是被 VFS 拦截并查找对应的 <code>file_operations</code> 结构体，该结构体存储了驱动开发者注册的函数指针（如 <code>.open</code>, <code>.read</code>），VFS 通过这些指针跳转执行具体的驱动逻辑。</p>
+<p>为了避免手动管理主设备号的繁琐与冲突，现代驱动开发通常采用 <code>misc</code>（杂项）类机制，这是一种将所有非标准设备统一挂载在主设备号 10 下的方案。内核根据次设备号来区分具体的 misc 设备，开发者只需调用 <code>misc_register()</code> 并填充设备名称和操作接口，内核便会自动在 <code>/dev</code> 下创建对应的设备节点。</p>
+<p>由于内核空间与用户空间的内存页表是隔离的，驱动代码绝对不能使用 <code>memcpy</code> 直接交换数据，必须使用 <code>copy_to_user</code> 和 <code>copy_from_user</code> 这两个专用 API。这两个函数不仅负责数据搬运，还会严格检查用户空间指针的合法性，防止内核因访问非法地址而 panic，同时确保在指针无效时安全返回错误而非崩溃。</p>
+<p>安全是驱动开发的生命线，不严谨的边界检查往往是系统提权的源头。如果在 <code>write</code> 操作中缺乏对数据长度的验证，攻击者可能通过缓冲区溢出覆盖内核内存中的关键数据结构（如 <code>struct cred</code> 中的 UID），从而将普通进程权限提升为 Root。正确使用 <code>devm_kzalloc</code> 等托管接口以及严格的参数校验，是加固这扇内核大门的关键手段。</p>
+
+
+
+
+
+
+
+  
+    
+  
+  
+    
+  
+
+
+  <aside class="md-source-file">
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="最后更新">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年5月6日 08:06:46 CST">2026年5月6日 08:06:46</span>
+  </span>
+
+    
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="创建日期">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年5月6日 08:06:46 CST">2026年5月6日 08:06:46</span>
+  </span>
+
+    
+    
+    
+  </aside>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href="../ch01_1/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 第 1 章 跨越界限：从用户空间到内核的第一步">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                第 1 章 跨越界限：从用户空间到内核的第一步
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../ch02/" class="md-footer__link md-footer__link--next" aria-label="下一页: 第 2 章">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              <div class="md-ellipsis">
+                第 2 章
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 Charliechen - 保留所有权利
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/Awesome-Embedded-Learning-Studio" target="_blank" rel="noopener" title="GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="mailto:725610365@qq.com" target="_blank" rel="noopener" title="发送邮件" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M536.4-26.3c9.8-3.5 20.6-1 28 6.3s9.8 18.2 6.3 28l-178 496.9c-5 13.9-18.1 23.1-32.8 23.1-14.2 0-27-8.6-32.3-21.7l-64.2-158c-4.5-11-2.5-23.6 5.2-32.6l94.5-112.4c5.1-6.1 4.7-15-.9-20.6s-14.6-6-20.6-.9l-112.4 94.3c-9.1 7.6-21.6 9.6-32.6 5.2L38.1 216.8c-13.1-5.3-21.7-18.1-21.7-32.3 0-14.7 9.2-27.8 23.1-32.8z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.instant", "navigation.instant.prefetch", "navigation.instant.progress", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.prune", "navigation.path", "navigation.indexes", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.select", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.action.edit", "content.action.view"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

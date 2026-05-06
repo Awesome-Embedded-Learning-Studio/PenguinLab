@@ -1,0 +1,3167 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="30 天嵌入式 Linux 内核学习计划">
+      
+      
+        <meta name="author" content="Charliechen">
+      
+      
+        <link rel="canonical" href="https://awesome-embedded-learning-studio.github.io/PenguinLab/%E5%8F%82%E8%80%83%E6%96%87%E6%A1%A3/notes/linux_kernel_programming/ch06/">
+      
+      
+        <link rel="prev" href="../ch05/">
+      
+      
+        <link rel="next" href="../ch07/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../Awesome-Embedded.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>6. 内核机制 essentials —— 进程与线程 - PenguinLab 文档</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Sans+SC:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Noto Sans SC";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#6-内核机制-essentials--进程与线程" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="PenguinLab 文档" class="md-header__button md-logo" aria-label="PenguinLab 文档" data-md-component="logo">
+      
+  <img src="../../../../Awesome-Embedded.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PenguinLab 文档
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              6. 内核机制 essentials —— 进程与线程
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="切换至暗色模式"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="切换至暗色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="indigo"  aria-label="切换至亮色模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换至亮色模式" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="分享" aria-label="分享" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  欢迎来到 PenguinLab
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../part1/01_%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E4%B8%8E%E6%BA%90%E7%A0%81%E6%A0%91%E5%AF%BC%E8%A7%88/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Part1
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../../booklist/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  参考文档
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/week2/day08-09_%E5%86%85%E6%A0%B8%E6%A8%A1%E5%9D%97%E5%9F%BA%E7%A1%80%E8%AE%BE%E8%AE%A1/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  学习计划
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  示例代码
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="PenguinLab 文档" class="md-nav__button md-logo" aria-label="PenguinLab 文档" data-md-component="logo">
+      
+  <img src="../../../../Awesome-Embedded.png" alt="logo">
+
+    </a>
+    PenguinLab 文档
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    欢迎来到 PenguinLab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../part1/01_%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E4%B8%8E%E6%BA%90%E7%A0%81%E6%A0%91%E5%AF%BC%E8%A7%88/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Part1
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    参考文档
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    参考文档
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../booklist/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    书单：嵌入式 Linux 内核学习推荐书目
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../qemu-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QEMU ARM 速查手册
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Notes
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_3" id="__nav_3_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Notes
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../linux_kernel_debugging/ch01/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux kernel debugging
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../linux_kernel_device_drivers/ch01/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux kernel device drivers
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../linux_kernel_networking/ch01/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux kernel networking
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_3_5" id="__nav_3_3_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux kernel programming
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_3_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_3_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Linux kernel programming
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch01/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 1 章 内核编程新视界 —— 从零开始构建你的内核工作空间
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch02/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 2: Building the 6.x Linux Kernel from Source – Part 1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch03/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 3 章 从源码构建 6.x Linux 内核（第二部分）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch04/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch04
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch05/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 5 章 编写你的第一个内核模块——第二部分
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6. 内核机制 essentials —— 进程与线程
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6. 内核机制 essentials —— 进程与线程
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#61-理解进程与中断上下文" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 理解进程与中断上下文
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#62-理解进程虚拟地址空间vas的基础" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 理解进程虚拟地址空间（VAS）的基础
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6.2 理解进程虚拟地址空间（VAS）的基础">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#text-段代码段" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Text 段（代码段）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-段数据段" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data 段（数据段）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#共享库" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        共享库
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stack栈" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stack（栈）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#63-进程线程与栈的组织--用户空间与内核空间" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 进程、线程与栈的组织 —— 用户空间与内核空间
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#64-查看用户栈和内核栈" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.4 查看用户栈和内核栈
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6.4 查看用户栈和内核栈">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#查看内核栈procpidstack" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        查看内核栈：/proc/PID/stack
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#查看用户栈gdb-的魔法" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        查看用户栈：GDB 的魔法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ebpf现代魔法" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        eBPF：现代魔法
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#65-内核任务结构task_struct" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.5 内核任务结构：task_struct
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#66-通过-current-宏访问任务结构" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.6 通过 current 宏访问任务结构
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6.6 通过 current 宏访问任务结构">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#判定上下文我是谁我在哪" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        判定上下文：我是谁？我在哪？
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#实战current_affairs-模块" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        实战：current_affairs 模块
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#67-遍历内核的任务列表" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.7 遍历内核的任务列表
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6.7 遍历内核的任务列表">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#本章小结" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        本章小结
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#练习题" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习题
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="练习题">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#练习-1understanding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 1：understanding
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#练习-2application" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 2：application
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#练习-3application" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 3：application
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#练习-4thinking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 4：thinking
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#要点提炼" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        要点提炼
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch07/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ch07
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch08/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 8 章 内核内存分配器：伙伴系统与 Slab
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch09/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 9 章 内核内存分配进阶：选择、回收与生存
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch10/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 10 章 CPU 调度器（第 1 部分）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch11/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 11 章 CPU 调度器（第二部分）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch12/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 12 章 并发的代价 —— 内核同步机制 Part 1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch13/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 13 章 内核同步（下半部分）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    
+  
+  
+  
+    <a href="../../../../%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/week2/day08-09_%E5%86%85%E6%A0%B8%E6%A8%A1%E5%9D%97%E5%9F%BA%E7%A1%80%E8%AE%BE%E8%AE%A1/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    学习计划
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../../../%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    示例代码
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#61-理解进程与中断上下文" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 理解进程与中断上下文
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#62-理解进程虚拟地址空间vas的基础" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 理解进程虚拟地址空间（VAS）的基础
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6.2 理解进程虚拟地址空间（VAS）的基础">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#text-段代码段" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Text 段（代码段）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-段数据段" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data 段（数据段）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#共享库" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        共享库
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stack栈" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stack（栈）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#63-进程线程与栈的组织--用户空间与内核空间" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 进程、线程与栈的组织 —— 用户空间与内核空间
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#64-查看用户栈和内核栈" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.4 查看用户栈和内核栈
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6.4 查看用户栈和内核栈">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#查看内核栈procpidstack" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        查看内核栈：/proc/PID/stack
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#查看用户栈gdb-的魔法" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        查看用户栈：GDB 的魔法
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ebpf现代魔法" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        eBPF：现代魔法
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#65-内核任务结构task_struct" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.5 内核任务结构：task_struct
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#66-通过-current-宏访问任务结构" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.6 通过 current 宏访问任务结构
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6.6 通过 current 宏访问任务结构">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#判定上下文我是谁我在哪" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        判定上下文：我是谁？我在哪？
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#实战current_affairs-模块" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        实战：current_affairs 模块
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#67-遍历内核的任务列表" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.7 遍历内核的任务列表
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6.7 遍历内核的任务列表">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#本章小结" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        本章小结
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#练习题" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习题
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="练习题">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#练习-1understanding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 1：understanding
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#练习-2application" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 2：application
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#练习-3application" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 3：application
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#练习-4thinking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        练习 4：thinking
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#要点提炼" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        要点提炼
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+  <nav class="md-path" aria-label="导航栏" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href="../../../.." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    欢迎来到 PenguinLab
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../../../booklist/" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    参考文档
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Notes
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../ch01/" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Linux kernel programming
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="6-内核机制-essentials--进程与线程">6. 内核机制 essentials —— 进程与线程<a class="headerlink" href="#6-内核机制-essentials--进程与线程" title="链接到此章节">&para;</a></h1>
+<p>上一章我们折腾完了内核模块的入门，现在你应该已经能在内核里写点简单的代码了。但这只是冰山一角。Linux 内核庞大、复杂且深奥，如果我们想在这里面自由穿梭，光会 <code>printk</code> 是远远不够的。</p>
+<p>这一章，我们将真正推开内核内部机制的大门。我们要聊的话题是<strong>进程与线程在内核中到底是如何被管理的</strong>。为什么这很重要？因为如果你不理解内核眼中的“进程”和“线程”，你就无法理解下一章关于内存管理的讨论，更别说写出高效的驱动程序了。我们会看到那些你在用户空间习以为常的概念——比如栈、堆、甚至“我在运行”这个事实——在内核视角下是如何被完全重构的。</p>
+<p>其实，写内核代码和写用户空间代码有一个根本的区别：在用户空间，你是进程的主宰；在内核空间，你是在<strong>借来的上下文</strong>里干活。搞清楚你在“借”谁的上下文，以及这个上下文有什么限制，是这一章的核心任务。</p>
+<p>为了把这件事讲清楚，我把这部分内容拆成了两章。本章专注于<strong>进程与线程的架构</strong>，下一章我们将深入<strong>内存管理内幕</strong>。当然，真正的内核开发经验是散落在整本书里的——比如 CPU 调度、同步原语这些——但那些都是后话。</p>
+<p>这一章我们要解决的核心问题包括：</p>
+<ul>
+<li>内核代码到底是在谁的“地盘”上运行？（进程上下文 vs 中断上下文）</li>
+<li>进程的虚拟地址空间（VAS）到底长什么样？</li>
+<li>内核如何组织这些进程、线程以及它们的栈？</li>
+<li>如何找到并操作内核中那个描述任务的终极结构体 —— <code>task_struct</code>？</li>
+<li>如何遍历系统中的所有任务？</li>
+</ul>
+<p>准备好了？我们先把 VM（虚拟机）准备好，确保你已经按照 Online Chapter 里的步骤配置好了环境。如果没有，赶紧回去搞定——接下来的内容最好是你亲手敲进去验证一遍。</p>
+<hr />
+<h2 id="61-理解进程与中断上下文">6.1 理解进程与中断上下文<a class="headerlink" href="#61-理解进程与中断上下文" title="链接到此章节">&para;</a></h2>
+<p>在第 4 章写第一个内核模块时，我们曾简单提过内核架构。现在，是时候把这个话题摊开来讲了。</p>
+<p>现在的 CPU 通常都有特权级的概念。比如 x86 有 4 个 Ring（Ring 0 最特权，Ring 3 最普通），ARM-32 有 7 种模式，ARM64 有 Exception Level（EL0-EL3）。但不管是哪个架构，现代操作系统在实际使用时都简化为<strong>两级</strong>：<strong>特权级</strong>（内核模式）和<strong>非特权级</strong>（用户模式）。</p>
+<p>这一点至关重要。</p>
+<p>接下来的事情可能会稍微挑战一下你的直觉：Linux 是一个<strong>单内核</strong>。这个词的字面意思是“一块巨大的石头”。这意味着什么？意味着当你的进程发起一个系统调用时，并没有一个神秘的“内核进程”跳出来帮你干活。</p>
+<p><strong>真相是：那个进程自己切入了内核模式，亲自执行内核代码。</strong></p>
+<p>所以，我们说内核代码是在<strong>进程上下文</strong>中执行的。这不仅仅是术语，这是理解内核行为的基础。绝大多数驱动代码、异常处理（比如缺页中断）、甚至调度器的一部分，都是在这种上下文中跑的。</p>
+<p>但你可能会问：除了进程上下文，内核代码还有别的活法吗？</p>
+<p>当然有。想象一下，当你正沉浸在敲代码的快乐中时，网卡突然收到了一个数据包。硬件中断信号瞬间触发。CPU 这时候不管在干嘛（哪怕正在执行内核代码），都得立刻停下来，保存当前状态，然后跳转去执行中断处理程序（ISR）。这时候执行的代码，就是在<strong>中断上下文</strong>中运行的。</p>
+<p><strong>这是两种完全不同的世界观：</strong></p>
+<ol>
+<li><strong>进程上下文</strong>：由进程主动发起（系统调用或异常），是同步的。本质上还是“我”在干活，只是换了个更高级的权限。</li>
+<li><strong>中断上下文</strong>：由硬件异步触发，此时你不是任何进程，你就是中断本身。你不能睡觉，不能阻塞，必须速战速决。</li>
+</ol>
+<p>Figure 6.1 展示了这种概念视图：用户空间的线程通过系统调用切入内核；同时，纯内核线程（不需要用户空间的那种）也在默默干活；而中断则是那个不速之客，随时打断一切。</p>
+<blockquote>
+<p><strong>模式 A：SICP 紧绷模式</strong>
+这里的区别不是学术游戏，是生与死的界限。
+在进程上下文里，你可以申请内存，可以等待锁，可以睡眠。
+在中断上下文里，如果你敢睡觉，系统立刻崩溃。</p>
+<p>为什么？
+因为如果你在睡眠时触发了调度器，调度器怎么知道唤醒谁？
+你甚至不是一个“进程”。</p>
+<p>稍后我们会教你如何判断自己到底在哪个上下文。但先记住这个直觉。</p>
+</blockquote>
+<hr />
+<h2 id="62-理解进程虚拟地址空间vas的基础">6.2 理解进程虚拟地址空间（VAS）的基础<a class="headerlink" href="#62-理解进程虚拟地址空间vas的基础" title="链接到此章节">&para;</a></h2>
+<p>在深入内核之前，我们需要先回顾一下进程的“家”——虚拟地址空间（VAS）。这里有一个铁律：<strong>内存是沙盒化的</strong>。进程以为自己独占整个内存空间，往“外”看是不可能的事情。</p>
+<p>用户空间的 VAS 被划分成了若干个同质的区域，我们称之为<strong>段</strong>或者更技术性的<strong>映射</strong>——因为它们本质上是内核通过 <code>mmap()</code> 系统调用拼凑出来的。</p>
+<p>Figure 6.2 展示了一个标准的 Linux 用户空间进程 VAS 的最小集合。让我们从低地址到高地址快速过一遍：</p>
+<h3 id="text-段代码段">Text 段（代码段）<a class="headerlink" href="#text-段代码段" title="链接到此章节">&para;</a></h3>
+<p>这是存放机器指令的地方。指令指针（IP/PC）就在这里跳舞。它是只读（r-x）的。注意，Text 段并不从 0 地址开始，0 地址附近的那个页面是著名的“空指针陷阱页”，专门用来抓 NULL 指针访问的。</p>
+<h3 id="data-段数据段">Data 段（数据段）<a class="headerlink" href="#data-段数据段" title="链接到此章节">&para;</a></h3>
+<p>紧接着 Text 段。存放全局和静态变量（rw-）。实际上它分三块：
+1.  <strong>Initialized Data</strong>：已初始化的全局/静态变量。
+2.  <strong>Uninitialized Data (BSS)</strong>：未初始化的全局/静态变量，运行时自动归零。
+3.  <strong>Heap（堆）</strong>：<code>malloc()</code> 的老家。但注意，现代 glibc 中，只有小于 128KB（<code>MMAP_THRESHOLD</code>）的请求才从堆里分。大块内存会通过 <code>mmap()</code> 另外开炉灶，这叫<strong>匿名映射</strong>。堆是动态的，而且它是唯一向<strong>高地址</strong>增长的段。堆顶的合法地址边界叫 <strong>Program Break</strong>（可以用 <code>sbrk(0)</code> 查看）。</p>
+<h3 id="共享库">共享库<a class="headerlink" href="#共享库" title="链接到此章节">&para;</a></h3>
+<p>所有动态链接的共享库（.so）都被映射在堆和栈之间的某个区域。</p>
+<h3 id="stack栈">Stack（栈）<a class="headerlink" href="#stack栈" title="链接到此章节">&para;</a></h3>
+<p>这是 LIFO（后进先出）的世界。函数调用、参数传递、局部变量全在这里。在现代 CPU（x86, ARM）上，栈是<strong>向下增长</strong>的，这就是所谓的 <strong>Fully Descending Stack</strong>。</p>
+<p>这里有一个很有趣的细节：虽然逻辑上我们说“每次函数调用分配栈帧”，但实际上物理操作并没有那么复杂——栈指针（SP）动一下，栈帧就出现了，return 时弹回去就行。这种设计快得惊人。</p>
+<p><strong>关于线程：</strong>
+一个进程至少有一个线程（即 <code>main()</code> 线程）。如果有多线程（Figure 6.2 中的 thrd2, thrd3），它们共享进程 VAS 里的几乎所有东西——除了栈。<strong>每个线程都有自己独立的私有栈</strong>。主线程的栈在 VAS 的最顶端，其他线程的栈则在堆和栈之间的“共享区”里乱长。</p>
+<blockquote>
+<p><strong>类比回收：回到那个“沙盒”</strong>
+我们可以把进程的 VAS 想象成一个<strong>四合院</strong>（Sandbox）。</p>
+<ul>
+<li><strong>Text/Data</strong> 是地基和承重墙，建好了就不动。</li>
+<li><strong>Heap</strong> 是你在院子里临时搭的棚子，可以向院子中心（高地址）不断扩张。</li>
+<li><strong>Stack</strong> 是你在天花板上挂的篮子，东西越多，篮子越沉，绳子放得越长（向低地址增长）。</li>
+<li><strong>线程</strong>：如果是四合院里的一家人，大家共享厨房和厕所，但每个人都有自己的<strong>私房钱（栈）</strong>藏在各自的行李箱里。你不能去翻别人的行李箱，否则就乱套了。</li>
+</ul>
+<p>这个类比能帮你理解为什么多线程编程里，局部变量是安全的（在各自篮子里），而全局变量需要小心（大家都能看见）。</p>
+</blockquote>
+<hr />
+<h2 id="63-进程线程与栈的组织--用户空间与内核空间">6.3 进程、线程与栈的组织 —— 用户空间与内核空间<a class="headerlink" href="#63-进程线程与栈的组织--用户空间与内核空间" title="链接到此章节">&para;</a></h2>
+<p>传统的 UNIX 哲学是“一切皆进程”。但在现代内核眼里，<strong>线程才是调度的基本单位</strong>。Linux 内核不区分进程和线程，线程就是“共享了某些资源的进程”。每一个线程 —— 无论是用户空间的还是内核的 —— 都对应一个内核元数据结构：<strong><code>task_struct</code></strong>。我们后面会详聊这个结构。</p>
+<p>这里有一个容易被忽视的关键点：<strong>我们需要为每个线程在每个特权级上都准备一个栈。</strong></p>
+<p>Linux 有两个特权级：用户模式和内核模式。这意味着，<strong>每一个活着的用户空间线程，其实都有两个栈：</strong></p>
+<ol>
+<li><strong>用户空间栈</strong>：跑用户代码时用。你 C 语言里写的局部变量都在这。</li>
+<li><strong>内核空间栈</strong>：一旦你通过系统调用陷入内核，或者触发异常（比如缺页中断），CPU 切换到内核模式，栈指针（SP）会瞬间指向这个内核栈。所有的内核函数调用、内核里的局部变量，都在这个小小的内核栈上。</li>
+</ol>
+<p><strong>唯一的例外是内核线程</strong>。它们出生就在内核，眼睛里只有内核空间，所以它们<strong>只有内核栈</strong>，没有用户栈。</p>
+<blockquote>
+<p><strong>⚠️ 踩坑预警</strong>
+千万别以为内核栈很大。
+32位系统上通常只有 2 页（8KB），64位上只有 4 页（16KB）。
+在内核模块里定义一个 <code>int huge_array[4096]</code>？
+你可能直接把栈撑爆了，导致难以调试的崩溃。
+以后我们在内核里搞大块内存，必须动态分配（kmalloc/vmalloc），绝对不能在栈上贪便宜。</p>
+</blockquote>
+<p><strong>还有一个细节：硬件中断栈（IRQ Stack）</strong>
+当硬件中断发生时，CPU 并不一定会使用被中断进程的内核栈（那太小了，万一中断处理程序也很贪吃呢？）。很多架构（包括 x86_64）会为每个 CPU 核心准备一个独立的 <strong>IRQ 栈</strong>，专门用来处理中断。这避免了中断处理程序把无辜进程的内核栈给踩塌了。</p>
+<hr />
+<h2 id="64-查看用户栈和内核栈">6.4 查看用户栈和内核栈<a class="headerlink" href="#64-查看用户栈和内核栈" title="链接到此章节">&para;</a></h2>
+<p>栈是调试时的命根子。如果你想搞清楚“程序是怎么运行到这里的”，或者“为什么它卡在这里不动了”，看栈几乎是唯一的办法。但正如刚才说的，每个线程有两个栈，我们怎么看？</p>
+<h3 id="查看内核栈procpidstack">查看内核栈：<code>/proc/PID/stack</code><a class="headerlink" href="#查看内核栈procpidstack" title="链接到此章节">&para;</a></h3>
+<p>好消息：内核把这部分做得非常人性化。只要你有 root 权限，直接读 <code>/proc/PID/stack</code> 就能拿到该进程当前的内核栈回溯。</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1"></a><a href="#__codelineno-0-1"><span class="linenos" data-linenos="1 "></span></a>$<span class="w"> </span>sudo<span class="w"> </span>cat<span class="w"> </span>/proc/2549/stack
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2"></a><a href="#__codelineno-0-2"><span class="linenos" data-linenos="2 "></span></a><span class="o">[</span>&lt;<span class="m">0</span>&gt;<span class="o">]</span><span class="w"> </span>do_wait+0x184/0x340
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3"></a><a href="#__codelineno-0-3"><span class="linenos" data-linenos="3 "></span></a><span class="o">[</span>&lt;<span class="m">0</span>&gt;<span class="o">]</span><span class="w"> </span>kernel_wait4+0xaf/0x150
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4"></a><a href="#__codelineno-0-4"><span class="linenos" data-linenos="4 "></span></a><span class="o">[</span>&lt;<span class="m">0</span>&gt;<span class="o">]</span><span class="w"> </span>__do_sys_wait4+0x89/0xa0
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5"></a><a href="#__codelineno-0-5"><span class="linenos" data-linenos="5 "></span></a><span class="o">[</span>&lt;<span class="m">0</span>&gt;<span class="o">]</span><span class="w"> </span>__x64_sys_wait4+0x1e/0x30
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6"></a><a href="#__codelineno-0-6"><span class="linenos" data-linenos="6 "></span></a><span class="o">[</span>&lt;<span class="m">0</span>&gt;<span class="o">]</span><span class="w"> </span>do_syscall_64+0x5c/0x90
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7"></a><a href="#__codelineno-0-7"><span class="linenos" data-linenos="7 "></span></a><span class="o">[</span>&lt;<span class="m">0</span>&gt;<span class="o">]</span><span class="w"> </span>entry_SYSCALL_64_after_hwframe+0x63/0xcd
+</span></code></pre></div>
+<p>怎么读？
+*   <strong>从下往上</strong>。最下面是入口（<code>entry_SYSCALL_64...</code>），最上面是当前正在跑的函数（<code>do_wait</code>）。
+*   <code>do_wait+0x184/0x340</code> 意思是：当前停在这个函数内部偏移 <code>0x184</code> 字节处，整个函数总长 <code>0x340</code> 字节。
+*   <code>[&lt;0&gt;]</code> 原本是代码段的地址，但为了防止黑客通过这些信息泄露内核布局（KASLR），现代内核通常把它置零。</p>
+<p>看，我们的 Bash 进程此时正通过 <code>wait4</code> 系统调用在内核里傻等子进程结束呢。</p>
+<h3 id="查看用户栈gdb-的魔法">查看用户栈：GDB 的魔法<a class="headerlink" href="#查看用户栈gdb-的魔法" title="链接到此章节">&para;</a></h3>
+<p>查看用户栈反而麻烦一点。最通用的办法是用 GDB。为了方便，你可以写个简单的脚本 <code>ch6/ustack</code>，核心就是调用 GDB 的 <code>bt</code> 命令。</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1"></a><a href="#__codelineno-1-1"><span class="linenos" data-linenos="1 "></span></a>sudo<span class="w"> </span>gdb<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2"></a><a href="#__codelineno-1-2"><span class="linenos" data-linenos="2 "></span></a><span class="w">  </span>-ex<span class="w"> </span><span class="s2">&quot;set pagination 0&quot;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3"></a><a href="#__codelineno-1-3"><span class="linenos" data-linenos="3 "></span></a><span class="w">  </span>-ex<span class="w"> </span><span class="s2">&quot;thread apply all bt&quot;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4"></a><a href="#__codelineno-1-4"><span class="linenos" data-linenos="4 "></span></a><span class="w">  </span>--batch<span class="w"> </span>-p<span class="w"> </span><span class="nv">$PID</span>
+</span></code></pre></div>
+<p>如果我们把它甩给刚才的 Bash 进程，你会看到类似这样的输出：</p>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1"></a><a href="#__codelineno-2-1"><span class="linenos" data-linenos="1 "></span></a><span class="n">Thread</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">(</span><span class="n">process</span><span class="w"> </span><span class="mi">2549</span><span class="p">)</span><span class="o">:</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2"></a><a href="#__codelineno-2-2"><span class="linenos" data-linenos="2 "></span></a><span class="cp">#0  0x00007fadd3109c3a in __GI___wait4 ...</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3"></a><a href="#__codelineno-2-3"><span class="linenos" data-linenos="3 "></span></a><span class="cp">#1  0x0000555b98cd4f03 in ?? ()</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4"></a><a href="#__codelineno-2-4"><span class="linenos" data-linenos="4 "></span></a><span class="cp">#2  0x0000555b98cd6373 in wait_for ()</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5"></a><a href="#__codelineno-2-5"><span class="linenos" data-linenos="5 "></span></a><span class="p">...</span>
+</span></code></pre></div>
+<p>同样，这也是从下往上读。最上面的 <code>#0</code> 就是当前帧。</p>
+<h3 id="ebpf现代魔法">eBPF：现代魔法<a class="headerlink" href="#ebpf现代魔法" title="链接到此章节">&para;</a></h3>
+<p>如果你觉得上面那套太“传统”，那我们来看看现代兵器 —— <strong>eBPF</strong>。</p>
+<p>利用 <strong>BCC (BPF Compiler Collection)</strong> 工具集中的 <code>stackcount</code>，我们可以做到更酷的事情：<strong>同时追踪内核栈和用户栈</strong>。</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1"></a><a href="#__codelineno-3-1"><span class="linenos" data-linenos="1 "></span></a><span class="c1"># 举个栗子，我们想看 ping 程序在干嘛</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2"></a><a href="#__codelineno-3-2"><span class="linenos" data-linenos="2 "></span></a>sudo<span class="w"> </span>stackcount-bpfcc<span class="w"> </span>-d<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3"></a><a href="#__codelineno-3-3"><span class="linenos" data-linenos="3 "></span></a><span class="w">  </span><span class="sb">`</span>pgrep<span class="w"> </span>ping<span class="sb">`</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4"></a><a href="#__codelineno-3-4"><span class="linenos" data-linenos="4 "></span></a><span class="w">  </span>--delimited<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5"></a><a href="#__codelineno-3-5"><span class="linenos" data-linenos="5 "></span></a><span class="w">  </span>ping_echo_send
+</span></code></pre></div>
+<p>这个工具会像发传单一样贴着 Ping 进程，一旦它调用 <code>ping_echo_send</code>，就把那一瞬间内核和用户的调用栈都抓下来打印出来。<code>--delimited</code> 参数会在输出里画一条 <code>--</code> 分界线，左边是内核，右边是用户。</p>
+<blockquote>
+<p><strong>费曼流动模式</strong>
+说实话，第一次看到 eBPF 这类工具的输出时，我整个人是“不明觉厉”的。
+你不需要现在就掌握 BCC 的所有细节，但你需要建立一种直觉：
+现在的内核调试已经不再是单纯盯着 <code>/proc</code> 文件看了，而是可以通过插桩的方式，让内核在关键路径上“自爆”给你看。</p>
+<p>这是一种上帝视角。以前我们是猜发生了什么，现在我们是直接盯着它发生。</p>
+</blockquote>
+<hr />
+<h2 id="65-内核任务结构task_struct">6.5 内核任务结构：<code>task_struct</code><a class="headerlink" href="#65-内核任务结构task_struct" title="链接到此章节">&para;</a></h2>
+<p>好了，现在让我们回到那张大大的全家福图（Figure 6.3/6.5）。内核空间里除了代码和数据，最核心的就是那一个个 <strong><code>task_struct</code></strong> 结构体。</p>
+<p>这就是内核眼中的“身份证”。每一个活着的线程（不管是用户的还是内核的），都有一个对应的 <code>task_struct</code>。它存了一切：PID、内存描述符、打开的文件、信号处理、调度信息……甚至包括这个线程刚才是不是经常在睡眠。</p>
+<p>这个结构体定义在 <code>include/linux/sched.h</code> 里。它大到离谱（在 6.1 内核上 x86_64 是 13KB+）。</p>
+<blockquote>
+<p><strong>SICP 紧绷模式</strong>
+这不仅仅是一个数据结构。
+这是操作系统对现实世界的一个抽象。
+当我们在代码里写下 <code>current-&gt;pid</code> 时，我们其实是在向内核询问：
+“现在正在 CPU 上运行的那个灵魂是谁？”</p>
+</blockquote>
+<hr />
+<h2 id="66-通过-current-宏访问任务结构">6.6 通过 <code>current</code> 宏访问任务结构<a class="headerlink" href="#66-通过-current-宏访问任务结构" title="链接到此章节">&para;</a></h2>
+<p>既然有几百几千个 <code>task_struct</code> 挂在内核的链表上，当我的内核代码正在运行时，我怎么知道“我是谁”？</p>
+<p>内核开发这帮人很聪明，他们搞出了一个宏：<strong><code>current</code></strong>。</p>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1"></a><a href="#__codelineno-4-1"><span class="linenos" data-linenos="1 "></span></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;linux/sched.h&gt;</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2"></a><a href="#__codelineno-4-2"><span class="linenos" data-linenos="2 "></span></a>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3"></a><a href="#__codelineno-4-3"><span class="linenos" data-linenos="3 "></span></a><span class="n">current</span><span class="o">-&gt;</span><span class="n">pid</span><span class="p">;</span><span class="w">  </span><span class="c1">// 拿到当前进程（线程）的 PID</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4"></a><a href="#__codelineno-4-4"><span class="linenos" data-linenos="4 "></span></a><span class="n">current</span><span class="o">-&gt;</span><span class="n">comm</span><span class="p">;</span><span class="w"> </span><span class="c1">// 拿到当前进程的名字（去掉路径的）</span>
+</span></code></pre></div>
+<p>你可以把 <code>current</code> 想象成 C++ 里的 <code>this</code> 指针，但它是指向当前正在执行内核代码的那个线程的 <code>task_struct</code>。</p>
+<p>它的实现非常依赖于架构：
+*   <strong>x86_64</strong>：利用了 per-CPU 变量，速度极快，不需要锁。
+*   <strong>ARM64 / PowerPC</strong>：甚至专门腾出了一个通用寄存器来存这玩意儿，查起来就是一条指令的事。</p>
+<h3 id="判定上下文我是谁我在哪">判定上下文：我是谁？我在哪？<a class="headerlink" href="#判定上下文我是谁我在哪" title="链接到此章节">&para;</a></h3>
+<p>我们之前反复强调不能在原子上下文里睡觉。那怎么知道自己是不是在原子上下文？内核提供了一个极其好用的宏：</p>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1"></a><a href="#__codelineno-5-1"><span class="linenos" data-linenos="1 "></span></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;linux/preempt.h&gt;</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2"></a><a href="#__codelineno-5-2"><span class="linenos" data-linenos="2 "></span></a>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3"></a><a href="#__codelineno-5-3"><span class="linenos" data-linenos="3 "></span></a><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">in_task</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4"></a><a href="#__codelineno-5-4"><span class="linenos" data-linenos="4 "></span></a><span class="w">    </span><span class="c1">// 这是进程上下文，通常可以睡觉</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5"></a><a href="#__codelineno-5-5"><span class="linenos" data-linenos="5 "></span></a><span class="w">    </span><span class="n">foo</span><span class="p">();</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6"></a><a href="#__codelineno-5-6"><span class="linenos" data-linenos="6 "></span></a><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7"></a><a href="#__codelineno-5-7"><span class="linenos" data-linenos="7 "></span></a><span class="w">    </span><span class="c1">// 这是中断上下文（或持有自旋锁），绝对不能睡！</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8"></a><a href="#__codelineno-5-8"><span class="linenos" data-linenos="8 "></span></a><span class="w">    </span><span class="n">bar</span><span class="p">();</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9"></a><a href="#__codelineno-5-9"><span class="linenos" data-linenos="9 "></span></a><span class="p">}</span>
+</span></code></pre></div>
+<blockquote>
+<p><strong>⚠️ 踩坑预警</strong>
+<code>in_task()</code> 返回 true 并不代表你一定可以睡！
+如果你在进程上下文里拿着一个<strong>自旋锁</strong>，你还是原子上下文的一部分。
+这时候调用 <code>msleep()</code>？那你就是在等死。</p>
+<p>记住一个简单的原则：拿锁的时候别睡，中断里别睡。</p>
+</blockquote>
+<h3 id="实战current_affairs-模块">实战：<code>current_affairs</code> 模块<a class="headerlink" href="#实战current_affairs-模块" title="链接到此章节">&para;</a></h3>
+<p>写个模块试试水。我们在模块初始化（<code>init</code>）和退出（<code>cleanup</code>）的时候，打印一下当前的上下文信息。</p>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1"></a><a href="#__codelineno-6-1"><span class="linenos" data-linenos=" 1 "></span></a><span class="cm">/* 代码节选自 ch6/current_affairs/current_affairs.c */</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2"></a><a href="#__codelineno-6-2"><span class="linenos" data-linenos=" 2 "></span></a><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">show_ctx</span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">nm</span><span class="p">)</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3"></a><a href="#__codelineno-6-3"><span class="linenos" data-linenos=" 3 "></span></a><span class="p">{</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4"></a><a href="#__codelineno-6-4"><span class="linenos" data-linenos=" 4 "></span></a><span class="w">    </span><span class="c1">// ... 头文件包含 ...</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5"></a><a href="#__codelineno-6-5"><span class="linenos" data-linenos=" 5 "></span></a><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">likely</span><span class="p">(</span><span class="n">in_task</span><span class="p">()))</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6"></a><a href="#__codelineno-6-6"><span class="linenos" data-linenos=" 6 "></span></a><span class="w">        </span><span class="n">pr_info</span><span class="p">(</span><span class="s">&quot;Running in process context ::</span><span class="se">\n</span><span class="s">&quot;</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7"></a><a href="#__codelineno-6-7"><span class="linenos" data-linenos=" 7 "></span></a><span class="w">                </span><span class="s">&quot; name        : %s</span><span class="se">\n</span><span class="s">&quot;</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8"></a><a href="#__codelineno-6-8"><span class="linenos" data-linenos=" 8 "></span></a><span class="w">                </span><span class="s">&quot; PID         : %6d</span><span class="se">\n</span><span class="s">&quot;</span>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9"></a><a href="#__codelineno-6-9"><span class="linenos" data-linenos=" 9 "></span></a><span class="w">                </span><span class="s">&quot; TGID        : %6d</span><span class="se">\n</span><span class="s">&quot;</span>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10"></a><a href="#__codelineno-6-10"><span class="linenos" data-linenos="10 "></span></a><span class="w">                </span><span class="s">&quot; UID         : %6u</span><span class="se">\n</span><span class="s">&quot;</span>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11"></a><a href="#__codelineno-6-11"><span class="linenos" data-linenos="11 "></span></a><span class="w">                </span><span class="s">&quot; EUID        : %6u (%s root)</span><span class="se">\n</span><span class="s">&quot;</span>
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12"></a><a href="#__codelineno-6-12"><span class="linenos" data-linenos="12 "></span></a><span class="w">                </span><span class="c1">// ... 打印指针地址 ...</span>
+</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13"></a><a href="#__codelineno-6-13"><span class="linenos" data-linenos="13 "></span></a><span class="w">                </span><span class="n">current</span><span class="o">-&gt;</span><span class="n">comm</span><span class="p">,</span>
+</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14"></a><a href="#__codelineno-6-14"><span class="linenos" data-linenos="14 "></span></a><span class="w">                </span><span class="n">task_pid_nr</span><span class="p">(</span><span class="n">current</span><span class="p">),</span><span class="w"> </span><span class="c1">// 推荐使用 helper 宏</span>
+</span><span id="__span-6-15"><a id="__codelineno-6-15" name="__codelineno-6-15"></a><a href="#__codelineno-6-15"><span class="linenos" data-linenos="15 "></span></a><span class="w">                </span><span class="n">task_tgid_nr</span><span class="p">(</span><span class="n">current</span><span class="p">),</span>
+</span><span id="__span-6-16"><a id="__codelineno-6-16" name="__codelineno-6-16"></a><a href="#__codelineno-6-16"><span class="linenos" data-linenos="16 "></span></a><span class="w">                </span><span class="c1">// ...</span>
+</span><span id="__span-6-17"><a id="__codelineno-6-17" name="__codelineno-6-17"></a><a href="#__codelineno-6-17"><span class="linenos" data-linenos="17 "></span></a><span class="w">                </span><span class="p">);</span>
+</span><span id="__span-6-18"><a id="__codelineno-6-18" name="__codelineno-6-18"></a><a href="#__codelineno-6-18"><span class="linenos" data-linenos="18 "></span></a><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-6-19"><a id="__codelineno-6-19" name="__codelineno-6-19"></a><a href="#__codelineno-6-19"><span class="linenos" data-linenos="19 "></span></a><span class="w">        </span><span class="n">pr_alert</span><span class="p">(</span><span class="s">&quot;Whoa! running in interrupt context! Should NOT happen here</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span id="__span-6-20"><a id="__codelineno-6-20" name="__codelineno-6-20"></a><a href="#__codelineno-6-20"><span class="linenos" data-linenos="20 "></span></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-6-21"><a id="__codelineno-6-21" name="__codelineno-6-21"></a><a href="#__codelineno-6-21"><span class="linenos" data-linenos="21 "></span></a><span class="p">}</span>
+</span></code></pre></div>
+<p>这里用到了一个常见的微优化宏 <code>likely()</code>。它告诉编译器：“这条件十有八九是真的，你把汇编代码优化的往那边靠”。这在内核里随处可见。</p>
+<p>当你 <code>insmod</code> 这个模块时，猜猜 <code>current</code> 指向谁？</p>
+<p><strong>是 <code>insmod</code> 这个进程自己！</strong></p>
+<blockquote>
+<p><strong>回扣：Linux 是单内核</strong>
+还记得我们在章节引子里说的吗？“你是借来的上下文”。
+当你在终端敲 <code>insmod module.ko</code> 时，<code>insmod</code> 进程发起系统调用，内核切入特权模式。
+并没有什么“内核守护进程”来接管你的模块。
+<strong>是你自己（那个 <code>insmod</code> 进程）在内核模式下执行了模块的 <code>init</code> 函数。</strong></p>
+<p>这就是单内核的本质。
+（微内核才是那种发消息给“服务器进程”去干的模式。）</p>
+</blockquote>
+<hr />
+<h2 id="67-遍历内核的任务列表">6.7 遍历内核的任务列表<a class="headerlink" href="#67-遍历内核的任务列表" title="链接到此章节">&para;</a></h2>
+<p>既然所有的 <code>task_struct</code> 都串在一个巨大的双向循环链表上，那我们能不能像翻花名册一样一个个看过去？当然可以。</p>
+<p>内核提供了一个宏 <code>for_each_process()</code>。</p>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1"></a><a href="#__codelineno-7-1"><span class="linenos" data-linenos="1 "></span></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;linux/sched/signal.h&gt;</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2"></a><a href="#__codelineno-7-2"><span class="linenos" data-linenos="2 "></span></a>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3"></a><a href="#__codelineno-7-3"><span class="linenos" data-linenos="3 "></span></a><span class="k">struct</span><span class="w"> </span><span class="nc">task_struct</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">;</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4"></a><a href="#__codelineno-7-4"><span class="linenos" data-linenos="4 "></span></a><span class="n">for_each_process</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5"></a><a href="#__codelineno-7-5"><span class="linenos" data-linenos="5 "></span></a><span class="w">    </span><span class="c1">// p 指向每一个进程的 task_struct</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6"></a><a href="#__codelineno-7-6"><span class="linenos" data-linenos="6 "></span></a><span class="w">    </span><span class="c1">// 注意：它只遍历每个进程的主线程</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7"></a><a href="#__codelineno-7-7"><span class="linenos" data-linenos="7 "></span></a><span class="p">}</span>
+</span></code></pre></div>
+<p>但这有个坑：<code>for_each_process</code> 严格来说只遍历每一个进程组的“头儿”（主线程）。如果你想找出系统里<strong>所有的线程</strong>（包括多线程进程里的那些小弟），你需要用更强力的宏：</p>
+<ul>
+<li><strong>老内核 (&lt; 6.6)</strong>：<code>do_each_thread(p, t) { ... } while_each_thread(p, t);</code></li>
+<li><strong>新内核 (&gt;= 6.6)</strong>：<code>for_each_process_thread(p, t);</code></li>
+</ul>
+<p>我们写了一个演示模块 <code>ch6/foreach/thrd_showall</code>。当你把它插进去并在 <code>dmesg</code> 里看输出时，你会看到密密麻麻的任务列表。</p>
+<p>Figure 6.12 的输出里有一列很有意思：<strong>TGID vs PID</strong>。</p>
+<ul>
+<li><strong>PID</strong>：在内核眼里，这就是线程 ID。每个线程都不一样。</li>
+<li><strong>TGID</strong>：线程组 ID。也就是我们在用户空间说的“进程 ID”。</li>
+</ul>
+<p>如果一个进程是单线程的，PID == TGID。如果是多线程，主线程 PID == TGID，而其他线程 PID 各异，但 TGID 都等于主线程的 PID。</p>
+<p>你可以用 <code>ps -LA</code> 命令验证这一点：
+*   第一列 <code>PID</code> 其实是 TGID。
+*   第二列 <code>LWP</code> (Light-Weight Process) 才是内核里的 PID。</p>
+<hr />
+<h3 id="本章小结">本章小结<a class="headerlink" href="#本章小结" title="链接到此章节">&para;</a></h3>
+<p>这一章我们构建了一幅完整的地图：从 CPU 的特权级，到进程的虚拟地址空间（堆、栈、代码段），再到内核如何用 <code>task_struct</code> 和双向链表管理成百上千个线程，以及我们如何通过 <code>current</code> 宏在这张巨大的网中定位自己。</p>
+<p>特别是<strong>进程上下文与中断上下文的区别</strong>，以及<strong>“用户空间进程自己执行内核代码”</strong> 这一单内核特性，是你理解后续所有驱动模型的基础。如果不理解这些，当你写出“在持有自旋锁时调用 <code>copy_from_user</code>”这种代码时，你就只能对着系统崩溃抓瞎了。</p>
+<p>下一章，我们将深入这块内存的另一个维度 —— <strong>内存管理</strong>。到时候你会发现，今天讲的这些结构（task_struct, mm_struct）是如何真正挂载到物理内存页上的。</p>
+<p>这是一场漫长的旅程，但现在的你已经有了地图。</p>
+<hr />
+<h2 id="练习题">练习题<a class="headerlink" href="#练习题" title="链接到此章节">&para;</a></h2>
+<h3 id="练习-1understanding">练习 1：understanding<a class="headerlink" href="#练习-1understanding" title="链接到此章节">&para;</a></h3>
+<p><strong>题目</strong>：在 Linux 内核编程中，为什么中断上下文绝对禁止调用可能睡眠的函数（如 <code>kmalloc(GFP_KERNEL)</code> 或 <code>down()</code>）？这背后与进程调度有什么关系？</p>
+<details><summary>答案与解析</summary>
+
+
+**答案**：因为中断上下文不关联任何特定的进程描述符，没有“重入”的进程可供调度器切换；如果在中断中睡眠，调度器无法找到正确的进程来恢复执行，导致系统死锁或崩溃。
+
+
+**解析**：考察对 Process Context 和 Interrupt Context 本质区别的理解。
+
+1. **进程上下文**：由系统调用或异常触发，依附于特定的进程（`current` 指针有效）。如果睡眠，调度器可以挂起当前进程，稍后唤醒恢复。
+2. **中断上下文**：由硬件异步触发，不是任何特定进程的一部分。中断处理程序打断了正在运行的进程（不管是在用户态还是内核态）。
+
+如果中断处理程序试图睡眠，内核调度器会尝试将 CPU 切换到另一个进程。但由于中断并非由“进程”发起，调度器无法将 CPU 返回到中断发生时的状态（因为没有保存足够的“进程上下文”信息来允许这种重入）。因此，中断处理程序必须快速执行完毕，不能阻塞或睡眠。
+
+
+</details>
+
+<h3 id="练习-2application">练习 2：application<a class="headerlink" href="#练习-2application" title="链接到此章节">&para;</a></h3>
+<p><strong>题目</strong>：在一个运行中的 Linux 系统上，您编写了一个内核模块。在某个函数中，您需要判断当前代码是否处于“原子上下文”中。您会使用哪个内核宏来实现这一判断？请写出该宏的名称并简述其返回值为真时的两种典型场景。</p>
+<details><summary>答案与解析</summary>
+
+
+**答案**：使用 `in_atomic()` 宏。
+
+两种典型场景：
+1. 硬件中断处理程序或软中断中执行时。
+2. 持有自旋锁的进程上下文中。
+
+
+**解析**：考察对内核上下文检测工具的实际应用。
+
+*   **`in_atomic()`**：这个宏用于检测代码是否处于原子上下文，即是否允许发生进程调度。
+*   **场景 1 (Interrupt Context)**：当处理硬件中断时，显然不能睡眠，此时 `in_atomic()` 返回真。
+*   **场景 2 (Spinlock)**：在进程上下文中，如果代码已经持有了自旋锁，它也进入了原子临界区。虽然属于进程上下文，但在持有自旋锁期间也不能睡眠（否则可能导致死锁），因此 `in_atomic()` 同样返回真。
+
+注意：`in_interrupt()` 也可以用于检测中断上下文，但 `in_atomic()` 覆盖面更广，包括了持有自旋锁的情况。
+
+
+</details>
+
+<h3 id="练习-3application">练习 3：application<a class="headerlink" href="#练习-3application" title="链接到此章节">&para;</a></h3>
+<p><strong>题目</strong>：假设您正在编写一个 64 位系统的内核驱动程序。您在驱动中定义了一个局部数组 <code>char buf[4096]</code>。虽然编译通过，但系统在高负载下偶尔会发生崩溃（Kernel Panic）。根据关于“内核栈大小”的知识，分析最可能的崩溃原因是什么？为什么在用户空间编程中通常不需要担心这个问题？</p>
+<details><summary>答案与解析</summary>
+
+
+**答案**：崩溃原因是**内核栈溢出**。
+
+内核栈非常小（64位系统通常仅 16KB），且是固定的。函数调用链每深一层、局部变量每大一点，都在消耗这有限的栈空间。如果调用链较深，4096 字节的局部数组很容易占掉 1/4 到 1/2 的栈空间，导致栈溢出，覆盖邻近的 `thread_info` 或其他关键数据，引发 Panic。
+
+而在用户空间，栈空间是动态分配的，通常默认限制为 8MB 左右，且可以通过 `ulimit` 调整，空间非常充裕，极少发生局部数组导致的栈溢出。
+
+
+**解析**：考察对内核栈与用户栈区别的实际工程认知。
+
+1. **内核栈限制**：每个线程的内核栈通常只有 2 页（32位）或 4 页（64位），即 8KB 或 16KB。这需要容纳整个内核调用路径上的所有函数栈帧。
+2. **风险**：在内核中定义大的局部变量是非常危险的。系统高负载时，中断处理、驱动嵌套调用可能较深，瞬间耗尽栈空间。
+3. **用户栈对比**：用户空间的栈位于 VAS 的 Stack Segment，不仅空间大，而且还可以动态增长。Linux 内核不仅提供空间，还会在栈接近上限时通过 `guard page` 机制进行扩展处理，除非递归失控，一般不易溢出。
+4. **最佳实践**：内核中需要大块内存时，应使用 `kmalloc()` 或在堆上分配，而非使用局部数组。
+
+
+</details>
+
+<h3 id="练习-4thinking">练习 4：thinking<a class="headerlink" href="#练习-4thinking" title="链接到此章节">&para;</a></h3>
+<p><strong>题目</strong>：思考题：Linux 内核为了安全性引入了“用户空间影子栈”来防御 ROP（返回导向编程）攻击。然而，该特性（在提到的章节中）明确指出是针对“用户空间”的。请分析：为什么内核通常不需要同样的硬件级影子栈来保护自己的返回地址？或者更深层地，如果内核代码被攻击利用，这种硬件保护机制是否依然有效？</p>
+<details><summary>答案与解析</summary>
+
+
+**答案**：内核通常不需要独立的硬件影子栈，且硬件保护机制在内核最高权限下往往失效。
+
+**分析理由：**
+1. **Ring 0 权限**：内核运行在最高特权级。如果攻击者已经能够控制内核执行流（劫持返回地址），这意味着攻击者已经获得了 Ring 0 的权限。拥有最高权限的攻击者可以关闭影子栈功能（如修改 CR4 寄存器），或者直接读写控制影子栈的内存模型寄存器（MSR），从而绕过保护。
+2. **性能与开销**：内核对性能极其敏感，开启影子栈会带来明显的上下文切换开销和中断处理延迟。
+3. **现有机制**：内核主要依靠严格的代码审查、利用 `__builtin_return_address` 编译时检查（如 STACKPROTECTOR）、以及内存分区来缓解栈溢出问题，而不是依赖运行时硬件对返回地址的锁定。
+
+
+**解析**：这是一道综合思考题，涉及安全机制与权限模型。
+
+*   **影子栈的原理**：它将返回地址单独存放在一个受保护的只读内存区域。当函数返回时，CPU 比较普通栈上的返回地址和影子栈中的地址，如果不匹配则触发异常。
+*   **用户空间适用性**：用户程序运行在低权限，无法篡改影子栈的配置或内存，因此这种硬件强制保护非常有效。
+*   **内核空间的悖论**：安全机制的基石是“高权限保护低权限”。但如果攻击者攻破了内核，就拥有了最高权限。谁能监督拥有最高权限的人？
+    *   如果攻击者能覆盖内核栈上的返回地址，说明已经存在内核写漏洞。攻击者完全可以在覆盖返回地址的同时，构建 ROP 链去执行关闭影子栈保护的指令。
+    *   因此，内核安全更侧重于**防止内存被非预期写入**（如利用 SMEP/SMAP 防止内核执行用户空间代码），而不是单纯保护返回地址不被修改。
+
+
+</details>
+
+<hr />
+<h2 id="要点提炼">要点提炼<a class="headerlink" href="#要点提炼" title="链接到此章节">&para;</a></h2>
+<p>Linux 采用单内核架构，这意味着系统调用或异常发生时，并不是由某个神秘的“内核进程”接管 CPU，而是当前进程<strong>主动切入特权级（内核模式）</strong>，借用自己的上下文来执行内核代码。理解这一点至关重要，因为内核代码几乎总是运行在“借来的上下文”中，且必须时刻警惕当前所处的执行环境（进程上下文或中断上下文），因为后者严格禁止睡眠或阻塞操作。</p>
+<p>内核通过一个巨大的双向链表和核心结构体 <strong><code>task_struct</code></strong> 来管理所有的调度实体。在 Linux 内核眼中，<strong>线程才是调度的基本单位</strong>，而所谓的“进程”实质上是共享特定资源（如内存地址空间）的一组线程。无论是用户空间的线程还是纯内核线程，在内核中都由一个独立的 <code>task_struct</code> 描述，这意味着内核并不特别区分进程和线程，只看作为调度实体的个体。</p>
+<p>由于特权级的划分，每一个活跃的用户空间线程实际上都拥有<strong>两个栈</strong>：一个用于运行用户代码的<strong>用户栈</strong>（通过 <code>malloc</code> 等动态分配），和一个在陷入内核时使用的<strong>内核栈</strong>（通常很小，x86_64 上仅 16KB）。在编写内核模块时，开发者必须时刻警惕内核栈的尺寸限制，严禁在栈上分配大数组，否则极易导致栈溢出和系统崩溃，大块内存必须通过动态分配获取。</p>
+<p>进程的虚拟地址空间（VAS）被严格沙盒化，分为代码段、数据段、堆和栈等区域。堆向高地址增长，而栈（Fully Descending Stack）向低地址增长。对于多线程程序，所有线程共享进程的 VAS（代码段、全局变量等），但<strong>每个线程都拥有自己独立的用户栈区域</strong>，这正是多线程编程中局部变量安全而全局变量需要同步保护的根源所在。</p>
+<p>在内核代码中定位“我是谁”是通过宏 <code>current</code> 实现的，它指向当前正在 CPU 上运行的任务的 <code>task_struct</code>。开发者可以使用 <code>in_task()</code> 等辅助宏判断当前处于进程上下文还是中断上下文：在进程上下文中通常可以申请资源或短暂睡眠，但在中断上下文或持有自旋锁时，任何可能导致阻塞的操作都会引发系统崩溃。此外，遍历系统所有任务需使用 <code>for_each_process_thread</code> 宏，并需区分内核概念中的线程 ID（PID）和用户空间看到的进程 ID（TGID）。</p>
+
+
+
+
+
+
+
+  
+    
+  
+  
+    
+  
+
+
+  <aside class="md-source-file">
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="最后更新">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年5月6日 08:06:46 CST">2026年5月6日 08:06:46</span>
+  </span>
+
+    
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="创建日期">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年5月6日 08:06:46 CST">2026年5月6日 08:06:46</span>
+  </span>
+
+    
+    
+    
+  </aside>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href="../ch05/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 第 5 章 编写你的第一个内核模块——第二部分">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                第 5 章 编写你的第一个内核模块——第二部分
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../ch07/" class="md-footer__link md-footer__link--next" aria-label="下一页: Ch07">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              <div class="md-ellipsis">
+                Ch07
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2025 Charliechen - 保留所有权利
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/Awesome-Embedded-Learning-Studio" target="_blank" rel="noopener" title="GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="mailto:725610365@qq.com" target="_blank" rel="noopener" title="发送邮件" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M536.4-26.3c9.8-3.5 20.6-1 28 6.3s9.8 18.2 6.3 28l-178 496.9c-5 13.9-18.1 23.1-32.8 23.1-14.2 0-27-8.6-32.3-21.7l-64.2-158c-4.5-11-2.5-23.6 5.2-32.6l94.5-112.4c5.1-6.1 4.7-15-.9-20.6s-14.6-6-20.6-.9l-112.4 94.3c-9.1 7.6-21.6 9.6-32.6 5.2L38.1 216.8c-13.1-5.3-21.7-18.1-21.7-32.3 0-14.7 9.2-27.8 23.1-32.8z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.instant", "navigation.instant.prefetch", "navigation.instant.progress", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.prune", "navigation.path", "navigation.indexes", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.select", "content.code.annotate", "content.tabs.link", "content.tooltips", "content.action.edit", "content.action.view"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

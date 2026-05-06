@@ -15,11 +15,10 @@ todo/
 .DS_Store
 Thumbs.db
 
-# MkDocs
-site/
+# Dependencies
+node_modules/
 
-# Python
-.venv/
-__pycache__/
-*.pyc
-*.egg-info/
+# Docusaurus (in site/)
+site/node_modules/
+site/build/
+site/.docusaurus/

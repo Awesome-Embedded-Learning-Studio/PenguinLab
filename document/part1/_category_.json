@@ -1,0 +1,8 @@
+{
+  "label": "Week 1: 内核解剖与构建体系",
+  "position": 1,
+  "link": {
+    "type": "generated-index",
+    "description": "从零搭建交叉编译环境，理解内核源码树和构建体系，用 QEMU 跑起来你的第一个 ARM 内核。"
+  }
+}

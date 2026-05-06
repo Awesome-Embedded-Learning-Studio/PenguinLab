@@ -1,0 +1,6 @@
+pyproject.toml
+penguinlab_docs.egg-info/PKG-INFO
+penguinlab_docs.egg-info/SOURCES.txt
+penguinlab_docs.egg-info/dependency_links.txt
+penguinlab_docs.egg-info/requires.txt
+penguinlab_docs.egg-info/top_level.txt

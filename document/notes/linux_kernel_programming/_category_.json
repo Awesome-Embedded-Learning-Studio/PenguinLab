@@ -1,0 +1,8 @@
+{
+  "label": "Linux 内核编程",
+  "position": 1,
+  "link": {
+    "type": "generated-index",
+    "description": "Linux 内核编程基础 — 从零搭建内核工作空间，涵盖模块开发、字符设备、进程调度等。共 13 章。"
+  }
+}

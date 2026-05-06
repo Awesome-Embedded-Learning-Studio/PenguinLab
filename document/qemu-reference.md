@@ -1,3 +1,8 @@
+---
+title: QEMU ARM 速查手册
+sidebar_position: 11
+---
+
 # QEMU ARM 速查手册
 
 本文档是 QEMU ARM 系统模拟的快速参考，配合 `scripts/qemu-run.sh` 脚本使用。

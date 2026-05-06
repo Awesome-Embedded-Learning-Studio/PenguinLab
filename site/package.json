@@ -44,8 +44,5 @@
   },
   "engines": {
     "node": ">=20"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": ["core-js"]
   }
 }

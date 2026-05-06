@@ -43,7 +43,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: site
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --enable-scripts
 
       - name: Build website
         working-directory: site

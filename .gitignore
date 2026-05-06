@@ -4,6 +4,9 @@ out/
 compile_commands.json
 .cache
 
+# TODO is private currently
+todo/
+
 # IDE
 .vscode/
 .idea/

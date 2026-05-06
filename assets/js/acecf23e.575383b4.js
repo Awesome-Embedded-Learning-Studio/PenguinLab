@@ -1,0 +1,1 @@
+"use strict";(globalThis.webpackChunkpenguinlab=globalThis.webpackChunkpenguinlab||[]).push([[1903],{1912(a){a.exports=JSON.parse('{"blogBasePath":"/PenguinLab/blog","blogTitle":"\u5185\u6838 Feature \u901f\u9012","authorsListPath":"/PenguinLab/blog/authors"}')}}]);

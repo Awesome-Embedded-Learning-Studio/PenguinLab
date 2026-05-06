@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="zh-CN" dir="ltr" class="docs-wrapper plugin-docs plugin-id-default docs-version-current docs-doc-page docs-doc-id-notes/linux_kernel_networking/ch11_7" data-has-hydrated="false">
+<head>
+<meta charset="UTF-8">
+<meta name="generator" content="Docusaurus v3.10.1">
+<title data-rh="true">11.7 快速参考手册 | PenguinLab</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://awesome-embedded-learning-studio.github.io/PenguinLab/notes/linux_kernel_networking/ch11_7"><meta data-rh="true" property="og:locale" content="zh_CN"><meta data-rh="true" name="docusaurus_locale" content="zh-CN"><meta data-rh="true" name="docsearch:language" content="zh-CN"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="11.7 快速参考手册 | PenguinLab"><meta data-rh="true" name="description" content="代码读完了，协议看过了，现在让我们把散落在各处的零件拼回一张图纸。"><meta data-rh="true" property="og:description" content="代码读完了，协议看过了，现在让我们把散落在各处的零件拼回一张图纸。"><link data-rh="true" rel="icon" href="/PenguinLab/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://awesome-embedded-learning-studio.github.io/PenguinLab/notes/linux_kernel_networking/ch11_7"><link data-rh="true" rel="alternate" href="https://awesome-embedded-learning-studio.github.io/PenguinLab/notes/linux_kernel_networking/ch11_7" hreflang="zh-CN"><link data-rh="true" rel="alternate" href="https://awesome-embedded-learning-studio.github.io/PenguinLab/notes/linux_kernel_networking/ch11_7" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Linux 内核网络","item":"https://awesome-embedded-learning-studio.github.io/PenguinLab/category/linux-内核网络"},{"@type":"ListItem","position":2,"name":"11.7 快速参考手册","item":"https://awesome-embedded-learning-studio.github.io/PenguinLab/notes/linux_kernel_networking/ch11_7"}]}</script><link rel="stylesheet" href="/PenguinLab/assets/css/styles.60aea433.css">
+<script src="/PenguinLab/assets/js/runtime~main.23277d5b.js" defer="defer"></script>
+<script src="/PenguinLab/assets/js/main.0e81584b.js" defer="defer"></script>
+</head>
+<body>
+<svg style="display: none;"><defs>
+<symbol id="theme-svg-external-link" viewBox="0 0 24 24"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"/></symbol>
+</defs></svg>
+<script>!function(){var t=function(){try{return new URLSearchParams(window.location.search).get("docusaurus-theme")}catch(t){}}()||function(){try{return window.localStorage.getItem("theme")}catch(t){}}();document.documentElement.setAttribute("data-theme",t||(window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")),document.documentElement.setAttribute("data-theme-choice",t||"system")}(),function(){try{const c=new URLSearchParams(window.location.search).entries();for(var[t,e]of c)if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script><div id="__docusaurus"><link rel="preload" as="image" href="/PenguinLab/img/logo.png"><div role="region" aria-label="跳到主要内容"><a class="skipToContent_gWEo" href="#__docusaurus_skipToContent_fallback">跳到主要内容</a></div><nav aria-label="主导航" class="theme-layout-navbar navbar navbar--fixed-top"><div class="navbar__inner"><div class="theme-layout-navbar-left navbar__items"><button aria-label="切换导航栏" aria-expanded="false" class="navbar__toggle clean-btn" type="button"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg></button><a class="navbar__brand" href="/PenguinLab/"><div class="navbar__logo"><img src="/PenguinLab/img/logo.png" alt="PenguinLab Logo" class="themedComponent_og9b themedComponent--light_JnSk"><img src="/PenguinLab/img/logo.png" alt="PenguinLab Logo" class="themedComponent_og9b themedComponent--dark_nacK"></div><b class="navbar__title text--truncate">PenguinLab</b></a><a class="navbar__item navbar__link" href="/PenguinLab/">教程</a><a class="navbar__item navbar__link" href="/PenguinLab/booklist">参考</a><a aria-current="page" class="navbar__item navbar__link navbar__link--active" href="/PenguinLab/category/linux-内核编程">笔记</a><a class="navbar__item navbar__link" href="/PenguinLab/blog">内核新闻</a></div><div class="theme-layout-navbar-right navbar__items navbar__items--right"><a href="https://github.com/Awesome-Embedded-Learning-Studio/PenguinLab" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_FARA"><use href="#theme-svg-external-link"></use></svg></a><div class="toggle_OQuL colorModeToggle__y1s"><button class="clean-btn toggleButton_xgE0 toggleButtonDisabled_Je_F" type="button" disabled="" title="system mode" aria-label="切换浅色/暗黑模式（当前为system mode）"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_ceR6 lightToggleIcon_opXY"><path fill="currentColor" d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_ceR6 darkToggleIcon_A2Wk"><path fill="currentColor" d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_ceR6 systemToggleIcon_NwoM"><path fill="currentColor" d="m12 21c4.971 0 9-4.029 9-9s-4.029-9-9-9-9 4.029-9 9 4.029 9 9 9zm4.95-13.95c1.313 1.313 2.05 3.093 2.05 4.95s-0.738 3.637-2.05 4.95c-1.313 1.313-3.093 2.05-4.95 2.05v-14c1.857 0 3.637 0.737 4.95 2.05z"></path></svg></button></div><div class="navbarSearchContainer_hDB6"></div></div></div><div role="presentation" class="navbar-sidebar__backdrop"></div></nav><div id="__docusaurus_skipToContent_fallback" class="theme-layout-main main-wrapper mainWrapper_hv_0"><div class="docsWrapper_VlxT"><button aria-label="回到顶部" class="clean-btn theme-back-to-top-button backToTopButton_v2Wu" type="button"></button><div class="docRoot_mHc3"><aside class="theme-doc-sidebar-container docSidebarContainer_C6m2"><div class="sidebarViewport_flJk"><div class="sidebar_sAne"><nav aria-label="文档侧边栏" class="menu thin-scrollbar menu_NeO_"><ul class="theme-doc-sidebar-menu menu__list"><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink__19u menu__link menu__link--sublist" href="/PenguinLab/category/linux-内核编程"><span title="Linux 内核编程" class="categoryLinkLabel_lzOE">Linux 内核编程</span></a><button aria-label="展开侧边栏分类 &#x27;Linux 内核编程&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink__19u menu__link menu__link--sublist" href="/PenguinLab/category/linux-设备驱动"><span title="Linux 设备驱动" class="categoryLinkLabel_lzOE">Linux 设备驱动</span></a><button aria-label="展开侧边栏分类 &#x27;Linux 设备驱动&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink__19u menu__link menu__link--sublist" href="/PenguinLab/category/linux-内核调试"><span title="Linux 内核调试" class="categoryLinkLabel_lzOE">Linux 内核调试</span></a><button aria-label="展开侧边栏分类 &#x27;Linux 内核调试&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink__19u menu__link menu__link--sublist menu__link--active" href="/PenguinLab/category/linux-内核网络"><span title="Linux 内核网络" class="categoryLinkLabel_lzOE">Linux 内核网络</span></a><button aria-label="折叠侧边栏分类 &#x27;Linux 内核网络&#x27;" aria-expanded="true" type="button" class="clean-btn menu__caret"></button></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch01"><span title="第 1 章" class="linkLabel_P6RJ">第 1 章</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch01_1"><span title="第 1 章  深入内核：网络协议栈的黑盒解剖" class="linkLabel_P6RJ">第 1 章  深入内核：网络协议栈的黑盒解剖</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch01_2"><span title="1.2  网络设备（The Network Device）" class="linkLabel_P6RJ">1.2  网络设备（The Network Device）</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch01_3"><span title="ch01_3" class="linkLabel_P6RJ">ch01_3</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch02"><span title="第 2 章" class="linkLabel_P6RJ">第 2 章</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch02_1"><span title="第 2 章  当用户空间遇见内核" class="linkLabel_P6RJ">第 2 章  当用户空间遇见内核</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch02_2"><span title="Kernel Netlink Sockets" class="linkLabel_P6RJ">Kernel Netlink Sockets</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch02_3"><span title="ch02_3" class="linkLabel_P6RJ">ch02_3</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch02_4"><span title="ch02_4" class="linkLabel_P6RJ">ch02_4</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch02_5"><span title="2.5  增删路由表项：在 FIB 里跳舞" class="linkLabel_P6RJ">2.5  增删路由表项：在 FIB 里跳舞</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch02_6"><span title="2.6 Generic Netlink Protocol" class="linkLabel_P6RJ">2.6 Generic Netlink Protocol</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch02_7"><span title="ch02_7" class="linkLabel_P6RJ">ch02_7</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch03"><span title="第 3 章" class="linkLabel_P6RJ">第 3 章</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch03_1"><span title="3.0  网络的神经系统：为何我们需要 ICMP" class="linkLabel_P6RJ">3.0  网络的神经系统：为何我们需要 ICMP</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch03_2"><span title="3.2  IPv6 的「瑞士军刀」：ICMPv6" class="linkLabel_P6RJ">3.2  IPv6 的「瑞士军刀」：ICMPv6</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch03_3"><span title="3.3  快速参考与实战补充" class="linkLabel_P6RJ">3.3  快速参考与实战补充</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch04"><span title="第 4 章" class="linkLabel_P6RJ">第 4 章</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch04_1"><span title="第 4 章  网络层的骨架" class="linkLabel_P6RJ">第 4 章  网络层的骨架</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch04_2"><span title="4.2  接收 IPv4 数据包" class="linkLabel_P6RJ">4.2  接收 IPv4 数据包</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch04_3"><span title="4.3 接收 IPv4 组播数据包" class="linkLabel_P6RJ">4.3 接收 IPv4 组播数据包</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch04_4"><span title="4.4  当 IP 选项在包里醒来" class="linkLabel_P6RJ">4.4  当 IP 选项在包里醒来</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch04_5"><span title="4.5  发送 IPv4 数据包" class="linkLabel_P6RJ">4.5  发送 IPv4 数据包</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch04_6"><span title="4.6  分片" class="linkLabel_P6RJ">4.6  分片</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch04_7"><span title="4.7  重组：把碎掉的镜子拼回来" class="linkLabel_P6RJ">4.7  重组：把碎掉的镜子拼回来</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch04_8"><span title="ch04_8" class="linkLabel_P6RJ">ch04_8</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch04_9"><span title="ch04_9" class="linkLabel_P6RJ">ch04_9</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch05"><span title="第 5 章" class="linkLabel_P6RJ">第 5 章</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch05_1"><span title="5.0  没有地图，就无法远行" class="linkLabel_P6RJ">5.0  没有地图，就无法远行</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch05_2"><span title="5.2  在路由子系统中执行查找" class="linkLabel_P6RJ">5.2  在路由子系统中执行查找</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch05_3"><span title="FIB Info：一张路由条目的「身份证」" class="linkLabel_P6RJ">FIB Info：一张路由条目的「身份证」</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch05_4"><span title="ch05_4" class="linkLabel_P6RJ">ch05_4</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch05_5"><span title="5.5  Policy Routing：地图之外的选择权" class="linkLabel_P6RJ">5.5  Policy Routing：地图之外的选择权</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch05_6"><span title="5.6  FIB Alias：当同一个目的地有了多个分身" class="linkLabel_P6RJ">5.6  FIB Alias：当同一个目的地有了多个分身</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch05_7"><span title="6.7  路由器的「悄悄话」：ICMPv4 Redirect" class="linkLabel_P6RJ">6.7  路由器的「悄悄话」：ICMPv4 Redirect</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch05_8"><span title="第 5 章  IPv4 路由子系统" class="linkLabel_P6RJ">第 5 章  IPv4 路由子系统</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch06"><span title="第 6 章" class="linkLabel_P6RJ">第 6 章</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch06_1"><span title="6.0  引言：一群人的信，怎么发给每一个人？" class="linkLabel_P6RJ">6.0  引言：一群人的信，怎么发给每一个人？</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch06_2"><span title="6.2  组播转发缓存 (MFC)" class="linkLabel_P6RJ">6.2  组播转发缓存 (MFC)</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch06_3"><span title="6.3  Multicast Router" class="linkLabel_P6RJ">6.3  Multicast Router</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch06_4"><span title="ch06_4" class="linkLabel_P6RJ">ch06_4</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch06_5"><span title="ch06_5" class="linkLabel_P6RJ">ch06_5</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch06_6"><span title="6.6  The ipmr_queue_xmit() Method" class="linkLabel_P6RJ">6.6  The ipmr_queue_xmit() Method</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch06_7"><span title="ch06_7" class="linkLabel_P6RJ">ch06_7</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch06_8"><span title="6.8  多路径路由" class="linkLabel_P6RJ">6.8  多路径路由</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch06_9"><span title="6.9  最后的备忘单" class="linkLabel_P6RJ">6.9  最后的备忘单</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch07"><span title="第 7 章" class="linkLabel_P6RJ">第 7 章</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch07_1"><span title="第 7 章  Linux 邻居子系统" class="linkLabel_P6RJ">第 7 章  Linux 邻居子系统</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch07_2"><span title="7.2  用户空间与邻居子系统的交互" class="linkLabel_P6RJ">7.2  用户空间与邻居子系统的交互</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch07_3"><span title="ch07_3" class="linkLabel_P6RJ">ch07_3</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch07_4"><span title="7.4  NDISC 协议 (IPv6)" class="linkLabel_P6RJ">7.4  NDISC 协议 (IPv6)</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch07_5"><span title="7.5  快速参考" class="linkLabel_P6RJ">7.5  快速参考</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch08"><span title="第 8 章" class="linkLabel_P6RJ">第 8 章</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch08_1"><span title="第 8 章  当地址不再是稀缺资源" class="linkLabel_P6RJ">第 8 章  当地址不再是稀缺资源</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch08_2"><span title="8.2  IPv6 地址类型与特殊地址" class="linkLabel_P6RJ">8.2  IPv6 地址类型与特殊地址</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch08_3"><span title="ch08_3" class="linkLabel_P6RJ">ch08_3</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch08_4"><span title="Extension Headers —— 链接式的无限扩展" class="linkLabel_P6RJ">Extension Headers —— 链接式的无限扩展</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch08_5"><span title="8.5  Autoconfiguration：无状态的魔法" class="linkLabel_P6RJ">8.5  Autoconfiguration：无状态的魔法</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch08_6"><span title="8.6 接收 IPv6 数据包" class="linkLabel_P6RJ">8.6 接收 IPv6 数据包</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch08_7"><span title="8.7  接收 IPv6 组播数据包" class="linkLabel_P6RJ">8.7  接收 IPv6 组播数据包</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch08_8"><span title="8.8  Multicast Listener Discovery (MLD)" class="linkLabel_P6RJ">8.8  Multicast Listener Discovery (MLD)</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch08_9"><span title="8.9 速查表与内核碎片（Quick Reference）" class="linkLabel_P6RJ">8.9 速查表与内核碎片（Quick Reference）</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch09"><span title="第 9 章" class="linkLabel_P6RJ">第 9 章</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch09_1"><span title="第 9 章  Netfilter Frameworks" class="linkLabel_P6RJ">第 9 章  Netfilter Frameworks</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch09_10"><span title="ch09_10" class="linkLabel_P6RJ">ch09_10</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch09_2"><span title="9.2  Netfilter Hooks" class="linkLabel_P6RJ">9.2  Netfilter Hooks</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch09_3"><span title="ch09_3" class="linkLabel_P6RJ">ch09_3</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch09_4"><span title="9.4 连接跟踪条目（Connection Tracking Entries）" class="linkLabel_P6RJ">9.4 连接跟踪条目（Connection Tracking Entries）</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch09_5"><span title="9.5  连接跟踪助手与预期连接" class="linkLabel_P6RJ">9.5  连接跟踪助手与预期连接</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch09_6"><span title="9.6  IPTables：规则的前端实现" class="linkLabel_P6RJ">9.6  IPTables：规则的前端实现</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch09_7"><span title="9.7  网络地址转换 (NAT)" class="linkLabel_P6RJ">9.7  网络地址转换 (NAT)</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch09_8"><span title="NAT Hook 回调与连接跟踪 Hook 回调的共舞" class="linkLabel_P6RJ">NAT Hook 回调与连接跟踪 Hook 回调的共舞</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch09_9"><span title="9.9  NAT Hook 回调与连接跟踪扩展" class="linkLabel_P6RJ">9.9  NAT Hook 回调与连接跟踪扩展</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch10"><span title="第 10 章" class="linkLabel_P6RJ">第 10 章</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch10_1"><span title="第 10 章  通往信任的隧道" class="linkLabel_P6RJ">第 10 章  通往信任的隧道</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch10_2"><span title="10.2  IKE (Internet Key Exchange)" class="linkLabel_P6RJ">10.2  IKE (Internet Key Exchange)</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch10_3"><span title="10.3  The XFRM Framework" class="linkLabel_P6RJ">10.3  The XFRM Framework</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch10_4"><span title="10.4  ESP 实现 (IPv4)" class="linkLabel_P6RJ">10.4  ESP 实现 (IPv4)</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch10_5"><span title="10.5  接收一个 IPsec 数据包（传输模式）" class="linkLabel_P6RJ">10.5  接收一个 IPsec 数据包（传输模式）</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch10_6"><span title="ch10_6" class="linkLabel_P6RJ">ch10_6</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch10_7"><span title="10.7  NAT Traversal in IPsec" class="linkLabel_P6RJ">10.7  NAT Traversal in IPsec</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch10_8"><span title="10.8  快速参考" class="linkLabel_P6RJ">10.8  快速参考</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch11"><span title="第 11 章" class="linkLabel_P6RJ">第 11 章</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch11_1"><span title="11.1 Sockets" class="linkLabel_P6RJ">11.1 Sockets</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch11_2"><span title="ch11_2" class="linkLabel_P6RJ">ch11_2</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch11_3"><span title="11.3  UDP (User Datagram Protocol)" class="linkLabel_P6RJ">11.3  UDP (User Datagram Protocol)</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch11_4"><span title="11.4  TCP (Transmission Control Protocol)" class="linkLabel_P6RJ">11.4  TCP (Transmission Control Protocol)</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch11_5"><span title="11.5  SCTP：工程权衡下的混血儿" class="linkLabel_P6RJ">11.5  SCTP：工程权衡下的混血儿</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch11_6"><span title="11.6  DCCP: 数据报拥塞控制协议" class="linkLabel_P6RJ">11.6  DCCP: 数据报拥塞控制协议</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link menu__link--active" aria-current="page" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch11_7"><span title="11.7 快速参考手册" class="linkLabel_P6RJ">11.7 快速参考手册</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch12"><span title="第 12 章" class="linkLabel_P6RJ">第 12 章</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch12_1"><span title="12.1  Mac80211 Subsystem" class="linkLabel_P6RJ">12.1  Mac80211 Subsystem</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch12_2"><span title="ch12_2" class="linkLabel_P6RJ">ch12_2</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch12_3"><span title="12.3  Network Topologies（网络拓扑）" class="linkLabel_P6RJ">12.3  Network Topologies（网络拓扑）</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch12_4"><span title="12.4  节电模式 (Power Save Mode)" class="linkLabel_P6RJ">12.4  节电模式 (Power Save Mode)</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch12_5"><span title="ch12_5" class="linkLabel_P6RJ">ch12_5</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch12_6"><span title="Mac80211 实现细节" class="linkLabel_P6RJ">Mac80211 实现细节</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch12_7"><span title="12.7  High Throughput (802.11n) —— 高速公路的入场券" class="linkLabel_P6RJ">12.7  High Throughput (802.11n) —— 高速公路的入场券</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch12_8"><span title="ch12_8" class="linkLabel_P6RJ">ch12_8</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch12_9"><span title="ch12_9" class="linkLabel_P6RJ">ch12_9</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch13"><span title="第 13 章" class="linkLabel_P6RJ">第 13 章</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch13_1"><span title="第 13 章  绕过内核的代价" class="linkLabel_P6RJ">第 13 章  绕过内核的代价</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch13_2"><span title="ch13_2" class="linkLabel_P6RJ">ch13_2</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch13_3"><span title="13.3  Memory Region (MR)" class="linkLabel_P6RJ">13.3  Memory Region (MR)</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch13_4"><span title="ch13_4" class="linkLabel_P6RJ">ch13_4</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch13_5"><span title="13.5  Shared Receive Queue (SRQ)" class="linkLabel_P6RJ">13.5  Shared Receive Queue (SRQ)</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch13_6"><span title="ch13_6" class="linkLabel_P6RJ">ch13_6</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch13_7"><span title="13.7  RDMA 支持的操作" class="linkLabel_P6RJ">13.7  RDMA 支持的操作</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch13_8"><span title="13.8 速查表" class="linkLabel_P6RJ">13.8 速查表</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch14"><span title="第 14 章" class="linkLabel_P6RJ">第 14 章</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch14_1"><span title="14. Namespaces Implementation" class="linkLabel_P6RJ">14. Namespaces Implementation</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch14_10"><span title="14.10 通知链" class="linkLabel_P6RJ">14.10 通知链</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch14_11"><span title="14.11  The PCI Subsystem" class="linkLabel_P6RJ">14.11  The PCI Subsystem</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch14_12"><span title="14.12 PPPoE Header —— 把协议钉在以太网上" class="linkLabel_P6RJ">14.12 PPPoE Header —— 把协议钉在以太网上</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch14_13"><span title="14.13 Android" class="linkLabel_P6RJ">14.13 Android</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch14_14"><span title="14.14  方法速查表（工具箱里的扳手和螺丝刀）" class="linkLabel_P6RJ">14.14  方法速查表（工具箱里的扳手和螺丝刀）</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch14_15"><span title="15  Macros" class="linkLabel_P6RJ">15  Macros</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch14_2"><span title="14.2  UTS 命名空间的实现" class="linkLabel_P6RJ">14.2  UTS 命名空间的实现</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch14_3"><span title="Network Namespaces Implementation" class="linkLabel_P6RJ">Network Namespaces Implementation</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch14_4"><span title="4.4  管理 Network Namespace：从上帝视角到手动操作" class="linkLabel_P6RJ">4.4  管理 Network Namespace：从上帝视角到手动操作</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch14_5"><span title="14.5 Cgroups：当隔离遇上资源争夺" class="linkLabel_P6RJ">14.5 Cgroups：当隔离遇上资源争夺</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch14_6"><span title="14.6  Busy Poll Sockets" class="linkLabel_P6RJ">14.6  Busy Poll Sockets</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch14_7"><span title="14.7  Linux Bluetooth 子系统" class="linkLabel_P6RJ">14.7  Linux Bluetooth 子系统</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch14_8"><span title="14.8  IEEE 802.15.4 和 6LoWPAN" class="linkLabel_P6RJ">14.8  IEEE 802.15.4 和 6LoWPAN</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch14_9"><span title="14.9  近场通信 (NFC)" class="linkLabel_P6RJ">14.9  近场通信 (NFC)</span></a></li></ul></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-1 menu__list-item"><a class="menu__link" href="/PenguinLab/notes"><span title="Linux 内核学习笔记" class="linkLabel_P6RJ">Linux 内核学习笔记</span></a></li></ul></nav></div></div></aside><main class="docMainContainer_K2S2"><div class="container padding-top--md padding-bottom--lg"><div class="row"><div class="col docItemCol_ET6j"><div class="docItemContainer_FaDn"><article><nav class="theme-doc-breadcrumbs breadcrumbsContainer_YIgT" aria-label="页面路径"><ul class="breadcrumbs"><li class="breadcrumbs__item"><a aria-label="主页面" class="breadcrumbs__link" href="/PenguinLab/"><svg viewBox="0 0 24 24" class="breadcrumbHomeIcon_rlCt"><path d="M10 19v-5h4v5c0 .55.45 1 1 1h3c.55 0 1-.45 1-1v-7h1.7c.46 0 .68-.57.33-.87L12.67 3.6c-.38-.34-.96-.34-1.34 0l-8.36 7.53c-.34.3-.13.87.33.87H5v7c0 .55.45 1 1 1h3c.55 0 1-.45 1-1z" fill="currentColor"></path></svg></a></li><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/PenguinLab/category/linux-内核网络"><span>Linux 内核网络</span></a></li><li class="breadcrumbs__item breadcrumbs__item--active"><span class="breadcrumbs__link">11.7 快速参考手册</span></li></ul></nav><div class="tocCollapsible_RqXj theme-doc-toc-mobile tocMobile_tOBB"><button type="button" class="clean-btn tocCollapsibleButton_ppfh">本页总览</button></div><div class="theme-doc-markdown markdown"><header><h1>11.7 快速参考手册</h1></header>
+<p>代码读完了，协议看过了，现在让我们把散落在各处的零件拼回一张图纸。</p>
+<p>这一节本质上是一张「作弊条」——当你下次自己在内核里游荡，试图搞清楚一个数据包到底是怎么被从网卡拽进 socket 缓冲区的时候，这张单子能帮你迅速定位到是哪个函数在干活。</p>
+<p>我们把这些方法按协议归类，把最重要的几个宏和表格摊开来看。</p>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="核心方法速查">核心方法速查<a href="#核心方法速查" class="hash-link" aria-label="核心方法速查的直接链接" title="核心方法速查的直接链接" translate="no">​</a></h3>
+<p>这里列出的不是所有东西，而是那些真正在驱动着协议运转的「轴心」。</p>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="通用-socket-操作">通用 Socket 操作<a href="#通用-socket-操作" class="hash-link" aria-label="通用 Socket 操作的直接链接" title="通用 Socket 操作的直接链接" translate="no">​</a></h4>
+<p>这些是处理 socket 本身生命周期和通用属性的方法，不管是 TCP、UDP 还是 DCCP，都得经过这几关。</p>
+<ul>
+<li class="">
+<p><strong><code>int sock_create(int family, int type, int protocol, struct socket **res);</code></strong>
+这是用户态 <code>socket()</code> 系统调用在内核的投射。它做两件事：一是 sanity check（检查家族、类型是否合法），二是调用 <code>sock_alloc()</code> 分配一个 <code>struct socket</code>，紧接着调用协议家族的 <code>create</code> 方法。如果是 IPv4，那就是 <code>inet_create()</code>。没有这一步，后面的一切都无从谈起。</p>
+</li>
+<li class="">
+<p><strong><code>int sock_map_fd(struct socket *sock, int flags);</code></strong>
+Socket 结构有了，得把它变成一个文件描述符返回给用户。这个方法负责分配 fd，并填充 file entry。它是「一切皆文件」哲学的胶水层。</p>
+</li>
+<li class="">
+<p><strong><code>void sock_hold(struct sock *sk);</code></strong> / <strong><code>void sock_put(struct sock *sk);</code></strong>
+内核对象的生命周期全靠引用计数。
+<code>sock_hold</code> 是「钉住它」，计数加一，防止在使用过程中被释放；
+<code>sock_put</code> 是「松手」，计数减一，减到零的时候就触发释放。这是并发环境下的安全锁，少一次 put 会泄漏，少一次 hold 会 panic。</p>
+</li>
+<li class="">
+<p><strong><code>bool sock_flag(const struct sock *sk, enum sock_flags flag);</code></strong>
+<code>struct sock</code> 里有一堆标志位（比如 <code>SOCK_DEAD</code> 表示连接已死）。这个函数就是用来查某个位是不是被置位了。虽然简单，但它是判断连接状态最直接的方式。</p>
+</li>
+</ul>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="ip-层辅助">IP 层辅助<a href="#ip-层辅助" class="hash-link" aria-label="IP 层辅助的直接链接" title="IP 层辅助的直接链接" translate="no">​</a></h4>
+<ul>
+<li class=""><strong><code>int ip_cmsg_send(struct net *net, struct msghdr *msg, struct ipcm_cookie *ipc);</code></strong>
+这是用户态通过辅助数据传递「非普通数据」的解析器。
+当你用 <code>sendmsg</code> 并且附带了一些控制信息（比如指定源 IP 或者接口）时，内核会把这个 <code>msghdr</code> 解析成一个 <code>ipcm_cookie</code> 结构。后者才是 IP 层真正看得懂的「指令集」。</li>
+</ul>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="tcp-transmission-control-protocol">TCP (Transmission Control Protocol)<a href="#tcp-transmission-control-protocol" class="hash-link" aria-label="TCP (Transmission Control Protocol)的直接链接" title="TCP (Transmission Control Protocol)的直接链接" translate="no">​</a></h4>
+<p>TCP 是最复杂的那块，函数签名也最长。</p>
+<ul>
+<li class="">
+<p><strong><code>struct tcp_sock *tcp_sk(const struct sock *sk);</code></strong>
+前面说过，内核有一套严格的继承体系。<code>struct sock</code> 是通用基类，<code>struct tcp_sock</code> 是 TCP 专用的派生类。这个宏通过 container_of 机制，从一个通用的 <code>sock</code> 指针拿到内嵌的 <code>tcp_sock</code> 指针。拿到它，你就能访问所有 TCP 的私有参数（比如拥塞窗口、拥塞状态等）。</p>
+</li>
+<li class="">
+<p><strong><code>void tcp_init_sock(struct sock *sk);</code></strong>
+当 socket 刚被创建时，需要初始化。TCP 有很多自己的私有变量（比如延迟 ACK 定时器、保活定时器），这个方法负责把它们设置成初始值。</p>
+</li>
+<li class="">
+<p><strong><code>struct tcphdr *tcp_hdr(const struct sk_buff *skb);</code></strong>
+一个 <code>sk_buff</code> 里有数据，有 IP 头，有 TCP 头。这个函数帮你跳过前面的网络层头，直接指向 TCP 头的起始位置。别自己去算偏移量，用这个宏。</p>
+</li>
+<li class="">
+<p><strong><code>int tcp_v4_rcv(struct sk_buff *skb);</code></strong>
+这是 IPv4 上 TCP 包的总入口。网络层（L3）收到一个 TCP 包（IP 头协议号是 6）后，最终会交到这个函数手里。它会处理校验和、查 socket 哈希表、把包丢进接收队列或者状态机处理。</p>
+</li>
+<li class="">
+<p><strong><code>int tcp_sendmsg(struct kiocb *iocb, struct sock *sk, struct msghdr *msg, size_t size);</code></strong>
+用户态的 <code>send()</code> 或 <code>write()</code> 最终会走到这里。它负责把用户态的数据切成段，管理发送队列，触发重传定时器，并在必要时把包推送到 IP 层。</p>
+</li>
+</ul>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="udp-user-datagram-protocol">UDP (User Datagram Protocol)<a href="#udp-user-datagram-protocol" class="hash-link" aria-label="UDP (User Datagram Protocol)的直接链接" title="UDP (User Datagram Protocol)的直接链接" translate="no">​</a></h4>
+<p>UDP 相对清爽很多。</p>
+<ul>
+<li class="">
+<p><strong><code>struct udphdr *udp_hdr(const struct sk_buff *skb);</code></strong>
+和 <code>tcp_hdr</code> 一样，指向 UDP 头。</p>
+</li>
+<li class="">
+<p><strong><code>int udp_rcv(struct sk_buff *skb);</code></strong>
+UDP 的主接收入口。虽然逻辑比 TCP 简单（没有连接状态），但它依然要做校验和检查，并且在 socket 的哈希表里找到对应的接收者，把 skb 扔进 <code>sk_receive_queue</code>。</p>
+</li>
+<li class="">
+<p><strong><code>int udp_sendmsg(struct kiocb *iocb, struct sock *sk, struct msghdr *msg, size_t len);</code></strong>
+UDP 的发送入口。这里处理 <code>UDP_CORK</code>（软木塞）选项，如果设置了，数据会先堆积起来；否则直接构造 UDP 头并丢给 IP 层。当然，这里也会处理我们前面提到的 <code>MSG_MORE</code> 标志。</p>
+</li>
+</ul>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="sctp-stream-control-transmission-protocol">SCTP (Stream Control Transmission Protocol)<a href="#sctp-stream-control-transmission-protocol" class="hash-link" aria-label="SCTP (Stream Control Transmission Protocol)的直接链接" title="SCTP (Stream Control Transmission Protocol)的直接链接" translate="no">​</a></h4>
+<p>SCTP 的对象模型更复杂，有 Association，有 Endpoint。</p>
+<ul>
+<li class="">
+<p><strong><code>struct sctp_sock *sctp_sk(const struct sock *sk);</code></strong>
+和 <code>tcp_sk</code> 一样，从通用 <code>sock</code> 获取 SCTP 专用 <code>sctp_sock</code> 结构。</p>
+</li>
+<li class="">
+<p><strong><code>struct sctp_association *sctp_association_new(...);</code></strong>
+<strong><code>void sctp_association_free(struct sctp_association *asoc);</code></strong>
+SCTP 的核心是「关联」。这两个函数负责创建和销毁一个关联。<code>sctp_association_new</code> 会把状态机初始化好，把传输控制块（TCB）准备好。</p>
+</li>
+<li class="">
+<p><strong><code>void sctp_chunk_hold(struct sctp_chunk *ch);</code></strong> / <strong><code>void sctp_chunk_put(struct sctp_chunk *ch);</code></strong>
+SCTP 里数据包的基本单位叫 Chunk。这两个函数管理 Chunk 的引用计数。<code>put</code> 到 0 的时候，会调用 <code>sctp_chunk_destroy()</code> 真正释放内存。</p>
+</li>
+<li class="">
+<p><strong><code>struct sctphdr *sctp_hdr(const struct sk_buff *skb);</code></strong>
+定位 SCTP 头部。</p>
+</li>
+<li class="">
+<p><strong><code>int sctp_rcv(struct sk_buff *skb);</code></strong>
+SCTP 的接收总管。它不仅处理数据，还要处理各种控制 Chunk（比如 INIT、SHUTDOWN）。因为它支持多宿主，这里的查找逻辑比 TCP 要麻烦得多。</p>
+</li>
+<li class="">
+<p><strong><code>int sctp_sendmsg(struct kiocb *iocb, struct sock *sk, struct msghdr *msg, size_t msg_len);</code></strong>
+SCTP 的发送接口。它得决定发到哪个目的地址（多宿主选择），把数据切分成 DATA Chunk，然后丢给 IP 层。</p>
+</li>
+</ul>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="dccp-datagram-congestion-control-protocol">DCCP (Datagram Congestion Control Protocol)<a href="#dccp-datagram-congestion-control-protocol" class="hash-link" aria-label="DCCP (Datagram Congestion Control Protocol)的直接链接" title="DCCP (Datagram Congestion Control Protocol)的直接链接" translate="no">​</a></h4>
+<p>作为后来者，DCCP 的接口命名习惯和 TCP 非常像。</p>
+<ul>
+<li class="">
+<p><strong><code>static int dccp_v4_rcv(struct sk_buff *skb);</code></strong>
+DCCP 在 IPv4 上的接收函数。虽然它是数据报协议，但引入了类似 TCP 的握手和状态机，所以这个函数里也有状态机处理逻辑。</p>
+</li>
+<li class="">
+<p><strong><code>int dccp_sendmsg(struct kiocb *iocb, struct sock *sk, struct msghdr *msg, size_t len);</code></strong>
+DCCP 的发送入口。它既要像 UDP 那样不保证可靠，又要像 TCP 那样管理拥塞控制（CCID）。这里会根据 CCID 的特性来决定怎么发包。</p>
+</li>
+</ul>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="核心宏">核心宏<a href="#核心宏" class="hash-link" aria-label="核心宏的直接链接" title="核心宏的直接链接" translate="no">​</a></h3>
+<p>宏不多，但有一个是 SCTP 的标志：</p>
+<ul>
+<li class=""><strong><code>sctp_chunk_is_data(chunk)</code></strong>
+SCTP 是控制消息和数据消息混传的协议。这个宏一眼就能看出当前拿到的是不是数据块。如果是 1，就是 Payload Data（<code>SCTP_CID_DATA</code>）；否则就是 Init、Ack 之类的控制块。</li>
+</ul>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="关键数据表">关键数据表<a href="#关键数据表" class="hash-link" aria-label="关键数据表的直接链接" title="关键数据表的直接链接" translate="no">​</a></h3>
+<p>这些表格是协议的「词汇表」。</p>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="表-11-1tcp-与-udp-的-proto_ops-对比">表 11-1：TCP 与 UDP 的 <code>proto_ops</code> 对比<a href="#表-11-1tcp-与-udp-的-proto_ops-对比" class="hash-link" aria-label="表-11-1tcp-与-udp-的-proto_ops-对比的直接链接" title="表-11-1tcp-与-udp-的-proto_ops-对比的直接链接" translate="no">​</a></h4>
+<p>这个表展示了面向用户（POSIX 接口）的那层操作结构 <code>proto_ops</code>。注意看 TCP 和 UDP 的差异。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th style="text-align:left">prot_ops 回调</th><th style="text-align:left">TCP 的实现 (<code>inet_stream_ops</code>)</th><th style="text-align:left">UDP 的实现 (<code>inet_dgram_ops</code>)</th></tr></thead><tbody><tr><td style="text-align:left"><strong>release</strong></td><td style="text-align:left"><code>inet_release</code></td><td style="text-align:left"><code>inet_release</code></td></tr><tr><td style="text-align:left"><strong>bind</strong></td><td style="text-align:left"><code>inet_bind</code></td><td style="text-align:left"><code>inet_bind</code></td></tr><tr><td style="text-align:left"><strong>connect</strong></td><td style="text-align:left"><code>inet_stream_connect</code></td><td style="text-align:left"><code>inet_dgram_connect</code></td></tr><tr><td style="text-align:left"><strong>accept</strong></td><td style="text-align:left"><code>inet_accept</code></td><td style="text-align:left"><code>sock_no_accept</code> ⛔</td></tr><tr><td style="text-align:left"><strong>listen</strong></td><td style="text-align:left"><code>inet_listen</code></td><td style="text-align:left"><code>sock_no_listen</code> ⛔</td></tr><tr><td style="text-align:left"><strong>sendmsg</strong></td><td style="text-align:left"><code>inet_sendmsg</code></td><td style="text-align:left"><code>inet_sendmsg</code></td></tr><tr><td style="text-align:left"><strong>recvmsg</strong></td><td style="text-align:left"><code>inet_recvmsg</code></td><td style="text-align:left"><code>inet_recvmsg</code></td></tr><tr><td style="text-align:left"><strong>poll</strong></td><td style="text-align:left"><code>tcp_poll</code></td><td style="text-align:left"><code>udp_poll</code></td></tr></tbody></table>
+<p>⛔ <strong>关键点</strong>：注意 <code>accept</code> 和 <code>listen</code>。
+UDP 是无连接的，所以它没有 listen 的概念，也没有 accept 的概念（直接 <code>recvfrom</code> 就行）。如果你试图在 UDP socket 上调 <code>listen()</code>，内核会直接返回 <code>EOPNOTSUPP</code>（操作不支持），因为对应的函数指针指向 <code>sock_no_accept</code>。</p>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="表-11-2sctp-chunk-类型一览">表 11-2：SCTP Chunk 类型一览<a href="#表-11-2sctp-chunk-类型一览" class="hash-link" aria-label="表 11-2：SCTP Chunk 类型一览的直接链接" title="表 11-2：SCTP Chunk 类型一览的直接链接" translate="no">​</a></h4>
+<p>SCTP 包不叫「包」，叫 Chunk。这是它的字典。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th style="text-align:left">Chunk 类型</th><th style="text-align:left">Linux 内核符号</th><th style="text-align:left">值</th><th style="text-align:left">说明</th></tr></thead><tbody><tr><td style="text-align:left">Payload Data</td><td style="text-align:left"><code>SCTP_CID_DATA</code></td><td style="text-align:left">0</td><td style="text-align:left">真正的数据载荷。</td></tr><tr><td style="text-align:left">Initiation</td><td style="text-align:left"><code>SCTP_CID_INIT</code></td><td style="text-align:left">1</td><td style="text-align:left">握手的第一步，建立关联。</td></tr><tr><td style="text-align:left">Initiation Ack</td><td style="text-align:left"><code>SCTP_CID_INIT_ACK</code></td><td style="text-align:left">2</td><td style="text-align:left">握手第二步，确认连接。</td></tr><tr><td style="text-align:left">SACK</td><td style="text-align:left"><code>SCTP_CID_SACK</code></td><td style="text-align:left">3</td><td style="text-align:left">选择性确认，告诉对方哪些包收到了。</td></tr><tr><td style="text-align:left">Heartbeat</td><td style="text-align:left"><code>SCTP_CID_HEARTBEAT</code></td><td style="text-align:left">4</td><td style="text-align:left">心跳包，检测链路存活（多宿主必备）。</td></tr><tr><td style="text-align:left">Abort</td><td style="text-align:left"><code>SCTP_CID_ABORT</code></td><td style="text-align:left">6</td><td style="text-align:left">立即终止关联，很暴力。</td></tr><tr><td style="text-align:left">Shutdown</td><td style="text-align:left"><code>SCTP_CID_SHUTDOWN</code></td><td style="text-align:left">7</td><td style="text-align:left">优雅关闭。</td></tr><tr><td style="text-align:left">Cookie Echo</td><td style="text-align:left"><code>SCTP_CID_COOKIE_ECHO</code></td><td style="text-align:left">10</td><td style="text-align:left">把状态 Cookie 发回服务器，防 SYN 泛洪。</td></tr><tr><td style="text-align:left">Cookie Ack</td><td style="text-align:left"><code>SCTP_CID_COOKIE_ACK</code></td><td style="text-align:left">11</td><td style="text-align:left">收到 Cookie，握手完成。</td></tr><tr><td style="text-align:left">ASCONF</td><td style="text-align:left"><code>SCTP_CID_ASCONF</code></td><td style="text-align:left">0xC1</td><td style="text-align:left">动态修改 IP 地址（多宿主特性）。</td></tr></tbody></table>
+<p><strong>注意</strong>：Chunk ID 并不是完全连续的，中间有一些预留，后面扩展的（比如 AUTH、FWD_TSN）数值跳得比较大。</p>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="表-11-3dccp-包类型">表 11-3：DCCP 包类型<a href="#表-11-3dccp-包类型" class="hash-link" aria-label="表 11-3：DCCP 包类型的直接链接" title="表 11-3：DCCP 包类型的直接链接" translate="no">​</a></h4>
+<p>DCCP 的包类型定义了它是谁，在干什么。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th style="text-align:left">Linux 符号</th><th style="text-align:left">描述</th></tr></thead><tbody><tr><td style="text-align:left"><strong>DCCP_PKT_REQUEST</strong></td><td style="text-align:left">客户端发出的请求包（类似 TCP SYN）。</td></tr><tr><td style="text-align:left"><strong>DCCP_PKT_RESPONSE</strong></td><td style="text-align:left">服务器的响应（类似 TCP SYN/ACK）。</td></tr><tr><td style="text-align:left"><strong>DCCP_PKT_DATA</strong></td><td style="text-align:left">纯数据包。</td></tr><tr><td style="text-align:left"><strong>DCCP_PKT_DATAACK</strong></td><td style="text-align:left"><strong>最常见</strong>。捎带 ACK 的数据包，DCCP 鼓励用这个。</td></tr><tr><td style="text-align:left"><strong>DCCP_PKT_ACK</strong></td><td style="text-align:left">纯 ACK，确认收到。</td></tr><tr><td style="text-align:left"><strong>DCCP_PKT_CLOSEREQ</strong></td><td style="text-align:left">服务器请求关闭（类似 TCP 的 FIN？不完全是）。</td></tr><tr><td style="text-align:left"><strong>DCCP_PKT_CLOSE</strong></td><td style="text-align:left">关闭连接。</td></tr><tr><td style="text-align:left"><strong>DCCP_PKT_RESET</strong></td><td style="text-align:left">重置连接（异常终止或拒绝）。</td></tr><tr><td style="text-align:left"><strong>DCCP_PKT_SYNC</strong></td><td style="text-align:left">大量丢包后的序列号同步。</td></tr><tr><td style="text-align:left"><strong>DCCP_PKT_SYNCACK</strong></td><td style="text-align:left">对 SYNC 的确认。</td></tr></tbody></table>
+<p>你会发现 DCCP 的名字里带着「Control」，它确实是在尽力维持一个像样的连接状态，哪怕它不保证数据送达。</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_bBfE" id="本章回响">本章回响<a href="#本章回响" class="hash-link" aria-label="本章回响的直接链接" title="本章回响的直接链接" translate="no">​</a></h2>
+<p>回顾这一章，我们从最熟悉的 Socket API 一路拆到了协议栈的底层。</p>
+<p>其实，内核网络子系统的设计并不神秘，它本质上是在处理**「差异」**。</p>
+<ul>
+<li class="">Socket 层（<code>struct socket</code>）处理的是**「文件的差异」**——把网络包伪装成文件读写。</li>
+<li class="">Transport 层（<code>struct sock</code>，TCP/UDP）处理的是**「传输模型的差异」**——有的要像水一样流（TCP），有的要像信封一样扔（UDP），有的想兼得（SCTP/DCCP）。</li>
+</ul>
+<p><strong>还记得我们在 DCCP 那一节遇到的那个困境吗？</strong>
+为什么设计上更先进的 DCCP 在现实世界几乎无人问津，而老旧的 UDP 却无处不在？
+答案不在代码里，而在生态里。
+NAT 设备认不出 DCCP，运营商不支持 DCCP，导致 DCCP 被困在了内网的孤岛上。这再次证明了一个工程真理：<strong>最好的协议往往不是理论上最完美的那个，而是最能穿透现有基础设施的那个。</strong> 这就是 UDP 至今依然不可替代的原因，也是 QUIC 最终选择基于 UDP 实现的根本原因。</p>
+<p>下一章，我们将跨越边界，离开主机本身，去看看邻居之间是怎么打招呼的——那是 ARP 和 ND 的地盘，是**Layer 2（链路层）**的世界。</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_bBfE" id="练习题">练习题<a href="#练习题" class="hash-link" aria-label="练习题的直接链接" title="练习题的直接链接" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="练习-1understanding">练习 1：understanding<a href="#练习-1understanding" class="hash-link" aria-label="练习 1：understanding的直接链接" title="练习 1：understanding的直接链接" translate="no">​</a></h3>
+<p><strong>题目</strong>：在 Linux 内核实现中，<code>struct socket</code> 和 <code>struct sock</code> 是两个核心数据结构。请判断以下说法是否正确：<code>struct socket</code> 主要负责与用户空间交互（提供文件接口），而 <code>struct sock</code> 主要负责与网络层（L3）交互。请简述两者的主要区别。</p>
+<details class="details_O3kF alert alert--info details_Dlld" data-collapsed="true"><summary>答案与解析</summary><div><div class="collapsibleContent_GZgo">
+<p><strong>答案</strong>：正确。</p>
+<p><strong>解析</strong>：根据章节中“Creating Sockets”部分的描述，<code>struct socket</code> 提供了与用户空间的接口（包含文件指针 <code>file</code> 和操作回调 <code>ops</code>），而 <code>struct sock</code> 代表网络层（L3）的套接字接口，包含队列、缓冲区大小和协议相关的回调（如 <code>sk_receive_queue</code>）。内核通过这种分离设计，将文件系统视图与网络协议栈视图解耦。</p>
+</div></div></details>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="练习-2application">练习 2：application<a href="#练习-2application" class="hash-link" aria-label="练习 2：application的直接链接" title="练习 2：application的直接链接" translate="no">​</a></h3>
+<p><strong>题目</strong>：在使用 UDP 协议发送数据时，如果想将多次 <code>send</code> 调用的数据累积并在内核中组装成一个大包发送（以减少分片），可以采用哪两种机制？请结合内核代码实现（如 <code>udp_sendmsg</code>）简述其原理。</p>
+<details class="details_O3kF alert alert--info details_Dlld" data-collapsed="true"><summary>答案与解析</summary><div><div class="collapsibleContent_GZgo">
+<p><strong>答案</strong>：使用 UDP_CORK socket 选项或在 sendmsg 调用中设置 MSG_MORE 标志位。</p>
+<p><strong>解析</strong>：根据“Sending Packets with UDP”章节，内核代码检测 <code>corkreq = up-&gt;corkflag || msg-&gt;msg_flags&amp;MSG_MORE</code>。当 <code>corkreq</code> 为真时，内核会持有套接锁并调用 <code>ip_append_data</code> 将数据缓存到 <code>sk_write_queue</code> 中，直到取消该选项或发送不带 MSG_MORE 的数据，最后通过 <code>udp_push_pending_frames</code> 统一发送。这允许应用层将多个逻辑数据块合并为一个物理数据包。</p>
+</div></div></details>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="练习-3thinking">练习 3：thinking<a href="#练习-3thinking" class="hash-link" aria-label="练习 3：thinking的直接链接" title="练习 3：thinking的直接链接" translate="no">​</a></h3>
+<p><strong>题目</strong>：为什么 SCTP（Stream Control Transmission Protocol）采用四次握手（Four-way handshake）而不是像 TCP 那样采用三次握手？请从安全性角度分析其设计意图。</p>
+<details class="details_O3kF alert alert--info details_Dlld" data-collapsed="true"><summary>答案与解析</summary><div><div class="collapsibleContent_GZgo">
+<p><strong>答案</strong>：为了防止 SYN 泛洪攻击。</p>
+<p><strong>解析</strong>：虽然章节内容主要集中在 SCTP 的实现细节（如 Chunk 和 Association），但根据文中提到的“Setting Up an SCTP Association”部分，SCTP 使用了 State Cookie 机制。在四次握手中，服务器不分配资源而是发送一个 COOKIE（INIT-ACK），客户端必须回显这个 COOKIE（COOKIE-ECHO）。只有验证通过后，服务器才建立关联。这种机制使得攻击者无法通过伪造大量 INIT 请求耗尽服务器资源，从而比 TCP 的三次握手更具抗毁性。</p>
+</div></div></details>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="练习-4understanding">练习 4：understanding<a href="#练习-4understanding" class="hash-link" aria-label="练习 4：understanding的直接链接" title="练习 4：understanding的直接链接" translate="no">​</a></h3>
+<p><strong>题目</strong>：当内核通过 UDP 协议接收数据包时（<code>__udp4_lib_rcv</code>），如果通过哈希表没有找到匹配的套接字（即目标端口没有监听程序），且数据包校验和正确，内核会发送什么类型的 ICMP 消息给发送方？</p>
+<details class="details_O3kF alert alert--info details_Dlld" data-collapsed="true"><summary>答案与解析</summary><div><div class="collapsibleContent_GZgo">
+<p><strong>答案</strong>：ICMP Destination Unreachable（目标不可达，具体代码通常为 Port Unreachable）。</p>
+<p><strong>解析</strong>：根据“Receiving Packets from the Network Layer (L3) with UDP”部分的描述，当 socket 查找失败（<code>sk == NULL</code>）时，意味着本地没有应用在监听该端口。如果校验和正确，内核应该发送 ICMP 目标不可达消息通知发送方，表明该端口不可达。</p>
+</div></div></details>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="练习-5application">练习 5：application<a href="#练习-5application" class="hash-link" aria-label="练习 5：application的直接链接" title="练习 5：application的直接链接" translate="no">​</a></h3>
+<p><strong>题目</strong>：DCCP（Datagram Congestion Control Protocol）结合了 TCP 和 UDP 的特性。假设你需要开发一个实时流媒体应用，既要求低延迟（允许丢包）又要求避免网络拥塞，你会选择 DCCP 还是 UDP？请结合 DCCP 的特性（如 CCID）解释原因。</p>
+<details class="details_O3kF alert alert--info details_Dlld" data-collapsed="true"><summary>答案与解析</summary><div><div class="collapsibleContent_GZgo">
+<p><strong>答案</strong>：应选择 DCCP。</p>
+<p><strong>解析</strong>：根据“DCCP”章节的描述，DCCP 提供了拥塞控制机制，这是 UDP 所缺乏的。对于流媒体应用，虽然可以容忍一定的丢包（UDP 的特性），但如果使用纯 UDP 可能会导致网络拥塞崩溃。DCCP 通过内置的拥塞控制算法（如 CCID-3 类似 TCP 的平滑算法）来控制发送速率，既能保持低延迟（不保证可靠性，无需重传延迟），又能保证网络 fairness，是此类场景的最佳选择。</p>
+</div></div></details>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_bBfE" id="要点提炼">要点提炼<a href="#要点提炼" class="hash-link" aria-label="要点提炼的直接链接" title="要点提炼的直接链接" translate="no">​</a></h2>
+<p>Linux 内核通过标准 POSIX socket API 暴露网络功能，其核心设计遵循“一切皆文件”的哲学。尽管用户空间接口统一，内核内部却维护着一套复杂的对象模型。这种双重结构主要由 <code>struct socket</code> 和 <code>struct sock</code> 构成：前者是面向用户空间的接口层，关联文件系统以便使用标准 I/O 操作；后者是面向网络协议栈的底层表示，负责管理发送/接收队列及协议状态。两者紧密协作，并在数据交换时利用 <code>struct msghdr</code> 作为容器，在内核与用户空间高效传输数据载荷与控制信息。</p>
+<p>UDP 是理解内核网络栈数据流向的最佳切入点，其实现体现了极简与高效的平衡。在初始化阶段，UDP 协议通过 <code>udp_protocol</code> 和 <code>udp_prot</code> 将处理函数注册到内核的协议表中。发送数据时，内核依据是否开启 <code>UDP_CORK</code> 选项区分快慢路径：快路径直接构造 <code>sk_buff</code> 发送，而慢路径则通过 <code>ip_append_data</code> 将数据积攒到写队列中，待合并后统一发送，这种设计在保证灵活性的同时优化了小包场景的网络性能。</p>
+<p>TCP 的内核实现建立在复杂的状态机与严格的定时器机制之上，以确保传输的可靠性。当创建 Socket 时，<code>tcp_v4_init_sock</code> 会初始化包括重传、延迟 ACK、保活和零窗口探测在内的四种核心定时器，并设置缓冲区与初始拥塞窗口。在三次握手过程中，内核通过监听 Socket 管理半连接，为每个新连接请求生成 <code>request_sock</code>，仅在完成握手后才将其转换为完整的子 Socket 并放入接收队列，这种设计有效地将连接建立逻辑与数据传输路径解耦。</p>
+<p>TCP 的数据收发流程包含针对性能与并发性的深度优化。在接收路径上，内核根据 Socket 是否被用户进程占用决定处理策略：若未被锁定，尝试利用 <strong>prequeue</strong> 队列批量处理以减少上下文切换；若已被锁定，则将数据包暂存于 <strong>backlog</strong> 队列，避免丢包。在发送路径上，<code>tcp_sendmsg</code> 不仅负责拷贝数据，还需处理 Nagle 算法、MSS（最大分段大小）计算等逻辑，最终通过 <code>tcp_transmit_skb</code> 将封装好的数据包移交至 IP 层，体现了协议栈对可靠性与流控制度的极致追求。</p>
+<p>从 UDP 的“即发即忘”到 TCP 的“严丝合缝”，Linux 内核通过分离通用 Socket 层与特定协议实现（如 <code>proto_ops</code> 和 <code>proto</code> 结构体），构建了一个高度可扩展的框架。这种架构允许 TCP、UDP 以及 SCTP 等不同协议复用相同的系统调用入口（如 <code>sendmsg</code>），同时又能根据各自特性实现差异化的底层逻辑（如 TCP 的复杂拥塞控制与 UDP 的简单校验）。理解这一抽象层级，是掌握 Linux 内核网络子系统如何平衡标准接口与内部复杂性的关键。</p></div><footer class="theme-doc-footer docusaurus-mt-lg"><div class="row margin-top--sm theme-doc-footer-edit-meta-row"><div class="col noPrint_MpOp"><a href="https://github.com/Awesome-Embedded-Learning-Studio/PenguinLab/tree/main/../document/notes/linux_kernel_networking/ch11_7.md" target="_blank" rel="noopener noreferrer" class="theme-edit-this-page"><svg fill="currentColor" height="20" width="20" viewBox="0 0 40 40" class="iconEdit_Xu8_" aria-hidden="true"><g><path d="m34.5 11.7l-3 3.1-6.3-6.3 3.1-3q0.5-0.5 1.2-0.5t1.1 0.5l3.9 3.9q0.5 0.4 0.5 1.1t-0.5 1.2z m-29.5 17.1l18.4-18.5 6.3 6.3-18.4 18.4h-6.3v-6.2z"></path></g></svg>编辑此页</a></div><div class="col lastUpdated_nSfX"><span class="theme-last-updated">最后<!-- -->由 <b>Charliechen114514</b> <!-- -->于 <b><time datetime="2026-05-06T00:06:46.000Z" itemprop="dateModified">2026年5月6日</time></b> <!-- -->更新</span></div></div></footer></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="文件选项卡"><a class="pagination-nav__link pagination-nav__link--prev" href="/PenguinLab/notes/linux_kernel_networking/ch11_6"><div class="pagination-nav__sublabel">上一页</div><div class="pagination-nav__label">11.6  DCCP: 数据报拥塞控制协议</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/PenguinLab/notes/linux_kernel_networking/ch12"><div class="pagination-nav__sublabel">下一页</div><div class="pagination-nav__label">第 12 章</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_VJ1c thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#核心方法速查" class="table-of-contents__link toc-highlight">核心方法速查</a><ul><li><a href="#通用-socket-操作" class="table-of-contents__link toc-highlight">通用 Socket 操作</a></li><li><a href="#ip-层辅助" class="table-of-contents__link toc-highlight">IP 层辅助</a></li><li><a href="#tcp-transmission-control-protocol" class="table-of-contents__link toc-highlight">TCP (Transmission Control Protocol)</a></li><li><a href="#udp-user-datagram-protocol" class="table-of-contents__link toc-highlight">UDP (User Datagram Protocol)</a></li><li><a href="#sctp-stream-control-transmission-protocol" class="table-of-contents__link toc-highlight">SCTP (Stream Control Transmission Protocol)</a></li><li><a href="#dccp-datagram-congestion-control-protocol" class="table-of-contents__link toc-highlight">DCCP (Datagram Congestion Control Protocol)</a></li></ul></li><li><a href="#核心宏" class="table-of-contents__link toc-highlight">核心宏</a></li><li><a href="#关键数据表" class="table-of-contents__link toc-highlight">关键数据表</a><ul><li><a href="#表-11-1tcp-与-udp-的-proto_ops-对比" class="table-of-contents__link toc-highlight">表 11-1：TCP 与 UDP 的 <code>proto_ops</code> 对比</a></li><li><a href="#表-11-2sctp-chunk-类型一览" class="table-of-contents__link toc-highlight">表 11-2：SCTP Chunk 类型一览</a></li><li><a href="#表-11-3dccp-包类型" class="table-of-contents__link toc-highlight">表 11-3：DCCP 包类型</a></li></ul></li><li><a href="#本章回响" class="table-of-contents__link toc-highlight">本章回响</a></li><li><a href="#练习题" class="table-of-contents__link toc-highlight">练习题</a><ul><li><a href="#练习-1understanding" class="table-of-contents__link toc-highlight">练习 1：understanding</a></li><li><a href="#练习-2application" class="table-of-contents__link toc-highlight">练习 2：application</a></li><li><a href="#练习-3thinking" class="table-of-contents__link toc-highlight">练习 3：thinking</a></li><li><a href="#练习-4understanding" class="table-of-contents__link toc-highlight">练习 4：understanding</a></li><li><a href="#练习-5application" class="table-of-contents__link toc-highlight">练习 5：application</a></li></ul></li><li><a href="#要点提炼" class="table-of-contents__link toc-highlight">要点提炼</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="footer__bottom text--center"><div class="footer__copyright">Copyright © 2026 Charliechen</div></div></div></footer></div>
+</body>
+</html>

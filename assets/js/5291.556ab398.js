@@ -1,0 +1,1 @@
+"use strict";(globalThis.webpackChunkpenguinlab=globalThis.webpackChunkpenguinlab||[]).push([[5291],{15291(e,a,b){b.d(a,{createTreemapServices:()=>i.d});var i=b(37744);b(61311)}}]);

@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="zh-CN" dir="ltr" class="docs-wrapper plugin-docs plugin-id-default docs-version-current docs-doc-page docs-doc-id-notes/linux_kernel_programming/ch02" data-has-hydrated="false">
+<head>
+<meta charset="UTF-8">
+<meta name="generator" content="Docusaurus v3.10.1">
+<title data-rh="true">Chapter 2: Building the 6.x Linux Kernel from Source – Part 1 | PenguinLab</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://awesome-embedded-learning-studio.github.io/PenguinLab/notes/linux_kernel_programming/ch02"><meta data-rh="true" property="og:locale" content="zh_CN"><meta data-rh="true" name="docusaurus_locale" content="zh-CN"><meta data-rh="true" name="docsearch:language" content="zh-CN"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Chapter 2: Building the 6.x Linux Kernel from Source – Part 1 | PenguinLab"><meta data-rh="true" name="description" content="从源码构建 Linux 内核：一场漫长的修行"><meta data-rh="true" property="og:description" content="从源码构建 Linux 内核：一场漫长的修行"><link data-rh="true" rel="icon" href="/PenguinLab/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://awesome-embedded-learning-studio.github.io/PenguinLab/notes/linux_kernel_programming/ch02"><link data-rh="true" rel="alternate" href="https://awesome-embedded-learning-studio.github.io/PenguinLab/notes/linux_kernel_programming/ch02" hreflang="zh-CN"><link data-rh="true" rel="alternate" href="https://awesome-embedded-learning-studio.github.io/PenguinLab/notes/linux_kernel_programming/ch02" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Linux 内核编程","item":"https://awesome-embedded-learning-studio.github.io/PenguinLab/category/linux-内核编程"},{"@type":"ListItem","position":2,"name":"Chapter 2: Building the 6.x Linux Kernel from Source – Part 1","item":"https://awesome-embedded-learning-studio.github.io/PenguinLab/notes/linux_kernel_programming/ch02"}]}</script><link rel="stylesheet" href="/PenguinLab/assets/css/styles.60aea433.css">
+<script src="/PenguinLab/assets/js/runtime~main.23277d5b.js" defer="defer"></script>
+<script src="/PenguinLab/assets/js/main.0e81584b.js" defer="defer"></script>
+</head>
+<body>
+<svg style="display: none;"><defs>
+<symbol id="theme-svg-external-link" viewBox="0 0 24 24"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"/></symbol>
+</defs></svg>
+<script>!function(){var t=function(){try{return new URLSearchParams(window.location.search).get("docusaurus-theme")}catch(t){}}()||function(){try{return window.localStorage.getItem("theme")}catch(t){}}();document.documentElement.setAttribute("data-theme",t||(window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")),document.documentElement.setAttribute("data-theme-choice",t||"system")}(),function(){try{const c=new URLSearchParams(window.location.search).entries();for(var[t,e]of c)if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script><div id="__docusaurus"><link rel="preload" as="image" href="/PenguinLab/img/logo.png"><div role="region" aria-label="跳到主要内容"><a class="skipToContent_gWEo" href="#__docusaurus_skipToContent_fallback">跳到主要内容</a></div><nav aria-label="主导航" class="theme-layout-navbar navbar navbar--fixed-top"><div class="navbar__inner"><div class="theme-layout-navbar-left navbar__items"><button aria-label="切换导航栏" aria-expanded="false" class="navbar__toggle clean-btn" type="button"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg></button><a class="navbar__brand" href="/PenguinLab/"><div class="navbar__logo"><img src="/PenguinLab/img/logo.png" alt="PenguinLab Logo" class="themedComponent_og9b themedComponent--light_JnSk"><img src="/PenguinLab/img/logo.png" alt="PenguinLab Logo" class="themedComponent_og9b themedComponent--dark_nacK"></div><b class="navbar__title text--truncate">PenguinLab</b></a><a class="navbar__item navbar__link" href="/PenguinLab/">教程</a><a class="navbar__item navbar__link" href="/PenguinLab/booklist">参考</a><a aria-current="page" class="navbar__item navbar__link navbar__link--active" href="/PenguinLab/category/linux-内核编程">笔记</a><a class="navbar__item navbar__link" href="/PenguinLab/blog">内核新闻</a></div><div class="theme-layout-navbar-right navbar__items navbar__items--right"><a href="https://github.com/Awesome-Embedded-Learning-Studio/PenguinLab" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_FARA"><use href="#theme-svg-external-link"></use></svg></a><div class="toggle_OQuL colorModeToggle__y1s"><button class="clean-btn toggleButton_xgE0 toggleButtonDisabled_Je_F" type="button" disabled="" title="system mode" aria-label="切换浅色/暗黑模式（当前为system mode）"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_ceR6 lightToggleIcon_opXY"><path fill="currentColor" d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_ceR6 darkToggleIcon_A2Wk"><path fill="currentColor" d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_ceR6 systemToggleIcon_NwoM"><path fill="currentColor" d="m12 21c4.971 0 9-4.029 9-9s-4.029-9-9-9-9 4.029-9 9 4.029 9 9 9zm4.95-13.95c1.313 1.313 2.05 3.093 2.05 4.95s-0.738 3.637-2.05 4.95c-1.313 1.313-3.093 2.05-4.95 2.05v-14c1.857 0 3.637 0.737 4.95 2.05z"></path></svg></button></div><div class="navbarSearchContainer_hDB6"></div></div></div><div role="presentation" class="navbar-sidebar__backdrop"></div></nav><div id="__docusaurus_skipToContent_fallback" class="theme-layout-main main-wrapper mainWrapper_hv_0"><div class="docsWrapper_VlxT"><button aria-label="回到顶部" class="clean-btn theme-back-to-top-button backToTopButton_v2Wu" type="button"></button><div class="docRoot_mHc3"><aside class="theme-doc-sidebar-container docSidebarContainer_C6m2"><div class="sidebarViewport_flJk"><div class="sidebar_sAne"><nav aria-label="文档侧边栏" class="menu thin-scrollbar menu_NeO_"><ul class="theme-doc-sidebar-menu menu__list"><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink__19u menu__link menu__link--sublist menu__link--active" href="/PenguinLab/category/linux-内核编程"><span title="Linux 内核编程" class="categoryLinkLabel_lzOE">Linux 内核编程</span></a><button aria-label="折叠侧边栏分类 &#x27;Linux 内核编程&#x27;" aria-expanded="true" type="button" class="clean-btn menu__caret"></button></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_programming/ch01"><span title="第 1 章  内核编程新视界 —— 从零开始构建你的内核工作空间" class="linkLabel_P6RJ">第 1 章  内核编程新视界 —— 从零开始构建你的内核工作空间</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link menu__link--active" aria-current="page" tabindex="0" href="/PenguinLab/notes/linux_kernel_programming/ch02"><span title="Chapter 2: Building the 6.x Linux Kernel from Source – Part 1" class="linkLabel_P6RJ">Chapter 2: Building the 6.x Linux Kernel from Source – Part 1</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_programming/ch03"><span title="第 3 章  从源码构建 6.x Linux 内核（第二部分）" class="linkLabel_P6RJ">第 3 章  从源码构建 6.x Linux 内核（第二部分）</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_programming/ch04"><span title="ch04" class="linkLabel_P6RJ">ch04</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_programming/ch05"><span title="第 5 章 编写你的第一个内核模块——第二部分" class="linkLabel_P6RJ">第 5 章 编写你的第一个内核模块——第二部分</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_programming/ch06"><span title="6. 内核机制 essentials —— 进程与线程" class="linkLabel_P6RJ">6. 内核机制 essentials —— 进程与线程</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_programming/ch07"><span title="ch07" class="linkLabel_P6RJ">ch07</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_programming/ch08"><span title="第 8 章 内核内存分配器：伙伴系统与 Slab" class="linkLabel_P6RJ">第 8 章 内核内存分配器：伙伴系统与 Slab</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_programming/ch09"><span title="第 9 章  内核内存分配进阶：选择、回收与生存" class="linkLabel_P6RJ">第 9 章  内核内存分配进阶：选择、回收与生存</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_programming/ch10"><span title="第 10 章  CPU 调度器（第 1 部分）" class="linkLabel_P6RJ">第 10 章  CPU 调度器（第 1 部分）</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_programming/ch11"><span title="第 11 章  CPU 调度器（第二部分）" class="linkLabel_P6RJ">第 11 章  CPU 调度器（第二部分）</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_programming/ch12"><span title="第 12 章  并发的代价 —— 内核同步机制 Part 1" class="linkLabel_P6RJ">第 12 章  并发的代价 —— 内核同步机制 Part 1</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_programming/ch13"><span title="第 13 章  内核同步（下半部分）" class="linkLabel_P6RJ">第 13 章  内核同步（下半部分）</span></a></li></ul></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink__19u menu__link menu__link--sublist" href="/PenguinLab/category/linux-设备驱动"><span title="Linux 设备驱动" class="categoryLinkLabel_lzOE">Linux 设备驱动</span></a><button aria-label="展开侧边栏分类 &#x27;Linux 设备驱动&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink__19u menu__link menu__link--sublist" href="/PenguinLab/category/linux-内核调试"><span title="Linux 内核调试" class="categoryLinkLabel_lzOE">Linux 内核调试</span></a><button aria-label="展开侧边栏分类 &#x27;Linux 内核调试&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink__19u menu__link menu__link--sublist" href="/PenguinLab/category/linux-内核网络"><span title="Linux 内核网络" class="categoryLinkLabel_lzOE">Linux 内核网络</span></a><button aria-label="展开侧边栏分类 &#x27;Linux 内核网络&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-1 menu__list-item"><a class="menu__link" href="/PenguinLab/notes"><span title="Linux 内核学习笔记" class="linkLabel_P6RJ">Linux 内核学习笔记</span></a></li></ul></nav></div></div></aside><main class="docMainContainer_K2S2"><div class="container padding-top--md padding-bottom--lg"><div class="row"><div class="col docItemCol_ET6j"><div class="docItemContainer_FaDn"><article><nav class="theme-doc-breadcrumbs breadcrumbsContainer_YIgT" aria-label="页面路径"><ul class="breadcrumbs"><li class="breadcrumbs__item"><a aria-label="主页面" class="breadcrumbs__link" href="/PenguinLab/"><svg viewBox="0 0 24 24" class="breadcrumbHomeIcon_rlCt"><path d="M10 19v-5h4v5c0 .55.45 1 1 1h3c.55 0 1-.45 1-1v-7h1.7c.46 0 .68-.57.33-.87L12.67 3.6c-.38-.34-.96-.34-1.34 0l-8.36 7.53c-.34.3-.13.87.33.87H5v7c0 .55.45 1 1 1h3c.55 0 1-.45 1-1z" fill="currentColor"></path></svg></a></li><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/PenguinLab/category/linux-内核编程"><span>Linux 内核编程</span></a></li><li class="breadcrumbs__item breadcrumbs__item--active"><span class="breadcrumbs__link">Chapter 2: Building the 6.x Linux Kernel from Source – Part 1</span></li></ul></nav><div class="tocCollapsible_RqXj theme-doc-toc-mobile tocMobile_tOBB"><button type="button" class="clean-btn tocCollapsibleButton_ppfh">本页总览</button></div><div class="theme-doc-markdown markdown"><header><h1>Chapter 2: Building the 6.x Linux Kernel from Source – Part 1</h1></header>
+<h2 class="anchor anchorTargetStickyNavbar_bBfE" id="从源码构建-linux-内核一场漫长的修行">从源码构建 Linux 内核：一场漫长的修行<a href="#从源码构建-linux-内核一场漫长的修行" class="hash-link" aria-label="从源码构建 Linux 内核：一场漫长的修行的直接链接" title="从源码构建 Linux 内核：一场漫长的修行的直接链接" translate="no">​</a></h2>
+<p>从源代码开始构建 Linux 内核，是开启内核开发之旅最硬核的方式。</p>
+<p>别被那些花哨的图形化安装工具骗了——在那层薄薄的伪装之下，隐藏着世界上最重要的软件工程之一。这个话题大到必须分成两章来讲，这是第一章，下一章还在路上。</p>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="️-前置工作你真的准备好了吗">⚠️ 前置工作：你真的准备好了吗？<a href="#️-前置工作你真的准备好了吗" class="hash-link" aria-label="⚠️ 前置工作：你真的准备好了吗？的直接链接" title="⚠️ 前置工作：你真的准备好了吗？的直接链接" translate="no">​</a></h3>
+<p>如果你还没搞定工作空间，<strong>千万别往下一步走</strong>。</p>
+<p>之前的“在线章节”（Online Chapter）我们花了大篇幅讲环境搭建——文档看哪、工具装哪、GitHub 怎么配。如果你跳过了那一步，现在去补上还来得及。这不是官僚主义，这是为了防止你在一个全是报错的终端前怀疑人生。</p>
+<p>接下来这一章和下一章的任务非常明确：<strong>从零开始，用源码构建一个现代 Linux 内核</strong>。</p>
+<p>在这章里，我们先搞定基础：</p>
+<ul>
+<li class="">看懂内核版本号那些奇怪的时间线；</li>
+<li class="">理解内核是怎么一步步开发出来的（以及你如果赶不上这班车会发生什么）；</li>
+<li class="">搞清楚“主线内核”、“LTS”、“厂商内核”这些到底都是什么鬼。</li>
+</ul>
+<p>然后，我们上手干脏活：</p>
+<ul>
+<li class="">下载纯净的内核源码（Vanilla Kernel）；</li>
+<li class="">把它解压开，看看这 3000 万行代码到底长什么样；</li>
+<li class=""><strong>最关键的一步</strong>：配置它。</li>
+</ul>
+<p>最后，我们会花点时间黑进 Kconfig 系统——也就是那个决定哪些代码能进内核的“看门人”——甚至给它加个我们自己的菜单项。</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_bBfE" id="极简系统论linux-是怎么跑起来的">极简系统论：Linux 是怎么跑起来的<a href="#极简系统论linux-是怎么跑起来的" class="hash-link" aria-label="极简系统论：Linux 是怎么跑起来的的直接链接" title="极简系统论：Linux 是怎么跑起来的的直接链接" translate="no">​</a></h2>
+<p>在开始之前，我们要先达成一个共识。</p>
+<p>任何一个能跑起来的 Linux 系统——不管是天河一号还是你手边的树莓派——都少不了三个“老三样”：</p>
+<ol>
+<li class=""><strong>Bootloader（引导程序）</strong>：第一个醒来干活的家伙，负责把内核喊起来。</li>
+<li class=""><strong>OS Kernel（内核）</strong>：就是我们要折腾的主角。</li>
+<li class=""><strong>Root Filesystem（根文件系统）</strong>：内核启动后需要的那一大堆库、配置和工具。</li>
+</ol>
+<p>还有两个“选装件”，但在 ARM 这种嵌入式平台上几乎是标配：</p>
+<ul>
+<li class=""><strong>Device Tree Blob (DTB)</strong>：给 ARM 准备的“硬件说明书”，告诉内核这板子上都有啥外设。</li>
+<li class=""><strong>Initramfs</strong>：一个塞进内存里的迷你文件系统，用来挂载真正的根文件系统，或者加载那些必须得有的驱动。</li>
+</ul>
+<p>在这两章里，我们只干一件事：<strong>构建那个 OS 内核</strong>。Root Filesystem 的坑留给以后，下一章我们会顺带提一下 x86 的 GRUB 引导配置，那是为了让你能真正跑起来。</p>
+<p>对于一个完整的 x86 构建流程，大约需要 6 到 7 步。这一章我们只走前 3 步，剩下的我们放到下一章去。</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_bBfE" id="preliminaries-别急着敲命令先搞懂规则">Preliminaries: 别急着敲命令，先搞懂规则<a href="#preliminaries-别急着敲命令先搞懂规则" class="hash-link" aria-label="Preliminaries: 别急着敲命令，先搞懂规则的直接链接" title="Preliminaries: 别急着敲命令，先搞懂规则的直接链接" translate="no">​</a></h2>
+<p>在开始之前，有几件事必须得先说明白。这不只是技术细节，这是 Linux 世界的“潜规则”。</p>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="去中心化的办公室">去中心化的“办公室”<a href="#去中心化的办公室" class="hash-link" aria-label="去中心化的“办公室”的直接链接" title="去中心化的“办公室”的直接链接" translate="no">​</a></h3>
+<p>Linux 内核不是某家大公司关起门来开发的，它是一个完全去中心化的、在全球协作的巨大怪兽。</p>
+<p>如果你非要找一个“办公室”，那可能是 <strong>Linux Foundation</strong>（Linux 基金会）。它负责搞定法律和资金问题，而 <strong>Kernel Organization</strong> 负责把代码免费发到全世界（<a href="https://www.kernel.org%EF%BC%89%E3%80%82" target="_blank" rel="noopener noreferrer" class="">https://www.kernel.org）。</a></p>
+<p>这里有一个常见的误区：GPL 协议是不允许赚钱的？
+大错特错。GPL 从来不阻止开发者收费。Linus 和基金会选择免费发给别人，<strong>但这不妨碍 Red Hat、SUSE 这些公司拿着内核卖支持、卖订阅、卖 SaaS</strong>。只要源代码最终公开，怎么商业化那是你的本事。</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_bBfE" id="理解-linux-内核版本命名规范">理解 Linux 内核版本命名规范<a href="#理解-linux-内核版本命名规范" class="hash-link" aria-label="理解 Linux 内核版本命名规范的直接链接" title="理解 Linux 内核版本命名规范的直接链接" translate="no">​</a></h2>
+<p>看一眼你的终端，输入 <code>uname -r</code>，输出的一串字符是什么意思？</p>
+<p>在我们的 Ubuntu 22.04 虚拟机上，它大概是这个样子的：</p>
+<div class="language-bash codeBlockContainer_DwR3 theme-code-block" style="--prism-background-color:hsl(230, 1%, 98%);--prism-color:hsl(230, 8%, 24%)"><div class="codeBlockContent_JaXi"><pre tabindex="0" class="prism-code language-bash codeBlock_F1SS thin-scrollbar" style="background-color:hsl(230, 1%, 98%);color:hsl(230, 8%, 24%)"><code class="codeBlockLines_lgPH"><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain">$ </span><span class="token function" style="color:hsl(221, 87%, 60%)">uname</span><span class="token plain"> </span><span class="token parameter variable" style="color:hsl(221, 87%, 60%)">-r</span><span class="token plain"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain"></span><span class="token number" style="color:hsl(35, 99%, 36%)">5.19</span><span class="token plain">.0-40-generic</span><br></div></code></pre></div></div>
+<p>这串字符背后有一套严格的语法。现代 Linux 内核的版本号格式如下：</p>
+<p><code>major#.minor#[.patchlevel][-EXTRAVERSION]</code></p>
+<p>或者用更简单的代数表示：<code>w.x[.y][-z]</code>。</p>
+<p>方括号里的部分是可选的。让我们拆解一下这串 <code>5.19.0-40-generic</code>：</p>
+<ul>
+<li class=""><strong>Major # (w)</strong>: <code>5</code> —— 主版本号，现在是 6.x 时代了。</li>
+<li class=""><strong>Minor # (x)</strong>: <code>19</code> —— 次版本号。</li>
+<li class=""><strong>[patchlevel] (y)</strong>: <code>0</code> —— 补丁级别（也叫修订版）。</li>
+<li class=""><strong>[-EXTRAVERSION] (-z)</strong>: <code>-40-generic</code> —— 特定版本标识。<code>generic</code> 表示这是 Ubuntu 通用版。</li>
+</ul>
+<p>⚠️ <strong>注意</strong>：发型版内核（比如 Ubuntu 的）可能会自己加料，不一定完全遵循这个命名法。但在 <a href="https://www.kernel.org/" target="_blank" rel="noopener noreferrer" class="">https://www.kernel.org/</a> 上发布的<strong>纯净内核</strong> 是严格遵守这个规矩的。</p>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="历史的回响偶数奇数传说">历史的回响：偶数奇数传说<a href="#历史的回响偶数奇数传说" class="hash-link" aria-label="历史的回响：偶数奇数传说的直接链接" title="历史的回响：偶数奇数传说的直接链接" translate="no">​</a></h3>
+<p>在 2.6 内核之前（也就是上古时代），次版本号是有玄机的：</p>
+<ul>
+<li class=""><strong>偶数</strong>：稳定版（比如 2.4、2.6）。</li>
+<li class=""><strong>奇数</strong>：开发版/测试版（比如 2.5）。</li>
+</ul>
+<p>但现在？<strong>这个规矩已经没了</strong>。现在的版本号只和时间有关，和功能无关。</p>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="手脚模型-fingers-and-toes-releases">“手脚模型” (Fingers-and-toes releases)<a href="#手脚模型-fingers-and-toes-releases" class="hash-link" aria-label="“手脚模型” (Fingers-and-toes releases)的直接链接" title="“手脚模型” (Fingers-and-toes releases)的直接链接" translate="no">​</a></h3>
+<p>Linus 曾经开玩笑说，他的版本号策略是“数手指和脚趾”。</p>
+<p>当一个次版本号（x）数到 20 左右（手指 10 个 + 脚趾 10 个），他就会把主版本号（w）加 1。</p>
+<ul>
+<li class="">3.0 到 3.19（20 个小版本）</li>
+<li class="">4.0 到 4.19（20 个小版本）</li>
+<li class="">5.0 到 5.19（20 个小版本）</li>
+<li class="">6.0 ……</li>
+</ul>
+<p>每两个次版本之间大概间隔 6 到 10 周。这不是功能驱动的，这是<strong>有机演化</strong>。</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_bBfE" id="内核开发工作流从合并窗口到发布版">内核开发工作流：从合并窗口到发布版<a href="#内核开发工作流从合并窗口到发布版" class="hash-link" aria-label="内核开发工作流：从合并窗口到发布版的直接链接" title="内核开发工作流：从合并窗口到发布版的直接链接" translate="no">​</a></h2>
+<p>很多人以为内核开发是“想到哪写到哪”，完全乱来。这是天大的误解。</p>
+<p>内核开发有着极其严格的节奏感。为了看懂这个节奏，我们可以去看看内核的 Git 记录。</p>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="查看-git-历史记录">查看 Git 历史记录<a href="#查看-git-历史记录" class="hash-link" aria-label="查看 Git 历史记录的直接链接" title="查看 Git 历史记录的直接链接" translate="no">​</a></h3>
+<p>假设你 Clone 下来了最新的 Linus 主线树。用下面这条命令，你可以看到一条清晰的时间线：</p>
+<div class="language-bash codeBlockContainer_DwR3 theme-code-block" style="--prism-background-color:hsl(230, 1%, 98%);--prism-color:hsl(230, 8%, 24%)"><div class="codeBlockContent_JaXi"><pre tabindex="0" class="prism-code language-bash codeBlock_F1SS thin-scrollbar" style="background-color:hsl(230, 1%, 98%);color:hsl(230, 8%, 24%)"><code class="codeBlockLines_lgPH"><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain">$ </span><span class="token function" style="color:hsl(221, 87%, 60%)">git</span><span class="token plain"> log --date-order </span><span class="token parameter variable" style="color:hsl(221, 87%, 60%)">--tags</span><span class="token plain"> --simplify-by-decoration </span><span class="token punctuation" style="color:hsl(119, 34%, 47%)">\</span><span class="token plain"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain">    </span><span class="token parameter variable" style="color:hsl(221, 87%, 60%)">--pretty</span><span class="token operator" style="color:hsl(221, 87%, 60%)">=</span><span class="token plain">format:</span><span class="token string" style="color:hsl(119, 34%, 47%)">&#x27;%ai %h %d&#x27;</span><span class="token plain"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain" style="display:inline-block"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain"></span><span class="token number" style="color:hsl(35, 99%, 36%)">2023</span><span class="token plain">-04-23 </span><span class="token number" style="color:hsl(35, 99%, 36%)">12</span><span class="token plain">:02:52 </span><span class="token parameter variable" style="color:hsl(221, 87%, 60%)">-0700</span><span class="token plain"> 457391b03803  </span><span class="token punctuation" style="color:hsl(119, 34%, 47%)">(</span><span class="token plain">tag: v6.3</span><span class="token punctuation" style="color:hsl(119, 34%, 47%)">)</span><span class="token plain"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain"></span><span class="token number" style="color:hsl(35, 99%, 36%)">2023</span><span class="token plain">-04-16 </span><span class="token number" style="color:hsl(35, 99%, 36%)">15</span><span class="token plain">:23:53 </span><span class="token parameter variable" style="color:hsl(221, 87%, 60%)">-0700</span><span class="token plain"> 6a8f57ae2eb0  </span><span class="token punctuation" style="color:hsl(119, 34%, 47%)">(</span><span class="token plain">tag: v6.3-rc7</span><span class="token punctuation" style="color:hsl(119, 34%, 47%)">)</span><span class="token plain"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain"></span><span class="token number" style="color:hsl(35, 99%, 36%)">2023</span><span class="token plain">-04-09 </span><span class="token number" style="color:hsl(35, 99%, 36%)">11</span><span class="token plain">:15:57 </span><span class="token parameter variable" style="color:hsl(221, 87%, 60%)">-0700</span><span class="token plain"> 09a9639e56c0  </span><span class="token punctuation" style="color:hsl(119, 34%, 47%)">(</span><span class="token plain">tag: v6.3-rc6</span><span class="token punctuation" style="color:hsl(119, 34%, 47%)">)</span><span class="token plain"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain"></span><span class="token punctuation" style="color:hsl(119, 34%, 47%)">[</span><span class="token punctuation" style="color:hsl(119, 34%, 47%)">..</span><span class="token plain">.</span><span class="token punctuation" style="color:hsl(119, 34%, 47%)">]</span><span class="token plain"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain"></span><span class="token number" style="color:hsl(35, 99%, 36%)">2022</span><span class="token plain">-10-16 </span><span class="token number" style="color:hsl(35, 99%, 36%)">15</span><span class="token plain">:36:24 </span><span class="token parameter variable" style="color:hsl(221, 87%, 60%)">-0700</span><span class="token plain"> 9abf2313adc1  </span><span class="token punctuation" style="color:hsl(119, 34%, 47%)">(</span><span class="token plain">tag: v6.1-rc1</span><span class="token punctuation" style="color:hsl(119, 34%, 47%)">)</span><span class="token plain"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain"></span><span class="token number" style="color:hsl(35, 99%, 36%)">2022</span><span class="token plain">-10-02 </span><span class="token number" style="color:hsl(35, 99%, 36%)">14</span><span class="token plain">:09:07 </span><span class="token parameter variable" style="color:hsl(221, 87%, 60%)">-0700</span><span class="token plain"> 4fe89d07dcc2  </span><span class="token punctuation" style="color:hsl(119, 34%, 47%)">(</span><span class="token plain">tag: v6.0</span><span class="token punctuation" style="color:hsl(119, 34%, 47%)">)</span><br></div></code></pre></div></div>
+<p>这行命令只会在 Git 树上工作。这里我们纯粹是为了演示演化过程。</p>
+<p>在这个输出里，你能看到一个完整的生命周期：</p>
+<ul>
+<li class=""><strong>v6.0</strong> 发布：也就是上一个稳定版。</li>
+<li class=""><strong>v6.1-rc1</strong>：合并窗口关闭，开始修 Bug。</li>
+<li class=""><strong>v6.1-rc7 / -rc8</strong>：发布候选版，不断的测试和修补。</li>
+<li class=""><strong>v6.1</strong>：最终稳定版发布。</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="时间轴上的两个关键阶段">时间轴上的两个关键阶段<a href="#时间轴上的两个关键阶段" class="hash-link" aria-label="时间轴上的两个关键阶段的直接链接" title="时间轴上的两个关键阶段的直接链接" translate="no">​</a></h3>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="1-merge-window-合并窗口--只有-2-周">1. Merge Window (合并窗口) —— 只有 2 周<a href="#1-merge-window-合并窗口--只有-2-周" class="hash-link" aria-label="1. Merge Window (合并窗口) —— 只有 2 周的直接链接" title="1. Merge Window (合并窗口) —— 只有 2 周的直接链接" translate="no">​</a></h4>
+<p>当 v6.0 发布后（2022 年 10 月 2 日），为期 <strong>两周</strong> 的合并窗口随即开启。</p>
+<p>这是整个社区最疯狂的时刻。子系统维护者们会把他们手里攒了很久的新代码一股脑合并进主线。如果你想加新功能，这是唯一的机会。</p>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="2-bugfix-window-修复窗口--6-到-10-周">2. Bugfix Window (修复窗口) —— 6 到 10 周<a href="#2-bugfix-window-修复窗口--6-到-10-周" class="hash-link" aria-label="2. Bugfix Window (修复窗口) —— 6 到 10 周的直接链接" title="2. Bugfix Window (修复窗口) —— 6 到 10 周的直接链接" translate="no">​</a></h4>
+<p>两周后（2022 年 10 月 16 日），合并窗口关闭。<code>v6.1-rc1</code> 诞生。</p>
+<p>接下来的日子里，任何新功能都被拒之门外。只能修 Bug，只能回退有问题的代码，只能解决 Regressions（倒退）。</p>
+<p>这个过程会持续 6 到 10 周不等，直到 Linus 和核心维护者觉得“这就够了”，于是 <code>v6.1</code> 正式发布。</p>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="赶不上合并窗口怎么办">赶不上合并窗口怎么办？<a href="#赶不上合并窗口怎么办" class="hash-link" aria-label="赶不上合并窗口怎么办？的直接链接" title="赶不上合并窗口怎么办？的直接链接" translate="no">​</a></h3>
+<p>如果你错过了一个窗口（比如没来得及把代码合进去），你只有一个选择：<strong>等</strong>。</p>
+<p>等下一个窗口，大概 2.5 到 3 个月后。这就是内核开发者的“断舍离”。</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_bBfE" id="探索内核源码树的类型">探索内核源码树的类型<a href="#探索内核源码树的类型" class="hash-link" aria-label="探索内核源码树的类型的直接链接" title="探索内核源码树的类型的直接链接" translate="no">​</a></h2>
+<p>内核不是只有一个版本。在这个庞大的生态里，有几种不同的源码树，每一种都有它的用途。</p>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="1-mainline--stable-主线--稳定版">1. Mainline / Stable (主线 / 稳定版)<a href="#1-mainline--stable-主线--稳定版" class="hash-link" aria-label="1. Mainline / Stable (主线 / 稳定版)的直接链接" title="1. Mainline / Stable (主线 / 稳定版)的直接链接" translate="no">​</a></h3>
+<p>这是正宫娘娘。所有的 Feature 最终都会汇聚到 Mainline，然后 Mainline 会被打上补丁变成 Stable 版本。通常也是企业发行版的基础。</p>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="2-long-term-support-lts">2. Long Term Support (LTS)<a href="#2-long-term-support-lts" class="hash-link" aria-label="2. Long Term Support (LTS)的直接链接" title="2. Long Term Support (LTS)的直接链接" translate="no">​</a></h3>
+<p>这是“特别稳定”的版本。维护者承诺在很长一段时间内（通常是 2 年起步，甚至更长）持续为它打补丁。</p>
+<p>按照惯例，<strong>每年 12 月发布的最后一个内核</strong>会被选为 LTS。我们这本书用的 <strong>6.1 LTS</strong> 就是这么个角色，它的预定寿命是 4 年（2022.12 - 2026.12）。</p>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="3--next-trees-前沿树">3. -next Trees (前沿树)<a href="#3--next-trees-前沿树" class="hash-link" aria-label="3. -next Trees (前沿树)的直接链接" title="3. -next Trees (前沿树)的直接链接" translate="no">​</a></h3>
+<p>这是“ bleeding edge ”。如果你打算向内核提交代码，你必须在 <code>linux-next</code> 树上工作。这是所有准备进入下一个合并窗口的补丁的集合体。这里非常不稳定，不适合生产环境，但是贡献者的必经之路。</p>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="4-distribution-kernels-发行版内核">4. Distribution Kernels (发行版内核)<a href="#4-distribution-kernels-发行版内核" class="hash-link" aria-label="4. Distribution Kernels (发行版内核)的直接链接" title="4. Distribution Kernels (发行版内核)的直接链接" translate="no">​</a></h3>
+<p>Red Hat、Ubuntu、Debian 他们用的内核。通常基于某个 Stable/LTS，然后加上自己的一大堆补丁和驱动。</p>
+<p>这也是为什么有时候你看到某家云厂商还在用 4.x 内核——别急着嘲笑老旧，他们可能把数万个最新的安全补丁都已经 backport 回去了。</p>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="5-soc-vendor-kernels-芯片厂商内核">5. SoC Vendor Kernels (芯片厂商内核)<a href="#5-soc-vendor-kernels-芯片厂商内核" class="hash-link" aria-label="5. SoC Vendor Kernels (芯片厂商内核)的直接链接" title="5. SoC Vendor Kernels (芯片厂商内核)的直接链接" translate="no">​</a></h3>
+<p>ARM、嵌入式厂商维护的内核。这是一个<strong>重灾区</strong>。</p>
+<p>芯片厂通常会基于一个（往往很旧的）LTS 内核，然后往里面塞自己的 BSP、私有驱动。这导致他们的内核和主线差异巨大，维护起来简直是噩梦。</p>
+<p><strong>最佳实践</strong>：如果你做嵌入式，尽量用 Yocto 这种现代构建系统，它们会帮你把这些差异抹平。</p>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="6-super-lts-slts">6. Super LTS (SLTS)<a href="#6-super-lts-slts" class="hash-link" aria-label="6. Super LTS (SLTS)的直接链接" title="6. Super LTS (SLTS)的直接链接" translate="no">​</a></h3>
+<p>这是给“民用基础设施”准备的（比如电网、大坝）。CIP 项目维护的 SLTS 内核，支持周期长达 <strong>10 年</strong>甚至更久。如果你做的设备要在那里跑 20 年不动窝，你就得关注这个。</p>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="️-重要更新lts-缩水了">⚠️ 重要更新：LTS 缩水了<a href="#️-重要更新lts-缩水了" class="hash-link" aria-label="⚠️ 重要更新：LTS 缩水了的直接链接" title="⚠️ 重要更新：LTS 缩水了的直接链接" translate="no">​</a></h3>
+<p>在 2023 年 9 月，Linus 他们宣布了一个大消息：<strong>以后的 LTS 维护周期可能会缩短到 2 年</strong>。</p>
+<p>为什么？</p>
+<ol>
+<li class=""><strong>真的没人用那么老的内核</strong>：很多厂商自己都在维护自己的分支。</li>
+<li class=""><strong>维护者累挂了</strong>：同时维护 7 个 LTS 版本（4.14, 4.19... 6.6），补丁要不停地往后移植，工作量指数级增长。</li>
+</ol>
+<p>不过，我们这本用的 <strong>6.1 LTS</strong> 应该能苟到 2026 年 12 月，足够你折腾了。</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_bBfE" id="到底该跑哪个内核">到底该跑哪个内核？<a href="#到底该跑哪个内核" class="hash-link" aria-label="到底该跑哪个内核？的直接链接" title="到底该跑哪个内核？的直接链接" translate="no">​</a></h2>
+<p>这是个送命题，但内核社区的大佬们给出了标准答案：</p>
+<blockquote>
+<p><strong>“跑最新的稳定版。”</strong>
+—— Jon Corbet, 2023</p>
+</blockquote>
+<blockquote>
+<p><strong>“你得一路升级上来。如果你试图挑挑拣拣地打补丁，你只会得到一个既不安全又有已知 Bug 的怪胎。”</strong>
+—— Greg Kroah-Hartman</p>
+</blockquote>
+<p>别试图自己当“发行版”，让大佬们替你把关吧。</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_bBfE" id="开始构建前-3-步实战">开始构建：前 3 步实战<a href="#开始构建前-3-步实战" class="hash-link" aria-label="开始构建：前 3 步实战的直接链接" title="开始构建：前 3 步实战的直接链接" translate="no">​</a></h2>
+<p>好了，理论讲够了。现在我们正式开始构建 6.x 内核的旅程。</p>
+<p>我们把整个构建过程拆成了 6-7 步。这一章我们只做前三步：</p>
+<ol>
+<li class=""><strong>获取</strong> 源码。</li>
+<li class=""><strong>解压</strong> 源码。</li>
+<li class=""><strong>配置</strong> 内核（这是重头戏）。</li>
+</ol>
+<p>接下来的 4-7 步（编译、安装模块、配置 Bootloader、安装内核）留到下一章。</p>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="step-1--获取-linux-内核源码">Step 1 – 获取 Linux 内核源码<a href="#step-1--获取-linux-内核源码" class="hash-link" aria-label="Step 1 – 获取 Linux 内核源码的直接链接" title="Step 1 – 获取 Linux 内核源码的直接链接" translate="no">​</a></h3>
+<p>你有两个选择：</p>
+<ol>
+<li class=""><strong>下载压缩包</strong>：适合大部分只想学习或者使用特定版本的人。</li>
+<li class=""><strong>Clone Git 仓库</strong>：适合想贡献代码或者追到最新版的人。</li>
+</ol>
+<p>对于本书，我们选择第一种：<strong>下载 6.1.25 LTS 的压缩包</strong>。</p>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="方法-a直接下载">方法 A：直接下载<a href="#方法-a直接下载" class="hash-link" aria-label="方法 A：直接下载的直接链接" title="方法 A：直接下载的直接链接" translate="no">​</a></h4>
+<p>最简单的方法是用 <code>wget</code> 或者 <code>curl</code>：</p>
+<div class="language-bash codeBlockContainer_DwR3 theme-code-block" style="--prism-background-color:hsl(230, 1%, 98%);--prism-color:hsl(230, 8%, 24%)"><div class="codeBlockContent_JaXi"><pre tabindex="0" class="prism-code language-bash codeBlock_F1SS thin-scrollbar" style="background-color:hsl(230, 1%, 98%);color:hsl(230, 8%, 24%)"><code class="codeBlockLines_lgPH"><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token function" style="color:hsl(221, 87%, 60%)">wget</span><span class="token plain"> --https-only </span><span class="token parameter variable" style="color:hsl(221, 87%, 60%)">-O</span><span class="token plain"> ~/Downloads/linux-6.1.25.tar.xz </span><span class="token punctuation" style="color:hsl(119, 34%, 47%)">\</span><span class="token plain"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain">  https://mirrors.edge.kernel.org/pub/linux/kernel/v6.x/linux-6.1.25.tar.xz</span><br></div></code></pre></div></div>
+<p>这会把大概 130MB 的源码包扔进你的 <code>~/Downloads</code>。</p>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="方法-bclone-git-仓库可选">方法 B：Clone Git 仓库（可选）<a href="#方法-bclone-git-仓库可选" class="hash-link" aria-label="方法 B：Clone Git 仓库（可选）的直接链接" title="方法 B：Clone Git 仓库（可选）的直接链接" translate="no">​</a></h4>
+<p>如果你想体验 bleeding edge，或者想看看 <code>linux-next</code> 长啥样：</p>
+<div class="language-bash codeBlockContainer_DwR3 theme-code-block" style="--prism-background-color:hsl(230, 1%, 98%);--prism-color:hsl(230, 8%, 24%)"><div class="codeBlockContent_JaXi"><pre tabindex="0" class="prism-code language-bash codeBlock_F1SS thin-scrollbar" style="background-color:hsl(230, 1%, 98%);color:hsl(230, 8%, 24%)"><code class="codeBlockLines_lgPH"><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token function" style="color:hsl(221, 87%, 60%)">git</span><span class="token plain"> clone https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git</span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain"></span><span class="token builtin class-name" style="color:hsl(35, 99%, 36%)">cd</span><span class="token plain"> linux</span><br></div></code></pre></div></div>
+<p>⚠️ <strong>注意</strong>：完整的内核 Git 历史记录非常巨大，Clone 需要很长时间和大量磁盘空间（几个 GB）。如果你只是想看一眼，可以用 <code>--depth 1</code> 来浅克隆。</p>
+<p>如果是想搞稳定版分支：</p>
+<div class="language-bash codeBlockContainer_DwR3 theme-code-block" style="--prism-background-color:hsl(230, 1%, 98%);--prism-color:hsl(230, 8%, 24%)"><div class="codeBlockContent_JaXi"><pre tabindex="0" class="prism-code language-bash codeBlock_F1SS thin-scrollbar" style="background-color:hsl(230, 1%, 98%);color:hsl(230, 8%, 24%)"><code class="codeBlockLines_lgPH"><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token function" style="color:hsl(221, 87%, 60%)">git</span><span class="token plain"> clone git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git</span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain"></span><span class="token builtin class-name" style="color:hsl(35, 99%, 36%)">cd</span><span class="token plain"> linux-stable</span><br></div></code></pre></div></div>
+<p>对于本书，我们还是推荐用第一种方法，下载确定版本的 6.1.25，这样大家的环境一致，不容易出幺蛾子。</p>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="step-2--解压内核源码树">Step 2 – 解压内核源码树<a href="#step-2--解压内核源码树" class="hash-link" aria-label="Step 2 – 解压内核源码树的直接链接" title="Step 2 – 解压内核源码树的直接链接" translate="no">​</a></h3>
+<p>假设你现在手里已经有了那个 <code>linux-6.1.25.tar.xz</code> 文件。</p>
+<p>解压它：</p>
+<div class="language-bash codeBlockContainer_DwR3 theme-code-block" style="--prism-background-color:hsl(230, 1%, 98%);--prism-color:hsl(230, 8%, 24%)"><div class="codeBlockContent_JaXi"><pre tabindex="0" class="prism-code language-bash codeBlock_F1SS thin-scrollbar" style="background-color:hsl(230, 1%, 98%);color:hsl(230, 8%, 24%)"><code class="codeBlockLines_lgPH"><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token comment" style="color:hsl(230, 4%, 64%)"># 简单粗暴法：解压到当前目录</span><span class="token plain"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain"></span><span class="token function" style="color:hsl(221, 87%, 60%)">tar</span><span class="token plain"> xf ~/Downloads/linux-6.1.25.tar.xz</span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain" style="display:inline-block"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain"></span><span class="token comment" style="color:hsl(230, 4%, 64%)"># 推荐法：解压到一个专门的工作目录</span><span class="token plain"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain"></span><span class="token function" style="color:hsl(221, 87%, 60%)">mkdir</span><span class="token plain"> </span><span class="token parameter variable" style="color:hsl(221, 87%, 60%)">-p</span><span class="token plain"> ~/kernels</span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain"></span><span class="token function" style="color:hsl(221, 87%, 60%)">tar</span><span class="token plain"> xf ~/Downloads/linux-6.1.25.tar.xz </span><span class="token parameter variable" style="color:hsl(221, 87%, 60%)">--directory</span><span class="token operator" style="color:hsl(221, 87%, 60%)">=~</span><span class="token plain">/kernels/</span><br></div></code></pre></div></div>
+<p>现在，你的 <code>~/kernels/linux-6.1.25/</code> 下面就是那个传说中的 3000 万行代码宇宙了。</p>
+<p>为了方便后续操作，我们设个环境变量：</p>
+<div class="language-bash codeBlockContainer_DwR3 theme-code-block" style="--prism-background-color:hsl(230, 1%, 98%);--prism-color:hsl(230, 8%, 24%)"><div class="codeBlockContent_JaXi"><pre tabindex="0" class="prism-code language-bash codeBlock_F1SS thin-scrollbar" style="background-color:hsl(230, 1%, 98%);color:hsl(230, 8%, 24%)"><code class="codeBlockLines_lgPH"><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token builtin class-name" style="color:hsl(35, 99%, 36%)">export</span><span class="token plain"> </span><span class="token assign-left variable" style="color:hsl(221, 87%, 60%)">LKP_KSRC</span><span class="token operator" style="color:hsl(221, 87%, 60%)">=~</span><span class="token plain">/kernels/linux-6.1.25</span><br></div></code></pre></div></div>
+<p>⚠️ <strong>别用 GUI 解压工具</strong>：真的，练练 <code>tar</code> 命令。将来你在服务器上或者是纯终端环境下（比如通过 SSH 连接的虚拟机），你会感谢这个习惯。</p>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="-额外赠送源码树结构速览">📖 额外赠送：源码树结构速览<a href="#-额外赠送源码树结构速览" class="hash-link" aria-label="📖 额外赠送：源码树结构速览的直接链接" title="📖 额外赠送：源码树结构速览的直接链接" translate="no">​</a></h3>
+<p>在正式配置之前，让我们花一分钟（真的是一分钟）来看看这个庞然大物里面都有啥。</p>
+<p>这就像是你刚买了一套乐高，拆开盒子先看说明书上的零件清单。</p>
+<div class="language-bash codeBlockContainer_DwR3 theme-code-block" style="--prism-background-color:hsl(230, 1%, 98%);--prism-color:hsl(230, 8%, 24%)"><div class="codeBlockContent_JaXi"><pre tabindex="0" class="prism-code language-bash codeBlock_F1SS thin-scrollbar" style="background-color:hsl(230, 1%, 98%);color:hsl(230, 8%, 24%)"><code class="codeBlockLines_lgPH"><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain">$ </span><span class="token function" style="color:hsl(221, 87%, 60%)">du</span><span class="token plain"> </span><span class="token parameter variable" style="color:hsl(221, 87%, 60%)">-h</span><span class="token plain"> </span><span class="token builtin class-name" style="color:hsl(35, 99%, 36%)">.</span><span class="token plain"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain"></span><span class="token number" style="color:hsl(35, 99%, 36%)">1</span><span class="token plain">.5G    </span><span class="token builtin class-name" style="color:hsl(35, 99%, 36%)">.</span><br></div></code></pre></div></div>
+<p>大概 1.5 GB。</p>
+<p>那个传说中的版本号在哪里定义？看一眼根目录的 Makefile：</p>
+<div class="language-bash codeBlockContainer_DwR3 theme-code-block" style="--prism-background-color:hsl(230, 1%, 98%);--prism-color:hsl(230, 8%, 24%)"><div class="codeBlockContent_JaXi"><pre tabindex="0" class="prism-code language-bash codeBlock_F1SS thin-scrollbar" style="background-color:hsl(230, 1%, 98%);color:hsl(230, 8%, 24%)"><code class="codeBlockLines_lgPH"><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain">$ </span><span class="token function" style="color:hsl(221, 87%, 60%)">head</span><span class="token plain"> Makefile</span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain"></span><span class="token comment" style="color:hsl(230, 4%, 64%)"># SPDX-License-Identifier: GPL-2.0</span><span class="token plain"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain">VERSION </span><span class="token operator" style="color:hsl(221, 87%, 60%)">=</span><span class="token plain"> </span><span class="token number" style="color:hsl(35, 99%, 36%)">6</span><span class="token plain"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain">PATCHLEVEL </span><span class="token operator" style="color:hsl(221, 87%, 60%)">=</span><span class="token plain"> </span><span class="token number" style="color:hsl(35, 99%, 36%)">1</span><span class="token plain"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain">SUBLEVEL </span><span class="token operator" style="color:hsl(221, 87%, 60%)">=</span><span class="token plain"> </span><span class="token number" style="color:hsl(35, 99%, 36%)">25</span><span class="token plain"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain">EXTRAVERSION </span><span class="token operator" style="color:hsl(221, 87%, 60%)">=</span><span class="token plain"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain">NAME </span><span class="token operator" style="color:hsl(221, 87%, 60%)">=</span><span class="token plain"> Hurr durr I&#x27;ma ninja sloth</span><br></div></code></pre></div></div>
+<p>你看，<code>6.1.25</code> 就在这里。那个 <code>NAME</code> 是每个内核版本的代号（Linus 的恶趣味）。</p>
+<p>下面是一个极简的“地图”，告诉你东西大概都在哪：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th style="text-align:left">目录/文件</th><th style="text-align:left">是干嘛的</th></tr></thead><tbody><tr><td style="text-align:left"><strong>kernel/</strong></td><td style="text-align:left">核心核心：调度器、信号、cgroups、模块管理。</td></tr><tr><td style="text-align:left"><strong>mm/</strong></td><td style="text-align:left">内存管理。</td></tr><tr><td style="text-align:left"><strong>fs/</strong></td><td style="text-align:left">文件系统：VFS 虚拟层、ext4、btrfs、nfs 都在这里。</td></tr><tr><td style="text-align:left"><strong>drivers/</strong></td><td style="text-align:left">驱动程序。这里是最大的一块，也是变化最快的地方。</td></tr><tr><td style="text-align:left"><strong>net/</strong></td><td style="text-align:left">网络协议栈。TCP/IP 的灵魂就在这。</td></tr><tr><td style="text-align:left"><strong>block/</strong></td><td style="text-align:left">块设备 I/O 层和缓存。</td></tr><tr><td style="text-align:left"><strong>crypto/</strong></td><td style="text-align:left">加密算法库。</td></tr><tr><td style="text-align:left"><strong>init/</strong></td><td style="text-align:left">内核初始化代码。那个传说中的 <code>start_kernel()</code> 就在 <code>init/main.c</code> 里。</td></tr><tr><td style="text-align:left"><strong>usr/</strong></td><td style="text-align:left">用来生成 initramfs 的代码。</td></tr><tr><td style="text-align:left"><strong>arch/</strong></td><td style="text-align:left"><strong>架构相关代码</strong>。<code>x86</code>, <code>arm</code>, <code>arm64</code>, <code>riscv</code>... 都在这里。</td></tr><tr><td style="text-align:left"><strong>Documentation/</strong></td><td style="text-align:left"><strong>官方文档</strong>。别去百度了，答案多半在这里。</td></tr></tbody></table>
+<p>看一眼就够了，不用死记硬背。你以后会在这些目录里迷路很多次的，那是常事。</p>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="step-3--配置-linux-内核">Step 3 – 配置 Linux 内核<a href="#step-3--配置-linux-内核" class="hash-link" aria-label="Step 3 – 配置 Linux 内核的直接链接" title="Step 3 – 配置 Linux 内核的直接链接" translate="no">​</a></h3>
+<p>这是<strong>最关键</strong>的一步。</p>
+<p>Linux 内核之所以能跑在手机上，也能跑在超级计算机上，全靠这一步：<strong>配置</strong>。</p>
+<p>如果不配置，你需要面对几千个配置选项。如果配置错了，内核可能起不来，或者缺了某些关键功能（比如网络、USB）。</p>
+<p>配置的核心是一个叫 <strong>Kconfig</strong> 的系统，它负责生成一个叫 <code>.config</code> 的隐藏文件。</p>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="kconfig--kbuild-极简入门">Kconfig / Kbuild 极简入门<a href="#kconfig--kbuild-极简入门" class="hash-link" aria-label="Kconfig / Kbuild 极简入门的直接链接" title="Kconfig / Kbuild 极简入门的直接链接" translate="no">​</a></h4>
+<p>这里有一套基础设施在默默工作：</p>
+<ul>
+<li class=""><strong>Kconfig</strong>: 负责那个“菜单界面”。它读取 <code>Kconfig</code> 文件，显示选项，处理依赖关系（比如选了 A 才能选 B）。</li>
+<li class=""><strong>Kbuild</strong>: 负责编译。它读取 <code>.config</code> 文件，根据里面的内容决定编译哪些文件。</li>
+</ul>
+<p>所有的配置最终都汇总到一个文件里：
+<strong><code>.config</code></strong> （就在源码树的根目录下）。</p>
+<p>在这个文件里，所有的配置项都长这样：</p>
+<div class="language-makefile codeBlockContainer_DwR3 theme-code-block" style="--prism-background-color:hsl(230, 1%, 98%);--prism-color:hsl(230, 8%, 24%)"><div class="codeBlockContent_JaXi"><pre tabindex="0" class="prism-code language-makefile codeBlock_F1SS thin-scrollbar" style="background-color:hsl(230, 1%, 98%);color:hsl(230, 8%, 24%)"><code class="codeBlockLines_lgPH"><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain">CONFIG_FOO</span><span class="token operator" style="color:hsl(221, 87%, 60%)">=</span><span class="token plain">y    </span><span class="token comment" style="color:hsl(230, 4%, 64%)"># y = 编进内核镜像</span><span class="token plain"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain">CONFIG_BAR</span><span class="token operator" style="color:hsl(221, 87%, 60%)">=</span><span class="token plain">m    </span><span class="token comment" style="color:hsl(230, 4%, 64%)"># m = 做成模块</span><span class="token plain"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain">CONFIG_BAZ</span><span class="token operator" style="color:hsl(221, 87%, 60%)">=</span><span class="token plain">n    </span><span class="token comment" style="color:hsl(230, 4%, 64%)"># n = 不要这个功能</span><br></div></code></pre></div></div>
+<p><code>y</code> (yes) 意味着这个功能会被硬塞进内核镜像里，开机就有，但体积会变大。
+<code>m</code> (module) 意味着做成一个 <code>.ko</code> 文件，需要的时候再加载。
+<code>n</code> (no) 意味着这玩意对你来说是隐形的。</p>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="获取初始配置三条路">获取初始配置：三条路<a href="#获取初始配置三条路" class="hash-link" aria-label="获取初始配置：三条路的直接链接" title="获取初始配置：三条路的直接链接" translate="no">​</a></h4>
+<p>对于新手，直接手写 <code>.config</code> 是不可能的。我们通常从三个起点出发：</p>
+<ol>
+<li class=""><strong>厂家配置</strong>：直接复制当前系统正在用的配置。</li>
+<li class=""><strong>默认配置</strong>：让内核给你一个通用的配置（通常很大）。</li>
+<li class=""><strong>精简配置</strong>：基于当前系统已加载的模块来生成。</li>
+</ol>
+<h5 class="anchor anchorTargetStickyNavbar_bBfE" id="策略-1厂家的配置安全但臃肿">策略 1：厂家的配置（安全但臃肿）<a href="#策略-1厂家的配置安全但臃肿" class="hash-link" aria-label="策略 1：厂家的配置（安全但臃肿）的直接链接" title="策略 1：厂家的配置（安全但臃肿）的直接链接" translate="no">​</a></h5>
+<p>如果你在 Ubuntu 上想自己编一个内核，最稳妥的办法就是先用现在的：</p>
+<div class="language-bash codeBlockContainer_DwR3 theme-code-block" style="--prism-background-color:hsl(230, 1%, 98%);--prism-color:hsl(230, 8%, 24%)"><div class="codeBlockContent_JaXi"><pre tabindex="0" class="prism-code language-bash codeBlock_F1SS thin-scrollbar" style="background-color:hsl(230, 1%, 98%);color:hsl(230, 8%, 24%)"><code class="codeBlockLines_lgPH"><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token function" style="color:hsl(221, 87%, 60%)">make</span><span class="token plain"> mrproper</span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain"></span><span class="token function" style="color:hsl(221, 87%, 60%)">cp</span><span class="token plain"> /boot/config-</span><span class="token variable" style="color:hsl(221, 87%, 60%)">$(</span><span class="token variable function" style="color:hsl(221, 87%, 60%)">uname</span><span class="token variable" style="color:hsl(221, 87%, 60%)"> </span><span class="token variable parameter variable" style="color:hsl(221, 87%, 60%)">-r</span><span class="token variable" style="color:hsl(221, 87%, 60%)">)</span><span class="token plain"> </span><span class="token variable" style="color:hsl(221, 87%, 60%)">${LKP_KSRC}</span><span class="token plain">/.config</span><br></div></code></pre></div></div>
+<p>这会生成一个巨大的 <code>.config</code>，里面啥都有。这能保证内核能跑起来，但编译时间会很长，体积也会很大。</p>
+<h5 class="anchor anchorTargetStickyNavbar_bBfE" id="策略-2默认配置">策略 2：默认配置<a href="#策略-2默认配置" class="hash-link" aria-label="策略 2：默认配置的直接链接" title="策略 2：默认配置的直接链接" translate="no">​</a></h5>
+<div class="language-bash codeBlockContainer_DwR3 theme-code-block" style="--prism-background-color:hsl(230, 1%, 98%);--prism-color:hsl(230, 8%, 24%)"><div class="codeBlockContent_JaXi"><pre tabindex="0" class="prism-code language-bash codeBlock_F1SS thin-scrollbar" style="background-color:hsl(230, 1%, 98%);color:hsl(230, 8%, 24%)"><code class="codeBlockLines_lgPH"><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token function" style="color:hsl(221, 87%, 60%)">make</span><span class="token plain"> defconfig</span><br></div></code></pre></div></div>
+<p>这会根据你的 CPU 架构（比如 x86_64）给出一套标准配置。</p>
+<h5 class="anchor anchorTargetStickyNavbar_bBfE" id="策略-3精简配置--推荐给学习者">策略 3：精简配置 —— 推荐给学习者<a href="#策略-3精简配置--推荐给学习者" class="hash-link" aria-label="策略 3：精简配置 —— 推荐给学习者的直接链接" title="策略 3：精简配置 —— 推荐给学习者的直接链接" translate="no">​</a></h5>
+<p>如果你想练手，或者想要一个比较苗条的内核，可以用 <code>localmodconfig</code>。</p>
+<p>它的逻辑是：<strong>看看我现在系统里加载了哪些模块（<code>lsmod</code>），然后只把这些功能编译进去</strong>。</p>
+<div class="language-bash codeBlockContainer_DwR3 theme-code-block" style="--prism-background-color:hsl(230, 1%, 98%);--prism-color:hsl(230, 8%, 24%)"><div class="codeBlockContent_JaXi"><pre tabindex="0" class="prism-code language-bash codeBlock_F1SS thin-scrollbar" style="background-color:hsl(230, 1%, 98%);color:hsl(230, 8%, 24%)"><code class="codeBlockLines_lgPH"><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token comment" style="color:hsl(230, 4%, 64%)"># 先把当前加载的模块列表存下来</span><span class="token plain"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain">lsmod </span><span class="token operator" style="color:hsl(221, 87%, 60%)">&gt;</span><span class="token plain"> /tmp/lsmod.now</span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain" style="display:inline-block"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain"></span><span class="token comment" style="color:hsl(230, 4%, 64%)"># 基于这个列表生成配置</span><span class="token plain"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain"></span><span class="token builtin class-name" style="color:hsl(35, 99%, 36%)">cd</span><span class="token plain"> </span><span class="token variable" style="color:hsl(221, 87%, 60%)">${LKP_KSRC}</span><span class="token plain"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain"></span><span class="token function" style="color:hsl(221, 87%, 60%)">make</span><span class="token plain"> </span><span class="token assign-left variable" style="color:hsl(221, 87%, 60%)">LSMOD</span><span class="token operator" style="color:hsl(221, 87%, 60%)">=</span><span class="token plain">/tmp/lsmod.now localmodconfig</span><br></div></code></pre></div></div>
+<p>在运行过程中，如果新内核（6.1.25）有旧内核（5.19）没有的新选项，它会问你。这时候一般狂按 Enter（选默认值）就行。</p>
+<p>最终，你会得到一个 <strong><code>.config</code></strong> 文件。这就是你的定制配方。</p>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="step-4其实是-step-3-的延续-调整配置">Step 4（其实是 Step 3 的延续）—— 调整配置<a href="#step-4其实是-step-3-的延续-调整配置" class="hash-link" aria-label="Step 4（其实是 Step 3 的延续）—— 调整配置的直接链接" title="Step 4（其实是 Step 3 的延续）—— 调整配置的直接链接" translate="no">​</a></h3>
+<p>拿到 <code>.config</code> 之后，我们通常还需要微调一下。</p>
+<p>这时候就需要用那个传说中的神器了：<strong><code>make menuconfig</code></strong>。</p>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="启动图形化菜单">启动图形化菜单<a href="#启动图形化菜单" class="hash-link" aria-label="启动图形化菜单的直接链接" title="启动图形化菜单的直接链接" translate="no">​</a></h4>
+<div class="language-bash codeBlockContainer_DwR3 theme-code-block" style="--prism-background-color:hsl(230, 1%, 98%);--prism-color:hsl(230, 8%, 24%)"><div class="codeBlockContent_JaXi"><pre tabindex="0" class="prism-code language-bash codeBlock_F1SS thin-scrollbar" style="background-color:hsl(230, 1%, 98%);color:hsl(230, 8%, 24%)"><code class="codeBlockLines_lgPH"><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token builtin class-name" style="color:hsl(35, 99%, 36%)">cd</span><span class="token plain"> </span><span class="token variable" style="color:hsl(221, 87%, 60%)">${LKP_KSRC}</span><span class="token plain"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain"></span><span class="token function" style="color:hsl(221, 87%, 60%)">make</span><span class="token plain"> menuconfig</span><br></div></code></pre></div></div>
+<p>你会看到一个蓝色的、基于 ncurses 的图形界面（在 SSH 下也能用）。</p>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="导航与操作">导航与操作<a href="#导航与操作" class="hash-link" aria-label="导航与操作的直接链接" title="导航与操作的直接链接" translate="no">​</a></h4>
+<ul>
+<li class="">方向键：移动。</li>
+<li class=""><strong>Enter</strong>：进入子菜单。</li>
+<li class=""><strong>Space (空格)</strong>：切换状态（在 <code>y</code>, <code>m</code>, <code>n</code> 之间循环）。</li>
+<li class=""><strong><code>/</code> (斜杠)</strong>：搜索（比如搜你想找的驱动）。</li>
+<li class=""><strong>Esc Esc</strong>：退出当前菜单。</li>
+</ul>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="符号说明">符号说明<a href="#符号说明" class="hash-link" aria-label="符号说明的直接链接" title="符号说明的直接链接" translate="no">​</a></h4>
+<ul>
+<li class=""><code>[ ]</code> : 不编译。</li>
+<li class=""><code>[*]</code> : 编进内核。</li>
+<li class=""><code>&lt;M&gt;</code> : 编成模块。</li>
+<li class=""><code>---</code> : 被强制选为编译进内核（通常是依赖项）。</li>
+</ul>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="实战演示开启-config-查看支持">实战演示：开启 <code>.config</code> 查看支持<a href="#实战演示开启-config-查看支持" class="hash-link" aria-label="实战演示开启-config-查看支持的直接链接" title="实战演示开启-config-查看支持的直接链接" translate="no">​</a></h4>
+<p>我们来做一个小实验，开启一个很有用的功能：<strong>让内核运行时能查看自己的配置</strong>。</p>
+<ol>
+<li class="">进入菜单。</li>
+<li class="">找到 <strong>General setup</strong> -&gt; <strong>Kernel .config support</strong>。</li>
+<li class="">把它从 <code>&lt;M&gt;</code> (模块) 改成 <code>[*]</code> (内置)。</li>
+<li class="">选中它下面的 <strong>Enable access to .config through /proc/config.gz</strong>，把它选上 <code>[*]</code>。</li>
+<li class="">退出并保存。</li>
+</ol>
+<p>这会启用两个配置宏：</p>
+<ul>
+<li class=""><code>CONFIG_IKCONFIG=y</code></li>
+<li class=""><code>CONFIG_IKCONFIG_PROC=y</code></li>
+</ul>
+<p>以后内核跑起来的时候，你只要 <code>zcat /proc/config.gz</code> 就能看到它当时的编译选项了，这对调试非常有帮助。</p>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="配置进阶脚本化与差异化">配置进阶：脚本化与差异化<a href="#配置进阶脚本化与差异化" class="hash-link" aria-label="配置进阶：脚本化与差异化的直接链接" title="配置进阶：脚本化与差异化的直接链接" translate="no">​</a></h3>
+<p>如果你是搞自动化构建的，<code>menuconfig</code> 那套交互界面可能不适合你。</p>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="脚本修改配置">脚本修改配置<a href="#脚本修改配置" class="hash-link" aria-label="脚本修改配置的直接链接" title="脚本修改配置的直接链接" translate="no">​</a></h4>
+<p>内核源码里自带了一个脚本：<code>scripts/config</code>。</p>
+<p>你可以直接在命令行里修改 <code>.config</code>：</p>
+<div class="language-bash codeBlockContainer_DwR3 theme-code-block" style="--prism-background-color:hsl(230, 1%, 98%);--prism-color:hsl(230, 8%, 24%)"><div class="codeBlockContent_JaXi"><pre tabindex="0" class="prism-code language-bash codeBlock_F1SS thin-scrollbar" style="background-color:hsl(230, 1%, 98%);color:hsl(230, 8%, 24%)"><code class="codeBlockLines_lgPH"><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token comment" style="color:hsl(230, 4%, 64%)"># 禁用某个选项</span><span class="token plain"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain">./scripts/config </span><span class="token parameter variable" style="color:hsl(221, 87%, 60%)">--disable</span><span class="token plain"> IKCONFIG</span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain" style="display:inline-block"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain"></span><span class="token comment" style="color:hsl(230, 4%, 64%)"># 启用某个选项</span><span class="token plain"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain">./scripts/config </span><span class="token parameter variable" style="color:hsl(221, 87%, 60%)">--enable</span><span class="token plain"> IKCONFIG</span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain" style="display:inline-block"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain"></span><span class="token comment" style="color:hsl(230, 4%, 64%)"># 查看某个选项的状态</span><span class="token plain"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain">./scripts/config </span><span class="token parameter variable" style="color:hsl(221, 87%, 60%)">--state</span><span class="token plain"> IKCONFIG</span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain"></span><span class="token comment" style="color:hsl(230, 4%, 64%)"># 输出: y</span><br></div></code></pre></div></div>
+<p>⚠️ <strong>注意</strong>：用脚本改配置就像在黑暗里挥刀——它不管依赖关系。改完记得跑一下编译测试一下。</p>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="查看配置差异">查看配置差异<a href="#查看配置差异" class="hash-link" aria-label="查看配置差异的直接链接" title="查看配置差异的直接链接" translate="no">​</a></h4>
+<p>你改了一堆配置，想看看到底动了哪里？用 <code>diffconfig</code>：</p>
+<div class="language-bash codeBlockContainer_DwR3 theme-code-block" style="--prism-background-color:hsl(230, 1%, 98%);--prism-color:hsl(230, 8%, 24%)"><div class="codeBlockContent_JaXi"><pre tabindex="0" class="prism-code language-bash codeBlock_F1SS thin-scrollbar" style="background-color:hsl(230, 1%, 98%);color:hsl(230, 8%, 24%)"><code class="codeBlockLines_lgPH"><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain">./scripts/diffconfig .config.old .config</span><br></div></code></pre></div></div>
+<p>它会列出哪些选项变了，从什么值变成了什么值，一目了然。</p>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="安全加固kconfig-hardened-check">安全加固：Kconfig Hardened Check<a href="#安全加固kconfig-hardened-check" class="hash-link" aria-label="安全加固：Kconfig Hardened Check的直接链接" title="安全加固：Kconfig Hardened Check的直接链接" translate="no">​</a></h3>
+<p>如果你是搞安全或者做产品的，内核配置的安全性至关重要。</p>
+<p>有一个叫 <code>kconfig-hardened-check</code> 的工具，专门用来检查你的内核配置是否符合 KSPP (Kernel Self Protection Project) 的安全建议。</p>
+<div class="language-bash codeBlockContainer_DwR3 theme-code-block" style="--prism-background-color:hsl(230, 1%, 98%);--prism-color:hsl(230, 8%, 24%)"><div class="codeBlockContent_JaXi"><pre tabindex="0" class="prism-code language-bash codeBlock_F1SS thin-scrollbar" style="background-color:hsl(230, 1%, 98%);color:hsl(230, 8%, 24%)"><code class="codeBlockLines_lgPH"><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token comment" style="color:hsl(230, 4%, 64%)"># 安装</span><span class="token plain"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain"></span><span class="token function" style="color:hsl(221, 87%, 60%)">git</span><span class="token plain"> clone https://github.com/a13xp0p0v/kconfig-hardened-check</span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain"></span><span class="token builtin class-name" style="color:hsl(35, 99%, 36%)">cd</span><span class="token plain"> kconfig-hardened-check</span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain" style="display:inline-block"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain"></span><span class="token comment" style="color:hsl(230, 4%, 64%)"># 检查你的 .config</span><span class="token plain"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain">python3 kconfig-hardened-check.py </span><span class="token parameter variable" style="color:hsl(221, 87%, 60%)">--config</span><span class="token plain"> </span><span class="token variable" style="color:hsl(221, 87%, 60%)">${LKP_KSRC}</span><span class="token plain">/.config</span><br></div></code></pre></div></div>
+<p>它会告诉你哪里开启了弱项，哪里应该加固。比如 <code>CONFIG_BUG_ON_DATA_CORRUPTION</code> 之类的。</p>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="定制-kconfig-菜单加上你自己的名字">定制 Kconfig 菜单：加上你自己的名字<a href="#定制-kconfig-菜单加上你自己的名字" class="hash-link" aria-label="定制 Kconfig 菜单：加上你自己的名字的直接链接" title="定制 Kconfig 菜单：加上你自己的名字的直接链接" translate="no">​</a></h3>
+<p>假设你写了一个牛逼的驱动或者功能，想把它加进内核菜单里。怎么做？</p>
+<p>这其实分为两步：</p>
+<ol>
+<li class=""><strong>Kconfig</strong>: 告诉菜单系统有个新选项。</li>
+<li class=""><strong>Makefile</strong>: 告诉编译系统对应的代码在哪。</li>
+</ol>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="实验加个lkp-测试选项">实验：加个“LKP 测试选项”<a href="#实验加个lkp-测试选项" class="hash-link" aria-label="实验：加个“LKP 测试选项”的直接链接" title="实验：加个“LKP 测试选项”的直接链接" translate="no">​</a></h4>
+<p>我们来玩个真的。在 <strong>General setup</strong> 菜单里加一个我们自己的选项。</p>
+<ol>
+<li class="">
+<p><strong>备份文件</strong>：</p>
+<div class="language-bash codeBlockContainer_DwR3 theme-code-block" style="--prism-background-color:hsl(230, 1%, 98%);--prism-color:hsl(230, 8%, 24%)"><div class="codeBlockContent_JaXi"><pre tabindex="0" class="prism-code language-bash codeBlock_F1SS thin-scrollbar" style="background-color:hsl(230, 1%, 98%);color:hsl(230, 8%, 24%)"><code class="codeBlockLines_lgPH"><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token function" style="color:hsl(221, 87%, 60%)">cp</span><span class="token plain"> init/Kconfig init/Kconfig.orig</span><br></div></code></pre></div></div>
+</li>
+<li class="">
+<p><strong>编辑文件</strong>：
+找到 <code>init/Kconfig</code>。找个空地（比如 <code>LOCALVERSION_AUTO</code> 附近），插进去这段：</p>
+<div class="language-kconfig codeBlockContainer_DwR3 theme-code-block" style="--prism-background-color:hsl(230, 1%, 98%);--prism-color:hsl(230, 8%, 24%)"><div class="codeBlockContent_JaXi"><pre tabindex="0" class="prism-code language-kconfig codeBlock_F1SS thin-scrollbar" style="background-color:hsl(230, 1%, 98%);color:hsl(230, 8%, 24%)"><code class="codeBlockLines_lgPH"><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain">config LKP_OPTION1</span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain">    bool &quot;Test case for LKP 2e book/Ch 2: creating ...&quot;</span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain">    default n</span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain">    help</span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain">      This is a dummy test option added for learning purposes.</span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain">      Selecting this does absolutely nothing except prove</span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain">      that you know how to edit Kconfig files.</span><br></div></code></pre></div></div>
+<ul>
+<li class=""><code>config</code>: 定义了一个宏叫 <code>CONFIG_LKP_OPTION1</code>。</li>
+<li class=""><code>bool</code>: 这是一个布尔选项（开/关）。</li>
+<li class=""><code>help</code>: 下面那几行就是帮助文档。</li>
+</ul>
+</li>
+<li class="">
+<p><strong>验证修改</strong>：</p>
+<div class="language-bash codeBlockContainer_DwR3 theme-code-block" style="--prism-background-color:hsl(230, 1%, 98%);--prism-color:hsl(230, 8%, 24%)"><div class="codeBlockContent_JaXi"><pre tabindex="0" class="prism-code language-bash codeBlock_F1SS thin-scrollbar" style="background-color:hsl(230, 1%, 98%);color:hsl(230, 8%, 24%)"><code class="codeBlockLines_lgPH"><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token function" style="color:hsl(221, 87%, 60%)">make</span><span class="token plain"> menuconfig</span><br></div></code></pre></div></div>
+<p>进入 <strong>General setup</strong>，往下翻，你应该能看到你的新选项了！</p>
+</li>
+<li class="">
+<p><strong>启用它</strong>：
+选中它，按空格把它变成 <code>[*]</code>。保存退出。</p>
+</li>
+<li class="">
+<p><strong>检查结果</strong>：</p>
+<div class="language-bash codeBlockContainer_DwR3 theme-code-block" style="--prism-background-color:hsl(230, 1%, 98%);--prism-color:hsl(230, 8%, 24%)"><div class="codeBlockContent_JaXi"><pre tabindex="0" class="prism-code language-bash codeBlock_F1SS thin-scrollbar" style="background-color:hsl(230, 1%, 98%);color:hsl(230, 8%, 24%)"><code class="codeBlockLines_lgPH"><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token function" style="color:hsl(221, 87%, 60%)">grep</span><span class="token plain"> </span><span class="token string" style="color:hsl(119, 34%, 47%)">&quot;LKP_OPTION1&quot;</span><span class="token plain"> .config</span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain"></span><span class="token comment" style="color:hsl(230, 4%, 64%)"># CONFIG_LKP_OPTION1=y</span><br></div></code></pre></div></div>
+<p>恭喜，你刚刚黑进了 Linux 内核的构建系统。</p>
+</li>
+<li class="">
+<p><strong>关联代码（高级）</strong>：
+如果你真的写了代码（比如 <code>lkp_test.c</code>），你还得修改 Makefile：</p>
+<p>在 <code>init/Makefile</code>（或者你代码所在目录的 Makefile）里加上：</p>
+<div class="language-makefile codeBlockContainer_DwR3 theme-code-block" style="--prism-background-color:hsl(230, 1%, 98%);--prism-color:hsl(230, 8%, 24%)"><div class="codeBlockContent_JaXi"><pre tabindex="0" class="prism-code language-makefile codeBlock_F1SS thin-scrollbar" style="background-color:hsl(230, 1%, 98%);color:hsl(230, 8%, 24%)"><code class="codeBlockLines_lgPH"><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain">obj-</span><span class="token variable" style="color:hsl(221, 87%, 60%)">$</span><span class="token punctuation" style="color:hsl(119, 34%, 47%)">(</span><span class="token plain">CONFIG_LKP_OPTION1</span><span class="token punctuation" style="color:hsl(119, 34%, 47%)">)</span><span class="token plain"> </span><span class="token operator" style="color:hsl(221, 87%, 60%)">+=</span><span class="token plain"> lkp_test.o</span><br></div></code></pre></div></div>
+<p>这样，当你选 <code>Y</code> 时，它会被编译进内核；选 <code>N</code> 时，编译器会无视它。</p>
+</li>
+</ol>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_bBfE" id="本章小结">本章小结<a href="#本章小结" class="hash-link" aria-label="本章小结的直接链接" title="本章小结的直接链接" translate="no">​</a></h2>
+<p>这一章我们干了挺多事。</p>
+<p>首先，我们搞清楚了 <strong>6.x 内核的版本号是怎么来的</strong>——那是 Linus 数手指头数出来的，代表了时间，而不是功能。我们也知道了 <strong>LTS</strong> 是个什么东西，以及为什么你要选它。</p>
+<p>然后，我们上手了：<strong>下载</strong>了源码，<strong>解压</strong>了它，还花了一分钟认了认这 3000 万行代码的布局。</p>
+<p>最重要的是，我们花了大篇幅去理解 <strong>Kconfig</strong> 和 <strong>Kbuild</strong>——这是构建内核的基石。我们学会了怎么获取一个基础配置（<code>defconfig</code> 或 <code>localmodconfig</code>），怎么通过 <strong><code>make menuconfig</code></strong> 调整它，甚至怎么<strong>写自己的 Kconfig 脚本</strong>给内核加个菜单项。</p>
+<p>现在，你的工作目录里应该有一个配置好的内核源码树，里面躺着一个写满了你选择的 <code>.config</code> 文件。</p>
+<p><strong>别急着休息</strong>。下一章，我们要按下那个红色的按钮了。</p>
+<p>我们要运行 <code>make</code>。
+我们要把这 3000 万行代码变成一个二进制文件。
+我们要把它装进系统里，重启，看着屏幕上滚动的 log 变成你自己编译的内核名字。</p>
+<p>那才是真正的“Hello World”。</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_bBfE" id="练习题">练习题<a href="#练习题" class="hash-link" aria-label="练习题的直接链接" title="练习题的直接链接" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="练习-1版本号考古-理解">练习 1：版本号考古 ⭐（理解）<a href="#练习-1版本号考古-理解" class="hash-link" aria-label="练习 1：版本号考古 ⭐（理解）的直接链接" title="练习 1：版本号考古 ⭐（理解）的直接链接" translate="no">​</a></h3>
+<p>找一台你手边能接触到的 Linux 机器（云服务器、虚拟机、WSL 都行），运行 <code>uname -r</code>。</p>
+<ol>
+<li class="">它的版本号是多少？</li>
+<li class="">它是 Stable 版本吗？还是发行版魔改版？怎么判断的？</li>
+<li class="">如果它是 5.x 的，你能猜到它大概是哪年发布的吗？（提示：数手指）</li>
+</ol>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="练习-2配置项狩猎-应用">练习 2：配置项狩猎 ⭐⭐（应用）<a href="#练习-2配置项狩猎-应用" class="hash-link" aria-label="练习 2：配置项狩猎 ⭐⭐（应用）的直接链接" title="练习 2：配置项狩猎 ⭐⭐（应用）的直接链接" translate="no">​</a></h3>
+<p>使用 <code>/</code> 搜索功能在 <code>make menuconfig</code> 中找到以下选项，并记录它们的位置和依赖关系：</p>
+<ol>
+<li class=""><code>CONFIG_KASAN</code> (Kernel Address Sanitizer)</li>
+<li class=""><code>CONFIG_DEBUG_INFO_BTF</code> (eBPF 相关)</li>
+<li class="">找一个和你电脑硬件相关的驱动（比如 WiFi 或者显卡驱动），看看它依赖什么？</li>
+</ol>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="练习-3自定义模块构建-实战">练习 3：自定义模块构建 ⭐⭐⭐（实战）<a href="#练习-3自定义模块构建-实战" class="hash-link" aria-label="练习 3：自定义模块构建 ⭐⭐⭐（实战）的直接链接" title="练习 3：自定义模块构建 ⭐⭐⭐（实战）的直接链接" translate="no">​</a></h3>
+<p>这题有难度，如果你做出来了，说明你真的懂了。</p>
+<ol>
+<li class="">编写一个极其简单的内核模块（只要 <code>init</code> 和 <code>exit</code> 函数打印 Hello World）。</li>
+<li class="">把这个文件放到内核源码树的 <code>drivers/char/</code> 目录下。</li>
+<li class="">修改该目录下的 <code>Makefile</code> 和 <code>Kconfig</code>，使得你可以通过 <code>make menuconfig</code> 选中你的模块。</li>
+<li class="">编译成模块（.ko），并成功加载。</li>
+</ol>
+<blockquote>
+<p><strong>提示</strong>：你需要参考该目录下其他驱动的写法。</p>
+</blockquote>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_bBfE" id="附录常用命令速查">附录：常用命令速查<a href="#附录常用命令速查" class="hash-link" aria-label="附录：常用命令速查的直接链接" title="附录：常用命令速查的直接链接" translate="no">​</a></h2>
+<div class="language-bash codeBlockContainer_DwR3 theme-code-block" style="--prism-background-color:hsl(230, 1%, 98%);--prism-color:hsl(230, 8%, 24%)"><div class="codeBlockContent_JaXi"><pre tabindex="0" class="prism-code language-bash codeBlock_F1SS thin-scrollbar" style="background-color:hsl(230, 1%, 98%);color:hsl(230, 8%, 24%)"><code class="codeBlockLines_lgPH"><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token comment" style="color:hsl(230, 4%, 64%)"># 1. 准备环境（清理旧的配置）</span><span class="token plain"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain"></span><span class="token function" style="color:hsl(221, 87%, 60%)">make</span><span class="token plain"> mrproper</span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain" style="display:inline-block"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain"></span><span class="token comment" style="color:hsl(230, 4%, 64%)"># 2. 获取当前系统的模块列表（用于精简配置）</span><span class="token plain"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain">lsmod </span><span class="token operator" style="color:hsl(221, 87%, 60%)">&gt;</span><span class="token plain"> /tmp/lsmod.now</span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain" style="display:inline-block"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain"></span><span class="token comment" style="color:hsl(230, 4%, 64%)"># 3. 生成本地化配置（仅包含当前硬件需要的驱动）</span><span class="token plain"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain"></span><span class="token function" style="color:hsl(221, 87%, 60%)">make</span><span class="token plain"> </span><span class="token assign-left variable" style="color:hsl(221, 87%, 60%)">LSMOD</span><span class="token operator" style="color:hsl(221, 87%, 60%)">=</span><span class="token plain">/tmp/lsmod.now localmodconfig</span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain" style="display:inline-block"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain"></span><span class="token comment" style="color:hsl(230, 4%, 64%)"># 4. 打开图形化配置界面</span><span class="token plain"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain"></span><span class="token function" style="color:hsl(221, 87%, 60%)">make</span><span class="token plain"> menuconfig</span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain" style="display:inline-block"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain"></span><span class="token comment" style="color:hsl(230, 4%, 64%)"># 5. 查看配置差异（改完配置后）</span><span class="token plain"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain">./scripts/diffconfig .config.old .config</span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain" style="display:inline-block"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain"></span><span class="token comment" style="color:hsl(230, 4%, 64%)"># 6. 脚本化修改配置（例如开启 IKCONFIG）</span><span class="token plain"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain">./scripts/config </span><span class="token parameter variable" style="color:hsl(221, 87%, 60%)">--enable</span><span class="token plain"> IKCONFIG</span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain">./scripts/config </span><span class="token parameter variable" style="color:hsl(221, 87%, 60%)">--enable</span><span class="token plain"> IKCONFIG_PROC</span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain" style="display:inline-block"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain"></span><span class="token comment" style="color:hsl(230, 4%, 64%)"># 7. 检查内核配置安全性（需安装工具）</span><span class="token plain"></span><br></div><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain">kconfig-hardened-check </span><span class="token parameter variable" style="color:hsl(221, 87%, 60%)">--config</span><span class="token plain"> .config</span><br></div></code></pre></div></div>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_bBfE" id="练习题-1">练习题<a href="#练习题-1" class="hash-link" aria-label="练习题的直接链接" title="练习题的直接链接" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="练习-1understanding">练习 1：understanding<a href="#练习-1understanding" class="hash-link" aria-label="练习 1：understanding的直接链接" title="练习 1：understanding的直接链接" translate="no">​</a></h3>
+<p><strong>题目</strong>：根据 Linux 内核版本命名规范 &#x27;w.x[.y][-z]&#x27;，内核版本号 &#x27;6.1.25-custom&#x27; 中的各个数字和字符分别代表什么含义？请结合“手脚模型”解释为什么主版本号从 5 变成了 6。</p>
+<details class="details_O3kF alert alert--info details_Dlld" data-collapsed="true"><summary>答案与解析</summary><div><div class="collapsibleContent_GZgo">
+<p><strong>答案</strong>：w=6 (主版本号), x=1 (次版本号), y=25 (补丁级别/修订版本), -z=-custom (额外版本/本地版本)。</p>
+<p>根据“Fingers-and-toes”模型，当次版本号（x）大约累积到 20 个（即从 0 到 19，手指加脚趾的总数）时，主版本号（w）就会增加。因此，内核从 5.19 演进到了 6.0。</p>
+<p><strong>解析</strong>：本题考察对内核版本号结构和演进规则的理解。</p>
+<ol>
+<li class=""><strong>版本号结构</strong>：遵循 major.minor.patchlevel-extraversion 格式。</li>
+<li class=""><strong>手脚模型</strong>：这是一种非严格时间基础的版本演进策略。Linus 形象地比喻为用完手脚（20个）计数后就进一位。历史上，3.x、4.x、5.x 系列都在第 20 个次版本结束时结束了该主版本周期（例如 5.19 之后是 6.0），这并不意味着巨大的架构变更，而是有机的演进。</li>
+</ol>
+</div></div></details>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="练习-2application">练习 2：application<a href="#练习-2application" class="hash-link" aria-label="练习 2：application的直接链接" title="练习 2：application的直接链接" translate="no">​</a></h3>
+<p><strong>题目</strong>：在内核构建系统的 Kconfig 语言中，<code>depends on</code> 和 <code>select</code> 是两种常见的依赖关系机制。请简述这两种机制的区别，并解释为什么在编写配置选项时通常建议优先使用 <code>depends on</code> 而不是 <code>select</code>？</p>
+<details class="details_O3kF alert alert--info details_Dlld" data-collapsed="true"><summary>答案与解析</summary><div><div class="collapsibleContent_GZgo">
+<p><strong>答案</strong>：<strong>区别</strong>：</p>
+<ul>
+<li class=""><code>depends on</code> (正向依赖)：当前选项<strong>依赖于</strong>指定选项。如果依赖项未满足（为 n），当前选项将不可见或不可选。</li>
+<li class=""><code>select</code> (反向依赖/自动选择)：当前选项被选中时，<strong>自动强制选中</strong>另一个选项（无论用户是否意识到）。</li>
+</ul>
+<p><strong>建议原因</strong>：
+<code>select</code> 会强制开启隐含依赖，可能导致用户无意中开启了不需要或不兼容的代码，增加内核大小或引发冲突。<code>depends on</code> 则是向用户展示依赖关系，由用户主动解决，更符合模块化设计原则。</p>
+<p><strong>解析</strong>：本题考察在实际编写内核配置（BSP 或驱动开发）时的最佳实践。</p>
+<ul>
+<li class=""><code>depends on</code> 是一种“可见性限制”，例如 <code>depends on NET</code> 表示只有在网络子系统开启时，此选项才会在菜单中显示。</li>
+<li class=""><code>select</code> 是一种“强制的传递依赖”，例如选择了 USB 存储驱动可能会自动 <code>select</code> SCSI 支持。</li>
+<li class="">风险在于，如果被 <code>select</code> 的选项有它自己的依赖冲突，用户可能会面临复杂的配置错误。因此，除非必须开启某些底层基础设施（如总线或核心库），否则应尽量避免使用 <code>select</code>。</li>
+</ul>
+</div></div></details>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="练习-3thinking">练习 3：thinking<a href="#练习-3thinking" class="hash-link" aria-label="练习 3：thinking的直接链接" title="练习 3：thinking的直接链接" translate="no">​</a></h3>
+<p><strong>题目</strong>：假设你是一家嵌入式公司的系统工程师，正在规划一款基于新型 ARM SoC 的工业控制设备，预计产品生命周期为 10 年。你需要选择合适的 Linux 内核源树作为基础。</p>
+<p>选项 A：使用 SoC 厂商提供的基于旧版 LTS 的厂商内核（含 BSP 驱动）。
+选项 B：使用最新的主线 LTS 内核（如 6.1 LTS），并通过 Yocto 等工具集成 BSP 层。</p>
+<p>请结合内核维护周期、技术债务和安全性，分析选择选项 B 的利弊。</p>
+<details class="details_O3kF alert alert--info details_Dlld" data-collapsed="true"><summary>答案与解析</summary><div><div class="collapsibleContent_GZgo">
+<p><strong>答案</strong>：<strong>结论</strong>：应选择<strong>选项 B</strong>（最新 LTS 内核 + Yocto/社区集成）。</p>
+<p><strong>利（理由）</strong>：</p>
+<ol>
+<li class=""><strong>长期支持与可维护性</strong>：厂商内核通常基于特定旧版本并分叉，长期维护会面临“技术债务”，难以跟上上游安全补丁。而主线 LTS（如 6.1）有社区支持，且 Yocto 等项目能提供持续的元数据更新。</li>
+<li class=""><strong>安全性</strong>：工业设备需长期运行，旧内核容易积累未修复的 CVE 漏洞。主线 LTS 能更快获得安全修复。</li>
+<li class=""><strong>驱动更新</strong>：利用设备树机制，可以更容易地将厂商的硬件支持移植到新内核，而不依赖于厂商修改的旧内核源码。</li>
+</ol>
+<p><strong>弊（挑战）</strong>：</p>
+<ol>
+<li class=""><strong>初期开发成本</strong>：如果 SoC 厂商未将驱动提交到主线，你可能需要自己移植驱动或编写设备树。</li>
+<li class=""><strong>兼容性风险</strong>：新内核的 API 可能发生变化，需要验证所有 BSP 组件的兼容性。</li>
+</ol>
+<p><strong>解析</strong>：本题考察对内核生态、供应链安全和工程架构的综合思考能力。</p>
+<ul>
+<li class=""><strong>SoC 厂商内核</strong>：虽然“开箱即用”，但往往是一次性的，一旦厂商停止支持该旧内核，产品将面临巨大的安全风险和升级困难。</li>
+<li class=""><strong>主线 LTS 策略</strong>：符合“上游优先”原则。虽然门槛较高，但利用 <code>Device Tree</code>（硬件描述与代码解耦）和现代构建系统（Yocto/Buildroot），可以实现长期、可持续的维护，这对于 10 年寿命周期的工业设备至关重要。</li>
+<li class=""><strong>Super LTS (SLTS)</strong>：题目中提到的 CIP SLTS 也是解决此问题的方案之一，通常也是基于主线 LTS 的超长维护分支，选项 B 更符合这一思路。</li>
+</ul>
+</div></div></details>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_bBfE" id="要点提炼">要点提炼<a href="#要点提炼" class="hash-link" aria-label="要点提炼的直接链接" title="要点提炼的直接链接" translate="no">​</a></h2>
+<p>理解 Linux 内核严格的开发节奏和版本规则是构建前的首要必修课。现代内核开发遵循固定的“合并窗口”与“修复窗口”周期，新功能仅在合并窗口开启的两周内被接受，其余时间仅修补 Bug。版本号（如 6.1）不再沿用旧时的奇偶数稳定/开发区分法，而是基于时间的“有机演化”；对于构建者而言，选择 <strong>LTS（长期支持）</strong> 版本（如本书使用的 6.1）通常是平衡稳定性与维护周期的最佳实践，这能确保你在数年的使用中获得持续的安全补丁支持。</p>
+<p>内核构建的基石在于掌握 <strong>Kconfig/Kbuild</strong> 配置系统，它决定了哪些代码被编译以及如何编译。内核之所以能适配从手机到超级计算机的各种硬件，全靠这一步进行定制。核心配置最终汇总为根目录下的 <code>.config</code> 文件，其中的 <code>y</code>（编译进内核）、<code>m</code>（编译为模块）和 <code>n</code>（不编译）状态决定了内核的功能集与体积。盲目手动编写该文件不可行，最佳实践是利用当前系统的配置（如 <code>/boot/config-xxx</code>）或默认配置作为起点。</p>
+<p>获取源码并正确解压是动手实战的第一步，推荐直接从 Kernel.org 下载确定版本（如 <code>linux-6.1.25.tar.xz</code>）的压缩包，以避免完整 Git 仓库克隆带来的巨大时间与空间开销。解压后，源码树呈现高度结构化的特征，核心代码如调度器（<code>kernel/</code>）、内存管理（<code>mm/</code>）、驱动（<code>drivers/</code>）和架构相关代码（<code>arch/</code>）各司其职。理解这一目录结构就像查看乐高零件清单，是后续进行针对性修改或驱动开发的基础。</p>
+<p>对于学习者或开发者，使用 <code>make menuconfig</code> 是调整配置最直观且有效的方法。这个基于 ncurses 的图形化界面允许用户通过搜索、导航来微调内核选项，例如开启 <code>Kernel .config support</code> 以便在系统运行时通过 <code>/proc/config.gz</code> 查看当前配置。若要进行自动化构建，则需掌握 <code>scripts/config</code> 等脚本工具来修改 <code>.config</code>，并使用 <code>diffconfig</code> 来检查配置变更，确保只启用了必要的功能以减小内核体积。</p>
+<p>真正的内核定制能力体现在能够“黑进”构建系统，即通过修改 <code>Kconfig</code> 和 <code>Makefile</code> 将自定义代码或选项集成进内核菜单。这一过程不仅涉及编写配置语法（定义 <code>config</code> 选项、依赖关系和帮助文档），还需要在构建脚本中正确关联对象文件（如 <code>obj-$(CONFIG_FOO) += bar.o</code>）。这种深度的干预是将内核开发从单纯的“编译”提升到“系统级编程”的关键，也是完成后续编译与安装模块的必要前提。</p></div><footer class="theme-doc-footer docusaurus-mt-lg"><div class="row margin-top--sm theme-doc-footer-edit-meta-row"><div class="col noPrint_MpOp"><a href="https://github.com/Awesome-Embedded-Learning-Studio/PenguinLab/tree/main/../document/notes/linux_kernel_programming/ch02.md" target="_blank" rel="noopener noreferrer" class="theme-edit-this-page"><svg fill="currentColor" height="20" width="20" viewBox="0 0 40 40" class="iconEdit_Xu8_" aria-hidden="true"><g><path d="m34.5 11.7l-3 3.1-6.3-6.3 3.1-3q0.5-0.5 1.2-0.5t1.1 0.5l3.9 3.9q0.5 0.4 0.5 1.1t-0.5 1.2z m-29.5 17.1l18.4-18.5 6.3 6.3-18.4 18.4h-6.3v-6.2z"></path></g></svg>编辑此页</a></div><div class="col lastUpdated_nSfX"><span class="theme-last-updated">最后<!-- -->由 <b>Charliechen114514</b> <!-- -->于 <b><time datetime="2026-05-06T00:06:46.000Z" itemprop="dateModified">2026年5月6日</time></b> <!-- -->更新</span></div></div></footer></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="文件选项卡"><a class="pagination-nav__link pagination-nav__link--prev" href="/PenguinLab/notes/linux_kernel_programming/ch01"><div class="pagination-nav__sublabel">上一页</div><div class="pagination-nav__label">第 1 章  内核编程新视界 —— 从零开始构建你的内核工作空间</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/PenguinLab/notes/linux_kernel_programming/ch03"><div class="pagination-nav__sublabel">下一页</div><div class="pagination-nav__label">第 3 章  从源码构建 6.x Linux 内核（第二部分）</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_VJ1c thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#从源码构建-linux-内核一场漫长的修行" class="table-of-contents__link toc-highlight">从源码构建 Linux 内核：一场漫长的修行</a><ul><li><a href="#️-前置工作你真的准备好了吗" class="table-of-contents__link toc-highlight">⚠️ 前置工作：你真的准备好了吗？</a></li></ul></li><li><a href="#极简系统论linux-是怎么跑起来的" class="table-of-contents__link toc-highlight">极简系统论：Linux 是怎么跑起来的</a></li><li><a href="#preliminaries-别急着敲命令先搞懂规则" class="table-of-contents__link toc-highlight">Preliminaries: 别急着敲命令，先搞懂规则</a><ul><li><a href="#去中心化的办公室" class="table-of-contents__link toc-highlight">去中心化的“办公室”</a></li></ul></li><li><a href="#理解-linux-内核版本命名规范" class="table-of-contents__link toc-highlight">理解 Linux 内核版本命名规范</a><ul><li><a href="#历史的回响偶数奇数传说" class="table-of-contents__link toc-highlight">历史的回响：偶数奇数传说</a></li><li><a href="#手脚模型-fingers-and-toes-releases" class="table-of-contents__link toc-highlight">“手脚模型” (Fingers-and-toes releases)</a></li></ul></li><li><a href="#内核开发工作流从合并窗口到发布版" class="table-of-contents__link toc-highlight">内核开发工作流：从合并窗口到发布版</a><ul><li><a href="#查看-git-历史记录" class="table-of-contents__link toc-highlight">查看 Git 历史记录</a></li><li><a href="#时间轴上的两个关键阶段" class="table-of-contents__link toc-highlight">时间轴上的两个关键阶段</a><ul><li><a href="#1-merge-window-合并窗口--只有-2-周" class="table-of-contents__link toc-highlight">1. Merge Window (合并窗口) —— 只有 2 周</a></li><li><a href="#2-bugfix-window-修复窗口--6-到-10-周" class="table-of-contents__link toc-highlight">2. Bugfix Window (修复窗口) —— 6 到 10 周</a></li></ul></li><li><a href="#赶不上合并窗口怎么办" class="table-of-contents__link toc-highlight">赶不上合并窗口怎么办？</a></li></ul></li><li><a href="#探索内核源码树的类型" class="table-of-contents__link toc-highlight">探索内核源码树的类型</a><ul><li><a href="#1-mainline--stable-主线--稳定版" class="table-of-contents__link toc-highlight">1. Mainline / Stable (主线 / 稳定版)</a></li><li><a href="#2-long-term-support-lts" class="table-of-contents__link toc-highlight">2. Long Term Support (LTS)</a></li><li><a href="#3--next-trees-前沿树" class="table-of-contents__link toc-highlight">3. -next Trees (前沿树)</a></li><li><a href="#4-distribution-kernels-发行版内核" class="table-of-contents__link toc-highlight">4. Distribution Kernels (发行版内核)</a></li><li><a href="#5-soc-vendor-kernels-芯片厂商内核" class="table-of-contents__link toc-highlight">5. SoC Vendor Kernels (芯片厂商内核)</a></li><li><a href="#6-super-lts-slts" class="table-of-contents__link toc-highlight">6. Super LTS (SLTS)</a></li><li><a href="#️-重要更新lts-缩水了" class="table-of-contents__link toc-highlight">⚠️ 重要更新：LTS 缩水了</a></li></ul></li><li><a href="#到底该跑哪个内核" class="table-of-contents__link toc-highlight">到底该跑哪个内核？</a></li><li><a href="#开始构建前-3-步实战" class="table-of-contents__link toc-highlight">开始构建：前 3 步实战</a><ul><li><a href="#step-1--获取-linux-内核源码" class="table-of-contents__link toc-highlight">Step 1 – 获取 Linux 内核源码</a><ul><li><a href="#方法-a直接下载" class="table-of-contents__link toc-highlight">方法 A：直接下载</a></li><li><a href="#方法-bclone-git-仓库可选" class="table-of-contents__link toc-highlight">方法 B：Clone Git 仓库（可选）</a></li></ul></li><li><a href="#step-2--解压内核源码树" class="table-of-contents__link toc-highlight">Step 2 – 解压内核源码树</a></li><li><a href="#-额外赠送源码树结构速览" class="table-of-contents__link toc-highlight">📖 额外赠送：源码树结构速览</a></li><li><a href="#step-3--配置-linux-内核" class="table-of-contents__link toc-highlight">Step 3 – 配置 Linux 内核</a><ul><li><a href="#kconfig--kbuild-极简入门" class="table-of-contents__link toc-highlight">Kconfig / Kbuild 极简入门</a></li><li><a href="#获取初始配置三条路" class="table-of-contents__link toc-highlight">获取初始配置：三条路</a></li></ul></li><li><a href="#step-4其实是-step-3-的延续-调整配置" class="table-of-contents__link toc-highlight">Step 4（其实是 Step 3 的延续）—— 调整配置</a><ul><li><a href="#启动图形化菜单" class="table-of-contents__link toc-highlight">启动图形化菜单</a></li><li><a href="#导航与操作" class="table-of-contents__link toc-highlight">导航与操作</a></li><li><a href="#符号说明" class="table-of-contents__link toc-highlight">符号说明</a></li><li><a href="#实战演示开启-config-查看支持" class="table-of-contents__link toc-highlight">实战演示：开启 <code>.config</code> 查看支持</a></li></ul></li><li><a href="#配置进阶脚本化与差异化" class="table-of-contents__link toc-highlight">配置进阶：脚本化与差异化</a><ul><li><a href="#脚本修改配置" class="table-of-contents__link toc-highlight">脚本修改配置</a></li><li><a href="#查看配置差异" class="table-of-contents__link toc-highlight">查看配置差异</a></li></ul></li><li><a href="#安全加固kconfig-hardened-check" class="table-of-contents__link toc-highlight">安全加固：Kconfig Hardened Check</a></li><li><a href="#定制-kconfig-菜单加上你自己的名字" class="table-of-contents__link toc-highlight">定制 Kconfig 菜单：加上你自己的名字</a><ul><li><a href="#实验加个lkp-测试选项" class="table-of-contents__link toc-highlight">实验：加个“LKP 测试选项”</a></li></ul></li></ul></li><li><a href="#本章小结" class="table-of-contents__link toc-highlight">本章小结</a></li><li><a href="#练习题" class="table-of-contents__link toc-highlight">练习题</a><ul><li><a href="#练习-1版本号考古-理解" class="table-of-contents__link toc-highlight">练习 1：版本号考古 ⭐（理解）</a></li><li><a href="#练习-2配置项狩猎-应用" class="table-of-contents__link toc-highlight">练习 2：配置项狩猎 ⭐⭐（应用）</a></li><li><a href="#练习-3自定义模块构建-实战" class="table-of-contents__link toc-highlight">练习 3：自定义模块构建 ⭐⭐⭐（实战）</a></li></ul></li><li><a href="#附录常用命令速查" class="table-of-contents__link toc-highlight">附录：常用命令速查</a></li><li><a href="#练习题-1" class="table-of-contents__link toc-highlight">练习题</a><ul><li><a href="#练习-1understanding" class="table-of-contents__link toc-highlight">练习 1：understanding</a></li><li><a href="#练习-2application" class="table-of-contents__link toc-highlight">练习 2：application</a></li><li><a href="#练习-3thinking" class="table-of-contents__link toc-highlight">练习 3：thinking</a></li></ul></li><li><a href="#要点提炼" class="table-of-contents__link toc-highlight">要点提炼</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="footer__bottom text--center"><div class="footer__copyright">Copyright © 2026 Charliechen</div></div></div></footer></div>
+</body>
+</html>

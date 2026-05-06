@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="zh-CN" dir="ltr" class="docs-wrapper plugin-docs plugin-id-default docs-version-current docs-doc-page docs-doc-id-notes/linux_kernel_programming/ch01" data-has-hydrated="false">
+<head>
+<meta charset="UTF-8">
+<meta name="generator" content="Docusaurus v3.10.1">
+<title data-rh="true">第 1 章  内核编程新视界 —— 从零开始构建你的内核工作空间 | PenguinLab</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://awesome-embedded-learning-studio.github.io/PenguinLab/notes/linux_kernel_programming/ch01"><meta data-rh="true" property="og:locale" content="zh_CN"><meta data-rh="true" name="docusaurus_locale" content="zh-CN"><meta data-rh="true" name="docsearch:language" content="zh-CN"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="第 1 章  内核编程新视界 —— 从零开始构建你的内核工作空间 | PenguinLab"><meta data-rh="true" name="description" content="有一类问题，表面上看是「工程问题」，实际上是「权限与认知」的问题。"><meta data-rh="true" property="og:description" content="有一类问题，表面上看是「工程问题」，实际上是「权限与认知」的问题。"><link data-rh="true" rel="icon" href="/PenguinLab/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://awesome-embedded-learning-studio.github.io/PenguinLab/notes/linux_kernel_programming/ch01"><link data-rh="true" rel="alternate" href="https://awesome-embedded-learning-studio.github.io/PenguinLab/notes/linux_kernel_programming/ch01" hreflang="zh-CN"><link data-rh="true" rel="alternate" href="https://awesome-embedded-learning-studio.github.io/PenguinLab/notes/linux_kernel_programming/ch01" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Linux 内核编程","item":"https://awesome-embedded-learning-studio.github.io/PenguinLab/category/linux-内核编程"},{"@type":"ListItem","position":2,"name":"第 1 章  内核编程新视界 —— 从零开始构建你的内核工作空间","item":"https://awesome-embedded-learning-studio.github.io/PenguinLab/notes/linux_kernel_programming/ch01"}]}</script><link rel="stylesheet" href="/PenguinLab/assets/css/styles.60aea433.css">
+<script src="/PenguinLab/assets/js/runtime~main.23277d5b.js" defer="defer"></script>
+<script src="/PenguinLab/assets/js/main.0e81584b.js" defer="defer"></script>
+</head>
+<body>
+<svg style="display: none;"><defs>
+<symbol id="theme-svg-external-link" viewBox="0 0 24 24"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"/></symbol>
+</defs></svg>
+<script>!function(){var t=function(){try{return new URLSearchParams(window.location.search).get("docusaurus-theme")}catch(t){}}()||function(){try{return window.localStorage.getItem("theme")}catch(t){}}();document.documentElement.setAttribute("data-theme",t||(window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")),document.documentElement.setAttribute("data-theme-choice",t||"system")}(),function(){try{const c=new URLSearchParams(window.location.search).entries();for(var[t,e]of c)if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script><div id="__docusaurus"><link rel="preload" as="image" href="/PenguinLab/img/logo.png"><div role="region" aria-label="跳到主要内容"><a class="skipToContent_gWEo" href="#__docusaurus_skipToContent_fallback">跳到主要内容</a></div><nav aria-label="主导航" class="theme-layout-navbar navbar navbar--fixed-top"><div class="navbar__inner"><div class="theme-layout-navbar-left navbar__items"><button aria-label="切换导航栏" aria-expanded="false" class="navbar__toggle clean-btn" type="button"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg></button><a class="navbar__brand" href="/PenguinLab/"><div class="navbar__logo"><img src="/PenguinLab/img/logo.png" alt="PenguinLab Logo" class="themedComponent_og9b themedComponent--light_JnSk"><img src="/PenguinLab/img/logo.png" alt="PenguinLab Logo" class="themedComponent_og9b themedComponent--dark_nacK"></div><b class="navbar__title text--truncate">PenguinLab</b></a><a class="navbar__item navbar__link" href="/PenguinLab/">教程</a><a class="navbar__item navbar__link" href="/PenguinLab/booklist">参考</a><a aria-current="page" class="navbar__item navbar__link navbar__link--active" href="/PenguinLab/category/linux-内核编程">笔记</a><a class="navbar__item navbar__link" href="/PenguinLab/blog">内核新闻</a></div><div class="theme-layout-navbar-right navbar__items navbar__items--right"><a href="https://github.com/Awesome-Embedded-Learning-Studio/PenguinLab" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_FARA"><use href="#theme-svg-external-link"></use></svg></a><div class="toggle_OQuL colorModeToggle__y1s"><button class="clean-btn toggleButton_xgE0 toggleButtonDisabled_Je_F" type="button" disabled="" title="system mode" aria-label="切换浅色/暗黑模式（当前为system mode）"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_ceR6 lightToggleIcon_opXY"><path fill="currentColor" d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_ceR6 darkToggleIcon_A2Wk"><path fill="currentColor" d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_ceR6 systemToggleIcon_NwoM"><path fill="currentColor" d="m12 21c4.971 0 9-4.029 9-9s-4.029-9-9-9-9 4.029-9 9 4.029 9 9 9zm4.95-13.95c1.313 1.313 2.05 3.093 2.05 4.95s-0.738 3.637-2.05 4.95c-1.313 1.313-3.093 2.05-4.95 2.05v-14c1.857 0 3.637 0.737 4.95 2.05z"></path></svg></button></div><div class="navbarSearchContainer_hDB6"></div></div></div><div role="presentation" class="navbar-sidebar__backdrop"></div></nav><div id="__docusaurus_skipToContent_fallback" class="theme-layout-main main-wrapper mainWrapper_hv_0"><div class="docsWrapper_VlxT"><button aria-label="回到顶部" class="clean-btn theme-back-to-top-button backToTopButton_v2Wu" type="button"></button><div class="docRoot_mHc3"><aside class="theme-doc-sidebar-container docSidebarContainer_C6m2"><div class="sidebarViewport_flJk"><div class="sidebar_sAne"><nav aria-label="文档侧边栏" class="menu thin-scrollbar menu_NeO_"><ul class="theme-doc-sidebar-menu menu__list"><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink__19u menu__link menu__link--sublist menu__link--active" href="/PenguinLab/category/linux-内核编程"><span title="Linux 内核编程" class="categoryLinkLabel_lzOE">Linux 内核编程</span></a><button aria-label="折叠侧边栏分类 &#x27;Linux 内核编程&#x27;" aria-expanded="true" type="button" class="clean-btn menu__caret"></button></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link menu__link--active" aria-current="page" tabindex="0" href="/PenguinLab/notes/linux_kernel_programming/ch01"><span title="第 1 章  内核编程新视界 —— 从零开始构建你的内核工作空间" class="linkLabel_P6RJ">第 1 章  内核编程新视界 —— 从零开始构建你的内核工作空间</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_programming/ch02"><span title="Chapter 2: Building the 6.x Linux Kernel from Source – Part 1" class="linkLabel_P6RJ">Chapter 2: Building the 6.x Linux Kernel from Source – Part 1</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_programming/ch03"><span title="第 3 章  从源码构建 6.x Linux 内核（第二部分）" class="linkLabel_P6RJ">第 3 章  从源码构建 6.x Linux 内核（第二部分）</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_programming/ch04"><span title="ch04" class="linkLabel_P6RJ">ch04</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_programming/ch05"><span title="第 5 章 编写你的第一个内核模块——第二部分" class="linkLabel_P6RJ">第 5 章 编写你的第一个内核模块——第二部分</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_programming/ch06"><span title="6. 内核机制 essentials —— 进程与线程" class="linkLabel_P6RJ">6. 内核机制 essentials —— 进程与线程</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_programming/ch07"><span title="ch07" class="linkLabel_P6RJ">ch07</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_programming/ch08"><span title="第 8 章 内核内存分配器：伙伴系统与 Slab" class="linkLabel_P6RJ">第 8 章 内核内存分配器：伙伴系统与 Slab</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_programming/ch09"><span title="第 9 章  内核内存分配进阶：选择、回收与生存" class="linkLabel_P6RJ">第 9 章  内核内存分配进阶：选择、回收与生存</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_programming/ch10"><span title="第 10 章  CPU 调度器（第 1 部分）" class="linkLabel_P6RJ">第 10 章  CPU 调度器（第 1 部分）</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_programming/ch11"><span title="第 11 章  CPU 调度器（第二部分）" class="linkLabel_P6RJ">第 11 章  CPU 调度器（第二部分）</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_programming/ch12"><span title="第 12 章  并发的代价 —— 内核同步机制 Part 1" class="linkLabel_P6RJ">第 12 章  并发的代价 —— 内核同步机制 Part 1</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_programming/ch13"><span title="第 13 章  内核同步（下半部分）" class="linkLabel_P6RJ">第 13 章  内核同步（下半部分）</span></a></li></ul></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink__19u menu__link menu__link--sublist" href="/PenguinLab/category/linux-设备驱动"><span title="Linux 设备驱动" class="categoryLinkLabel_lzOE">Linux 设备驱动</span></a><button aria-label="展开侧边栏分类 &#x27;Linux 设备驱动&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink__19u menu__link menu__link--sublist" href="/PenguinLab/category/linux-内核调试"><span title="Linux 内核调试" class="categoryLinkLabel_lzOE">Linux 内核调试</span></a><button aria-label="展开侧边栏分类 &#x27;Linux 内核调试&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink__19u menu__link menu__link--sublist" href="/PenguinLab/category/linux-内核网络"><span title="Linux 内核网络" class="categoryLinkLabel_lzOE">Linux 内核网络</span></a><button aria-label="展开侧边栏分类 &#x27;Linux 内核网络&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-1 menu__list-item"><a class="menu__link" href="/PenguinLab/notes"><span title="Linux 内核学习笔记" class="linkLabel_P6RJ">Linux 内核学习笔记</span></a></li></ul></nav></div></div></aside><main class="docMainContainer_K2S2"><div class="container padding-top--md padding-bottom--lg"><div class="row"><div class="col docItemCol_ET6j"><div class="docItemContainer_FaDn"><article><nav class="theme-doc-breadcrumbs breadcrumbsContainer_YIgT" aria-label="页面路径"><ul class="breadcrumbs"><li class="breadcrumbs__item"><a aria-label="主页面" class="breadcrumbs__link" href="/PenguinLab/"><svg viewBox="0 0 24 24" class="breadcrumbHomeIcon_rlCt"><path d="M10 19v-5h4v5c0 .55.45 1 1 1h3c.55 0 1-.45 1-1v-7h1.7c.46 0 .68-.57.33-.87L12.67 3.6c-.38-.34-.96-.34-1.34 0l-8.36 7.53c-.34.3-.13.87.33.87H5v7c0 .55.45 1 1 1h3c.55 0 1-.45 1-1z" fill="currentColor"></path></svg></a></li><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/PenguinLab/category/linux-内核编程"><span>Linux 内核编程</span></a></li><li class="breadcrumbs__item breadcrumbs__item--active"><span class="breadcrumbs__link">第 1 章  内核编程新视界 —— 从零开始构建你的内核工作空间</span></li></ul></nav><div class="tocCollapsible_RqXj theme-doc-toc-mobile tocMobile_tOBB"><button type="button" class="clean-btn tocCollapsibleButton_ppfh">本页总览</button></div><div class="theme-doc-markdown markdown"><header><h1>第 1 章  内核编程新视界 —— 从零开始构建你的内核工作空间</h1></header>
+<p>有一类问题，表面上看是「工程问题」，实际上是「权限与认知」的问题。</p>
+<p>想象一个场景：你写了一段很简单的代码，试图去读写某个特定的内存地址，或者想在按键按下时第一时间捕获那个信号。在用户态（User Space）里，你做不到——操作系统会毫不留情地拒绝你，告诉你 <code>Segmentation Fault</code> 或者 <code>Operation not permitted</code>。操作系统就像一个顽固的守门人，它把你挡在围墙之外，告诉你：「里面很危险，你自己玩沙子去。**</p>
+<p>但如果你不仅仅想「玩沙子」，而是想设计这个房子的地基、水管和电路呢？这时候，你就不能再做一个被管理的「用户」，你必须成为操作系统本身。这就是 Linux 内核编程的本质——从规则的遵守者，变成规则的制定者。</p>
+<p>本章的任务，就是推倒那堵墙。</p>
+<p>我们会建立一个属于你的内核实验室，从零开始配置环境，并在接下来的旅程中，一步步深入到这个地球上最复杂的开源项目之一的内部。这不仅仅是写代码，这是在理解一台机器的灵魂。</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_bBfE" id="11--为什么要学内核编程">1.1  为什么要学内核编程？<a href="#11--为什么要学内核编程" class="hash-link" aria-label="1.1  为什么要学内核编程？的直接链接" title="1.1  为什么要学内核编程？的直接链接" translate="no">​</a></h2>
+<p>让我们先退一步，问一个最基本的问题：为什么我们需要直接写内核代码？</p>
+<p>老实说，大部分日常软件开发根本不需要触碰内核。如果你在写 Web 应用、移动 App 或者桌面工具，用户态的丰富库足够你用上一辈子。但是，当你开始面对**「硬件」<strong>、</strong>「极致性能」<strong>或者</strong>「底层机制」**时，用户态的边界就成了你的天花板。</p>
+<p>这不仅仅是关于效率，更是关于<strong>能力</strong>。</p>
+<p>传统的开发模式是「请求-响应」模式：你的程序请求操作系统帮你做一件事，操作系统 schedule 一下，帮你做完，再给你返回结果。这种模式很安全，但对于某些任务来说，太慢了，或者根本做不到。我们需要一种更直接的方式——把我们的代码直接塞进内核里，让它在内核态运行。</p>
+<p>这就是本书的主角：<strong>LKM（Loadable Kernel Module，可加载内核模块）</strong>。</p>
+<p>你可以把 LKM 理解为插在内核身上的「即插即用扩展卡」——就像给游戏机插上一个带有作弊功能的卡带。</p>
+<p>但「扩展卡」这个比喻有一个地方是错的：真正的扩展卡是物理插上去的，而 LKM 是一段<strong>二进制代码</strong>，它在运行时动态地加载进内核的地址空间，拥有和内核完全一样的权限（Ring 0）。这不仅仅是个插件，这是成了内核的一部分。如果这行代码写错了，导致的不是一个程序崩溃，而是整个系统死机。</p>
+<p>在这个层面上，我们不再依赖所谓的「系统调用」，我们就是系统调用。</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_bBfE" id="12--这本书带你走哪条路">1.2  这本书带你走哪条路？<a href="#12--这本书带你走哪条路" class="hash-link" aria-label="1.2  这本书带你走哪条路？的直接链接" title="1.2  这本书带你走哪条路？的直接链接" translate="no">​</a></h2>
+<p>市面上的书很多，但这本有点不一样。我们的目标不是让你背诵 API，而是让你建立起**「内核直觉」**。</p>
+<p>为了做到这一点，我们将这段漫长的旅程分成了三个阶段，每一个阶段都在为下一个阶段打地基：</p>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="第一阶段从零构建环境part-1">第一阶段：从零构建环境（Part 1）<a href="#第一阶段从零构建环境part-1" class="hash-link" aria-label="第一阶段：从零构建环境（Part 1）的直接链接" title="第一阶段：从零构建环境（Part 1）的直接链接" translate="no">​</a></h3>
+<p>这是你现在的立足点。在这一部分，我们要解决最现实的问题：<strong>「工欲善其事，必先利其器」</strong>。
+我们将从搭建一个安全的内核开发环境开始，使用 <strong>Virtual Machine（虚拟机）</strong> 来隔离风险（毕竟内核调试崩起来是会重启机器的），然后亲手下载并编译最新的 <strong>Linux 6.1 LTS</strong> 内核源码。我们会写你的第一个内核模块，看着它通过 <code>insmod</code> 命令加载，并在内核日志里留下第一行「Hello World」。这一步的关键是<strong>手感</strong>——别被编译错误吓倒，那只是开始。</p>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="第二阶段解剖内核part-2--本书姊妹篇">第二阶段：解剖内核（Part 2 —— 本书姊妹篇）<a href="#第二阶段解剖内核part-2--本书姊妹篇" class="hash-link" aria-label="第二阶段：解剖内核（Part 2 —— 本书姊妹篇）的直接链接" title="第二阶段：解剖内核（Part 2 —— 本书姊妹篇）的直接链接" translate="no">​</a></h3>
+<p>这一部分是<strong>认知的深水区</strong>。我们要把内核这台机器拆开来看。
+我们将深入探讨 <strong>Linux 内核架构</strong>，理解 <strong>Task Structure（进程描述符）</strong> 是如何管理每一个生命周期的，<strong>用户态栈与内核态栈</strong>是如何在系统调用时切换的。我们会花整整三章来啃 <strong>内存管理</strong> 这块硬骨头——不仅了解原理，更要学会怎么在内核里高效地分配和释放内存，毕竟这里没有垃圾回收器给你擦屁股。最后，我们会触及 <strong>CPU 调度</strong> 的核心，看看操作系统是如何决定下一个该轮到谁运行的。</p>
+<blockquote>
+<p><strong>注意</strong>：本书是第一部分。如果你对那些更高级的驱动开发、硬件中断处理和复杂的内核同步机制感兴趣，请务必阅读它的姊妹篇 <em>Linux Kernel Programming Part 2</em>。那是通往专业内核开发者的必经之路。</p>
+</blockquote>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="第三阶段掌握混乱的艺术part-3--姊妹篇">第三阶段：掌握混乱的艺术（Part 3 —— 姊妹篇）<a href="#第三阶段掌握混乱的艺术part-3--姊妹篇" class="hash-link" aria-label="第三阶段：掌握混乱的艺术（Part 3 —— 姊妹篇）的直接链接" title="第三阶段：掌握混乱的艺术（Part 3 —— 姊妹篇）的直接链接" translate="no">​</a></h3>
+<p>内核是高度并发的。如果你写的代码在多核处理器上跑起来会莫名其妙地死锁，或者数据被莫名其秒地覆盖，那你一定遇到了<strong>并发</strong>问题。我们将在这里学习 <strong>内核同步</strong>技术——自旋锁、互斥锁、原子操作。这是区分「脚本小子」和「内核工程师」的分水岭。</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_bBfE" id="13--为什么是-linux-61-lts">1.3  为什么是 Linux 6.1 LTS？<a href="#13--为什么是-linux-61-lts" class="hash-link" aria-label="1.3  为什么是 Linux 6.1 LTS？的直接链接" title="1.3  为什么是 Linux 6.1 LTS？的直接链接" translate="no">​</a></h2>
+<p>你可能会问：内核版本更新那么快，为什么选 6.1？为什么不选 5.x 或者最新的 6.x？</p>
+<p>这是一个很实际的选择。</p>
+<p>Linus Torvalds 在 2022 年 12 月发布了 6.1 版本，并将其标记为 <strong>Long Term Support (LTS)</strong>。这意味着这个版本将被内核社区维护整整 4 年——直到 2026 年 12 月。对于一本书的生命周期来说，这已经够长了。</p>
+<p>但这还不是最关键的。</p>
+<p>更关键的是，<strong>Civil Infrastructure Platform (CIP, 民用基础设施项目)</strong> 这个致力于关键基础设施（如电力、供水系统）开源软件的超长寿组织，已经将 6.1 选定为 <strong>SLTS (Super LTS)</strong> 版本，并计划维护它 <strong>超过 10 年</strong>，直到 2033 年 8 月。</p>
+<p>这意味着什么？意味着你现在学的东西，在十年后的工业现场依然跑着。这不是一个实验品，这是未来的标准。</p>
+<p>回到那个「扩展卡」的类比：Linux 6.1 LTS 就像是一个经过严格测试、并承诺在未来十年都能插在主流主板上的标准接口。掌握了它，你的投资回报率极高。</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_bBfE" id="14--实战哲学动手或者回家">1.4  实战哲学：动手，或者回家<a href="#14--实战哲学动手或者回家" class="hash-link" aria-label="1.4  实战哲学：动手，或者回家的直接链接" title="1.4  实战哲学：动手，或者回家的直接链接" translate="no">​</a></h2>
+<p>这里我要强调一件事情：<strong>内核编程不是纸上谈兵</strong>。</p>
+<p>如果你只是坐着看我写代码，你会觉得自己懂了。一旦你打开终端，面对 <code>make</code> 报出的几百行错误，或者是内核 Panic 后那一串看不懂的寄存器堆栈信息，你会发现自己什么都没懂。</p>
+<p>为了避免这种情况，我们坚持一个原则：<strong>Be Empirical!（实证主义）</strong></p>
+<p>这本书配合了 GitHub 上的代码仓库（<a href="https://github.com/PacktPublishing/Linux-Kernel-Programming_2E" target="_blank" rel="noopener noreferrer" class="">Linux-Kernel-Programming_2E</a>），里面有大约 <strong>40 个内核模块</strong>（比第一版多了一倍！），还有配套的用户态测试程序和脚本。你需要把这些代码 clone 下来，修改它，编译它，加载它，试着弄坏它，再修好它。</p>
+<blockquote>
+<p><strong>⚠️ 踩坑预警</strong>
+别只看！千万別只看！
+我见过太多人觉得自己看懂了，结果一动手 <code>insmod</code> 就报错 <code>Invalid module format</code>。
+动手的过程会暴露你认知的盲区——比如你会忘记在 Makefile 里指定正确的内核版本号，或者忘了在代码里加上 <code>MODULE_LICENSE(&quot;GPL&quot;)</code>（这会导致内核拒绝加载你的模块）。
+<strong>一定要动起来</strong>。你的报错日志是最好的老师。</p>
+</blockquote>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_bBfE" id="15--准备你的手术台">1.5  准备你的「手术台」<a href="#15--准备你的手术台" class="hash-link" aria-label="1.5  准备你的「手术台」的直接链接" title="1.5  准备你的「手术台」的直接链接" translate="no">​</a></h2>
+<p>好了，道理讲够了，现在我们要开始建立工作空间。这一步如果你偷懒，后面会寸步难行。</p>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="技术预备清单">技术预备清单<a href="#技术预备清单" class="hash-link" aria-label="技术预备清单的直接链接" title="技术预备清单的直接链接" translate="no">​</a></h3>
+<p>在开始之前，请确认你的装备：</p>
+<ul>
+<li class=""><strong>硬件</strong>：你需要一台性能足够强劲的 PC 或笔记本。别用那些只有 4GB 内存的古董机。编译内核是一个<strong>极其吃内存和 CPU</strong> 的过程。如果你有 16GB 内存和四核以上的 CPU，那是最好的。硬盘空间至少留出 30GB，因为编译产生的中间文件和虚拟机镜像都很占地方。</li>
+<li class=""><strong>操作系统</strong>：
+<ul>
+<li class=""><strong>首选</strong>：Native Linux System（原生 Linux 系统）。这是所有资深内核开发者的首选，性能最好，最直接。</li>
+<li class=""><strong>次选</strong>：<strong>Virtual Machine (虚拟机)</strong>。如果你必须在 Windows 或 macOS 下工作，这不仅是唯一选择，甚至是一个<strong>更安全</strong>的选择。我们在 VM 里搞崩内核，顶多把 VM 搞死，你的宿主机照样可以刷视频。本书的大部分示例和输出都是基于 <strong>x86_64 架构的 Ubuntu 22.04 LTS Guest VM</strong>（运行在 Oracle VirtualBox 上）捕获的。</li>
+</ul>
+</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="安装-guest-vm">安装 Guest VM<a href="#安装-guest-vm" class="hash-link" aria-label="安装 Guest VM的直接链接" title="安装 Guest VM的直接链接" translate="no">​</a></h3>
+<p>这一步的具体操作（比如如何在 VirtualBox 里新建虚拟机、挂载 Ubuntu ISO、分区配置等），虽然非常重要，但如果我在这本书里把每一个点击步骤都写下来，这本书会有一半是截图。</p>
+<p>为了不浪费篇幅，我把这部分<strong>详尽且经过验证</strong>的安装指南放在了本书的 GitHub 仓库以及配套的在线章节 PDF 里。</p>
+<blockquote>
+<p><strong>请务必下载并阅读这份 PDF 指南</strong>：
+<a href="http://www.packtpub.com/sites/default/files/downloads/9781803232225_Online_Chapter.pdf" target="_blank" rel="noopener noreferrer" class="">Download Chapter 1 PDF</a></p>
+</blockquote>
+<p>在这个指南里，我会手把手教你：</p>
+<ol>
+<li class="">如何创建一个 Ubuntu 22.04 LTS 虚拟机。</li>
+<li class="">如何配置网络和共享文件夹（方便你在宿主机和虚拟机之间传代码）。</li>
+<li class=""><strong>最重要的一步</strong>：如何安装编译内核所需的全部依赖包（比如 <code>build-essential</code>, <code>libncurses-dev</code>, <code>bc</code>, <code>flex</code>, <code>bison</code> 等）。少一个，编译就会在莫名其妙的阶段停下来。</li>
+</ol>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_bBfE" id="16--获取代码库你的武器库">1.6  获取代码库：你的武器库<a href="#16--获取代码库你的武器库" class="hash-link" aria-label="1.6  获取代码库：你的武器库的直接链接" title="1.6  获取代码库：你的武器库的直接链接" translate="no">​</a></h2>
+<p>当你搞定虚拟机，能在终端里敲出 <code>ls</code> 和 <code>pwd</code> 之后，第一件事就是把代码库拉下来。</p>
+<p>这本书的所有源代码都托管在 GitHub 上。打开终端，输入：</p>
+<div class="language-bash codeBlockContainer_DwR3 theme-code-block" style="--prism-background-color:hsl(230, 1%, 98%);--prism-color:hsl(230, 8%, 24%)"><div class="codeBlockContent_JaXi"><pre tabindex="0" class="prism-code language-bash codeBlock_F1SS thin-scrollbar" style="background-color:hsl(230, 1%, 98%);color:hsl(230, 8%, 24%)"><code class="codeBlockLines_lgPH"><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token function" style="color:hsl(221, 87%, 60%)">git</span><span class="token plain"> clone https://github.com/PacktPublishing/Linux-Kernel-Programming_2E</span><br></div></code></pre></div></div>
+<p>这行命令会把整个代码树拉到你的本地。</p>
+<p>你会发现代码是按章节组织的：</p>
+<ul>
+<li class=""><code>ch1/</code> 目录下是这一章的代码。</li>
+<li class="">根目录下有一些通用的文件，比如 <code>convenient.h</code>（一个包含了常用宏定义的头文件）和 <code>klib.c</code>（一些通用的内核辅助函数）。</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="工欲善其事ctags-和-cscope">工欲善其事：ctags 和 cscope<a href="#工欲善其事ctags-和-cscope" class="hash-link" aria-label="工欲善其事：ctags 和 cscope的直接链接" title="工欲善其事：ctags 和 cscope的直接链接" translate="no">​</a></h3>
+<p>现在你手里有几万行内核代码和本书的示例代码。如果你用 <code>grep</code> 或者编辑器的搜索功能去跳转，效率会低得令人发指。</p>
+<p>如果你想在内核开发里活下来，请<strong>务必</strong>学会使用代码索引工具。我强烈推荐你为代码库建立 <strong>ctags</strong> 或 <strong>cscope</strong> 索引。</p>
+<p>这就像给你的代码装上了雷达。比如，你可以把光标放在 <code>do_fork</code> 函数上，按一下键，编辑器就直接跳到了这个函数的定义处——哪怕它在 500 个文件之外的另一个目录里。</p>
+<p>建立索引非常简单。进入你的源码树根目录，运行：</p>
+<div class="language-bash codeBlockContainer_DwR3 theme-code-block" style="--prism-background-color:hsl(230, 1%, 98%);--prism-color:hsl(230, 8%, 24%)"><div class="codeBlockContent_JaXi"><pre tabindex="0" class="prism-code language-bash codeBlock_F1SS thin-scrollbar" style="background-color:hsl(230, 1%, 98%);color:hsl(230, 8%, 24%)"><code class="codeBlockLines_lgPH"><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain">ctags </span><span class="token parameter variable" style="color:hsl(221, 87%, 60%)">-R</span><br></div></code></pre></div></div>
+<p>或者使用 cscope（这在处理庞大的内核源码时往往更好用）：</p>
+<div class="language-bash codeBlockContainer_DwR3 theme-code-block" style="--prism-background-color:hsl(230, 1%, 98%);--prism-color:hsl(230, 8%, 24%)"><div class="codeBlockContent_JaXi"><pre tabindex="0" class="prism-code language-bash codeBlock_F1SS thin-scrollbar" style="background-color:hsl(230, 1%, 98%);color:hsl(230, 8%, 24%)"><code class="codeBlockLines_lgPH"><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain">cscope </span><span class="token parameter variable" style="color:hsl(221, 87%, 60%)">-Rbkq</span><br></div></code></pre></div></div>
+<blockquote>
+<p><strong>🎯 节奏切换</strong>
+现在的你可能觉得这一步很琐碎。等你以后追踪一个复杂的 <code>struct</code> 指针引用，在 10 个文件之间跳来跳去的时候，你会回来感谢这一节的。</p>
+</blockquote>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_bBfE" id="17--走出舒适区">1.7  走出舒适区<a href="#17--走出舒适区" class="hash-link" aria-label="1.7  走出舒适区的直接链接" title="1.7  走出舒适区的直接链接" translate="no">​</a></h2>
+<p>好了，环境配置的枯燥部分接近尾声了。</p>
+<p>这里有一个细节需要注意：<strong>关于输出的一致性</strong>。</p>
+<p>除非特别说明，这本书里的代码输出和日志都是基于 <strong>x86_64 Ubuntu 22.04 LTS</strong> 环境截获的。Linux 世界发行版众多，版本迭代快，你看到的输出可能和我这里的有细微差别——这是正常的，甚至有时候 Linux 内核本身的改动导致某些函数名发生了变化，也不要惊慌。</p>
+<p><strong>这本身就是内核编程的一部分：适应变化，解决新问题。</strong></p>
+<p>在这个阶段结束之前，请确认你已经完成了以下清单：</p>
+<ul class="contains-task-list containsTaskList_L3dX">
+<li class="task-list-item"><input type="checkbox" disabled=""> 成功安装并启动了 Linux 虚拟机（或原生系统）。</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> 安装了编译内核所需的全部依赖。</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> <code>git clone</code> 了本书的代码仓库。</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> 尝试生成了 ctags/cscope 索引。</li>
+<li class="task-list-item"><input type="checkbox" disabled=""> 下载并阅读了详细的在线第一章 PDF。</li>
+</ul>
+<p>如果你都搞定了，那么恭喜你——你不再是 Linux 的「用户」，你已经站在了「开发者」的门口。</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_bBfE" id="下一站构建你的内核">下一站：构建你的内核<a href="#下一站构建你的内核" class="hash-link" aria-label="下一站：构建你的内核的直接链接" title="下一站：构建你的内核的直接链接" translate="no">​</a></h2>
+<p>环境准备好之后，我们将不再磨刀，直接开始杀鸡。</p>
+<p>接下来的两章，我们将完成一件非常有成就感的事情：<strong>从零下载 Linux 内核源码，配置它，编译它，然后用它启动你的系统</strong>。</p>
+<p>这是一个当你看到黑底白字的滚动启动条时，会忍不住喊一句「Woah!」的时刻。你的内核之旅，现在才真正开始。</p>
+<hr>
+<p><strong>本章回扣：</strong></p>
+<p>还记得本章开头我们提到的问题吗——为什么要从「用户」变成「内核开发者」？
+通过这一章的铺垫，答案其实已经很清晰了：不是为了装酷，而是为了获得<strong>控制权</strong>。
+当你亲手配置好环境，编译好第一个模块时，你就不再是操作系统围墙外的人了。你手里拿着的不再是请求函，而是钥匙。</p>
+<p>在下一章，我们将把这把钥匙插入锁孔，转动它。</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_bBfE" id="练习题">练习题<a href="#练习题" class="hash-link" aria-label="练习题的直接链接" title="练习题的直接链接" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="练习-1understanding">练习 1：understanding<a href="#练习-1understanding" class="hash-link" aria-label="练习 1：understanding的直接链接" title="练习 1：understanding的直接链接" translate="no">​</a></h3>
+<p><strong>题目</strong>：在 Linux 内核开发中，为什么通常推荐使用 Loadable Kernel Module (LKM) 框架来进行功能开发或驱动编写，而不是直接修改内核核心源代码并重新编译？请列举一个主要原因并解释。</p>
+<details class="details_O3kF alert alert--info details_Dlld" data-collapsed="true"><summary>答案与解析</summary><div><div class="collapsibleContent_GZgo">
+<p><strong>答案</strong>：因为 LKM 允许在不重新编译和重启整个内核的情况下动态地加载或卸载内核代码。</p>
+<p><strong>解析</strong>：LKM（可加载内核模块）是 Linux 内核为了提高灵活性和可扩展性设计的一种机制。如果不使用 LKM，任何代码的修改、增加或删除（如设备驱动）都需要重新编译整个内核源码并重启系统，这在开发调试阶段非常低效，且在实际生产环境中也会导致服务中断。使用 LKM，开发者可以按需加载功能，调试时迅速迭代，极大提升了开发效率。</p>
+</div></div></details>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="练习-2application">练习 2：application<a href="#练习-2application" class="hash-link" aria-label="练习 2：application的直接链接" title="练习 2：application的直接链接" translate="no">​</a></h3>
+<p><strong>题目</strong>：假设你需要维护一个非常关键的工业控制系统，该系统预计需要连续运行 10 年以上。根据本章内容，你应该选择基于哪个版本的 Linux 内核进行开发？请说明理由。</p>
+<details class="details_O3kF alert alert--info details_Dlld" data-collapsed="true"><summary>答案与解析</summary><div><div class="collapsibleContent_GZgo">
+<p><strong>答案</strong>：选择 Linux Kernel 6.1 LTS（特别是 SLTS 版本）。</p>
+<p><strong>解析</strong>：根据章节介绍，Linux Kernel 6.1 被社区定为 LTS（长期支持）版本，支持到 2026 年。更重要的是，Civil Infrastructure Project (CIP) 已将其指定为 SLTS（Super LTS），计划维护直到 2033 年（超过 10 年）。对于需要长期运行的工业控制系统，选择 SLTS 版本可以确保在整个生命周期内获得安全补丁和错误修复支持，避免频繁升级内核带来的风险。</p>
+</div></div></details>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="练习-3application">练习 3：application<a href="#练习-3application" class="hash-link" aria-label="练习 3：application的直接链接" title="练习 3：application的直接链接" translate="no">​</a></h3>
+<p><strong>题目</strong>：作为内核开发者，你刚通过 <code>git clone</code> 下载了本书的配套源代码。为了高效地在庞大的源代码树中查找函数定义和变量引用，你应该使用哪两个工具来生成代码索引？请写出具体的命令。</p>
+<details class="details_O3kF alert alert--info details_Dlld" data-collapsed="true"><summary>答案与解析</summary><div><div class="collapsibleContent_GZgo">
+<p><strong>答案</strong>：应使用 ctags 和 cscope。生成 ctags 索引的命令为：<code>ctags -R</code>（在源码根目录下执行）。</p>
+<p><strong>解析</strong>：Linux 内核源代码规模巨大，依靠文本搜索查找定义效率极低。ctags 和 cscope 是专门为 C 语言设计的代码浏览工具，能够解析代码结构并生成标签（索引）文件。在源码树根目录运行 <code>ctags -R</code> 可以递归生成索引文件，从而允许编辑器（如 Vim）快速跳转到函数定义或查找变量引用，这是阅读和调试内核代码的必备技能。</p>
+</div></div></details>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="练习-4thinking">练习 4：thinking<a href="#练习-4thinking" class="hash-link" aria-label="练习 4：thinking的直接链接" title="练习 4：thinking的直接链接" translate="no">​</a></h3>
+<p><strong>题目</strong>：章节中提到，在性能上，原生 Linux 系统通常比客户虚拟机快约两倍；但同时，本书强烈建议初学者在虚拟机中进行内核开发实验。请从“安全性”和“容错性”的角度，分析为什么对于内核编程初学者来说，虚拟机是更推荐的工作环境？</p>
+<details class="details_O3kF alert alert--info details_Dlld" data-collapsed="true"><summary>答案与解析</summary><div><div class="collapsibleContent_GZgo">
+<p><strong>答案</strong>：因为内核代码直接运行在硬件特权级，错误代码可能导致系统崩溃、数据损坏或硬件故障。虚拟机提供了一层隔离。</p>
+<p><strong>解析</strong>：Thinking（深度思考）：</p>
+<ol>
+<li class=""><strong>隔离性/安全性</strong>：内核编程拥有 Ring 0（最高特权），代码中的任意指针错误或死循环都可能直接挂起宿主操作系统，导致数据丢失或甚至影响物理硬件。在虚拟机中运行，Guest OS 的崩溃只会影响虚拟机本身，宿主机和其他应用保持安全。</li>
+<li class=""><strong>调试便捷性/容错性</strong>：在虚拟机中，如果内核崩溃，可以方便地通过快照功能回滚到之前的状态，或者轻松重启虚拟机，而不需要重启物理机。
+虽然性能有损耗，但对于学习过程中不可避免的 Bug 隔离和系统稳定性来说，虚拟机提供了更安全、更低成本的“沙盒”环境。</li>
+</ol>
+</div></div></details>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_bBfE" id="要点提炼">要点提炼<a href="#要点提炼" class="hash-link" aria-label="要点提炼的直接链接" title="要点提炼的直接链接" translate="no">​</a></h2>
+<p>内核编程的本质在于从「规则的遵守者」转变为「规则的制定者」，通过开发 LKM（可加载内核模块）将代码以 Ring 0 权限直接注入内核，从而突破用户态在硬件控制与性能优化上的天花板，但这同时也意味着代码错误将直接导致整个系统崩溃。</p>
+<p>本书实战将基于 Linux 6.1 LTS 版本展开，选择该版本不仅是因为它拥有社区 4 年的官方维护周期，更关键在于它被 CIP 项目选定为 Super LTS（超长生命周期支持），预计将服务于工业现场直至 2033 年，确保了当下学习的技术在未来十年内依然具备极高的工业价值。</p>
+<p>构建安全的内核开发环境是实战的第一步，由于内核调试失误极易导致宿主机死机，推荐使用 Oracle VirtualBox 安装 Ubuntu 22.04 LTS 虚拟机作为沙盒，且必须预留 16GB 内存和 30GB 硬盘空间以应对内核编译对资源的极高消耗。</p>
+<p>掌握源码导航工具是应对内核庞杂代码库的必备技能，通过 <code>git clone</code> 获取本书配套代码后，不应依赖简单的文本搜索，而应立即使用 <code>ctags</code> 或 <code>cscope</code> 为源码建立索引，从而在编辑器中实现跨文件的函数与结构体跳转，这是高效追踪内核逻辑的关键能力。</p>
+<p>内核编程是一门高度依赖实证主义的学科，开发者必须摒弃只看书的被动学习模式，遵循“动手或回家”的原则，通过亲自编写、修改、加载模块并在反复的报错（如 Panic 或 Invalid module format）中解决问题，来验证理论并建立真正的内核直觉。</p></div><footer class="theme-doc-footer docusaurus-mt-lg"><div class="row margin-top--sm theme-doc-footer-edit-meta-row"><div class="col noPrint_MpOp"><a href="https://github.com/Awesome-Embedded-Learning-Studio/PenguinLab/tree/main/../document/notes/linux_kernel_programming/ch01.md" target="_blank" rel="noopener noreferrer" class="theme-edit-this-page"><svg fill="currentColor" height="20" width="20" viewBox="0 0 40 40" class="iconEdit_Xu8_" aria-hidden="true"><g><path d="m34.5 11.7l-3 3.1-6.3-6.3 3.1-3q0.5-0.5 1.2-0.5t1.1 0.5l3.9 3.9q0.5 0.4 0.5 1.1t-0.5 1.2z m-29.5 17.1l18.4-18.5 6.3 6.3-18.4 18.4h-6.3v-6.2z"></path></g></svg>编辑此页</a></div><div class="col lastUpdated_nSfX"><span class="theme-last-updated">最后<!-- -->由 <b>Charliechen114514</b> <!-- -->于 <b><time datetime="2026-05-06T00:06:46.000Z" itemprop="dateModified">2026年5月6日</time></b> <!-- -->更新</span></div></div></footer></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="文件选项卡"><a class="pagination-nav__link pagination-nav__link--prev" href="/PenguinLab/category/linux-内核编程"><div class="pagination-nav__sublabel">上一页</div><div class="pagination-nav__label">Linux 内核编程</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/PenguinLab/notes/linux_kernel_programming/ch02"><div class="pagination-nav__sublabel">下一页</div><div class="pagination-nav__label">Chapter 2: Building the 6.x Linux Kernel from Source – Part 1</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_VJ1c thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#11--为什么要学内核编程" class="table-of-contents__link toc-highlight">1.1  为什么要学内核编程？</a></li><li><a href="#12--这本书带你走哪条路" class="table-of-contents__link toc-highlight">1.2  这本书带你走哪条路？</a><ul><li><a href="#第一阶段从零构建环境part-1" class="table-of-contents__link toc-highlight">第一阶段：从零构建环境（Part 1）</a></li><li><a href="#第二阶段解剖内核part-2--本书姊妹篇" class="table-of-contents__link toc-highlight">第二阶段：解剖内核（Part 2 —— 本书姊妹篇）</a></li><li><a href="#第三阶段掌握混乱的艺术part-3--姊妹篇" class="table-of-contents__link toc-highlight">第三阶段：掌握混乱的艺术（Part 3 —— 姊妹篇）</a></li></ul></li><li><a href="#13--为什么是-linux-61-lts" class="table-of-contents__link toc-highlight">1.3  为什么是 Linux 6.1 LTS？</a></li><li><a href="#14--实战哲学动手或者回家" class="table-of-contents__link toc-highlight">1.4  实战哲学：动手，或者回家</a></li><li><a href="#15--准备你的手术台" class="table-of-contents__link toc-highlight">1.5  准备你的「手术台」</a><ul><li><a href="#技术预备清单" class="table-of-contents__link toc-highlight">技术预备清单</a></li><li><a href="#安装-guest-vm" class="table-of-contents__link toc-highlight">安装 Guest VM</a></li></ul></li><li><a href="#16--获取代码库你的武器库" class="table-of-contents__link toc-highlight">1.6  获取代码库：你的武器库</a><ul><li><a href="#工欲善其事ctags-和-cscope" class="table-of-contents__link toc-highlight">工欲善其事：ctags 和 cscope</a></li></ul></li><li><a href="#17--走出舒适区" class="table-of-contents__link toc-highlight">1.7  走出舒适区</a></li><li><a href="#下一站构建你的内核" class="table-of-contents__link toc-highlight">下一站：构建你的内核</a></li><li><a href="#练习题" class="table-of-contents__link toc-highlight">练习题</a><ul><li><a href="#练习-1understanding" class="table-of-contents__link toc-highlight">练习 1：understanding</a></li><li><a href="#练习-2application" class="table-of-contents__link toc-highlight">练习 2：application</a></li><li><a href="#练习-3application" class="table-of-contents__link toc-highlight">练习 3：application</a></li><li><a href="#练习-4thinking" class="table-of-contents__link toc-highlight">练习 4：thinking</a></li></ul></li><li><a href="#要点提炼" class="table-of-contents__link toc-highlight">要点提炼</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="footer__bottom text--center"><div class="footer__copyright">Copyright © 2026 Charliechen</div></div></div></footer></div>
+</body>
+</html>

@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="zh-CN" dir="ltr" class="docs-wrapper plugin-docs plugin-id-default docs-version-current docs-doc-page docs-doc-id-notes/linux_kernel_networking/ch03_3" data-has-hydrated="false">
+<head>
+<meta charset="UTF-8">
+<meta name="generator" content="Docusaurus v3.10.1">
+<title data-rh="true">3.3  快速参考与实战补充 | PenguinLab</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://awesome-embedded-learning-studio.github.io/PenguinLab/notes/linux_kernel_networking/ch03_3"><meta data-rh="true" property="og:locale" content="zh_CN"><meta data-rh="true" name="docusaurus_locale" content="zh-CN"><meta data-rh="true" name="docsearch:language" content="zh-CN"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="3.3  快速参考与实战补充 | PenguinLab"><meta data-rh="true" name="description" content="我们在这一章里拆解了 ICMPv4 和 ICMPv6 的内部运作机制，从初始化流程到报文的收发，看了大量的内核代码。现在，是时候把这些散落在代码里的细节收拢一下，做一个速查，顺便补充两个在工程实践中非常容易忽略的「角落」。"><meta data-rh="true" property="og:description" content="我们在这一章里拆解了 ICMPv4 和 ICMPv6 的内部运作机制，从初始化流程到报文的收发，看了大量的内核代码。现在，是时候把这些散落在代码里的细节收拢一下，做一个速查，顺便补充两个在工程实践中非常容易忽略的「角落」。"><link data-rh="true" rel="icon" href="/PenguinLab/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://awesome-embedded-learning-studio.github.io/PenguinLab/notes/linux_kernel_networking/ch03_3"><link data-rh="true" rel="alternate" href="https://awesome-embedded-learning-studio.github.io/PenguinLab/notes/linux_kernel_networking/ch03_3" hreflang="zh-CN"><link data-rh="true" rel="alternate" href="https://awesome-embedded-learning-studio.github.io/PenguinLab/notes/linux_kernel_networking/ch03_3" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Linux 内核网络","item":"https://awesome-embedded-learning-studio.github.io/PenguinLab/category/linux-内核网络"},{"@type":"ListItem","position":2,"name":"3.3  快速参考与实战补充","item":"https://awesome-embedded-learning-studio.github.io/PenguinLab/notes/linux_kernel_networking/ch03_3"}]}</script><link rel="stylesheet" href="/PenguinLab/assets/css/styles.60aea433.css">
+<script src="/PenguinLab/assets/js/runtime~main.23277d5b.js" defer="defer"></script>
+<script src="/PenguinLab/assets/js/main.0e81584b.js" defer="defer"></script>
+</head>
+<body>
+<svg style="display: none;"><defs>
+<symbol id="theme-svg-external-link" viewBox="0 0 24 24"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"/></symbol>
+</defs></svg>
+<script>!function(){var t=function(){try{return new URLSearchParams(window.location.search).get("docusaurus-theme")}catch(t){}}()||function(){try{return window.localStorage.getItem("theme")}catch(t){}}();document.documentElement.setAttribute("data-theme",t||(window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")),document.documentElement.setAttribute("data-theme-choice",t||"system")}(),function(){try{const c=new URLSearchParams(window.location.search).entries();for(var[t,e]of c)if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script><div id="__docusaurus"><link rel="preload" as="image" href="/PenguinLab/img/logo.png"><div role="region" aria-label="跳到主要内容"><a class="skipToContent_gWEo" href="#__docusaurus_skipToContent_fallback">跳到主要内容</a></div><nav aria-label="主导航" class="theme-layout-navbar navbar navbar--fixed-top"><div class="navbar__inner"><div class="theme-layout-navbar-left navbar__items"><button aria-label="切换导航栏" aria-expanded="false" class="navbar__toggle clean-btn" type="button"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg></button><a class="navbar__brand" href="/PenguinLab/"><div class="navbar__logo"><img src="/PenguinLab/img/logo.png" alt="PenguinLab Logo" class="themedComponent_og9b themedComponent--light_JnSk"><img src="/PenguinLab/img/logo.png" alt="PenguinLab Logo" class="themedComponent_og9b themedComponent--dark_nacK"></div><b class="navbar__title text--truncate">PenguinLab</b></a><a class="navbar__item navbar__link" href="/PenguinLab/">教程</a><a class="navbar__item navbar__link" href="/PenguinLab/booklist">参考</a><a aria-current="page" class="navbar__item navbar__link navbar__link--active" href="/PenguinLab/category/linux-内核编程">笔记</a><a class="navbar__item navbar__link" href="/PenguinLab/blog">内核新闻</a></div><div class="theme-layout-navbar-right navbar__items navbar__items--right"><a href="https://github.com/Awesome-Embedded-Learning-Studio/PenguinLab" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_FARA"><use href="#theme-svg-external-link"></use></svg></a><div class="toggle_OQuL colorModeToggle__y1s"><button class="clean-btn toggleButton_xgE0 toggleButtonDisabled_Je_F" type="button" disabled="" title="system mode" aria-label="切换浅色/暗黑模式（当前为system mode）"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_ceR6 lightToggleIcon_opXY"><path fill="currentColor" d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_ceR6 darkToggleIcon_A2Wk"><path fill="currentColor" d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_ceR6 systemToggleIcon_NwoM"><path fill="currentColor" d="m12 21c4.971 0 9-4.029 9-9s-4.029-9-9-9-9 4.029-9 9 4.029 9 9 9zm4.95-13.95c1.313 1.313 2.05 3.093 2.05 4.95s-0.738 3.637-2.05 4.95c-1.313 1.313-3.093 2.05-4.95 2.05v-14c1.857 0 3.637 0.737 4.95 2.05z"></path></svg></button></div><div class="navbarSearchContainer_hDB6"></div></div></div><div role="presentation" class="navbar-sidebar__backdrop"></div></nav><div id="__docusaurus_skipToContent_fallback" class="theme-layout-main main-wrapper mainWrapper_hv_0"><div class="docsWrapper_VlxT"><button aria-label="回到顶部" class="clean-btn theme-back-to-top-button backToTopButton_v2Wu" type="button"></button><div class="docRoot_mHc3"><aside class="theme-doc-sidebar-container docSidebarContainer_C6m2"><div class="sidebarViewport_flJk"><div class="sidebar_sAne"><nav aria-label="文档侧边栏" class="menu thin-scrollbar menu_NeO_"><ul class="theme-doc-sidebar-menu menu__list"><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink__19u menu__link menu__link--sublist" href="/PenguinLab/category/linux-内核编程"><span title="Linux 内核编程" class="categoryLinkLabel_lzOE">Linux 内核编程</span></a><button aria-label="展开侧边栏分类 &#x27;Linux 内核编程&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink__19u menu__link menu__link--sublist" href="/PenguinLab/category/linux-设备驱动"><span title="Linux 设备驱动" class="categoryLinkLabel_lzOE">Linux 设备驱动</span></a><button aria-label="展开侧边栏分类 &#x27;Linux 设备驱动&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink__19u menu__link menu__link--sublist" href="/PenguinLab/category/linux-内核调试"><span title="Linux 内核调试" class="categoryLinkLabel_lzOE">Linux 内核调试</span></a><button aria-label="展开侧边栏分类 &#x27;Linux 内核调试&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink__19u menu__link menu__link--sublist menu__link--active" href="/PenguinLab/category/linux-内核网络"><span title="Linux 内核网络" class="categoryLinkLabel_lzOE">Linux 内核网络</span></a><button aria-label="折叠侧边栏分类 &#x27;Linux 内核网络&#x27;" aria-expanded="true" type="button" class="clean-btn menu__caret"></button></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch01"><span title="第 1 章" class="linkLabel_P6RJ">第 1 章</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch01_1"><span title="第 1 章  深入内核：网络协议栈的黑盒解剖" class="linkLabel_P6RJ">第 1 章  深入内核：网络协议栈的黑盒解剖</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch01_2"><span title="1.2  网络设备（The Network Device）" class="linkLabel_P6RJ">1.2  网络设备（The Network Device）</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch01_3"><span title="ch01_3" class="linkLabel_P6RJ">ch01_3</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch02"><span title="第 2 章" class="linkLabel_P6RJ">第 2 章</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch02_1"><span title="第 2 章  当用户空间遇见内核" class="linkLabel_P6RJ">第 2 章  当用户空间遇见内核</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch02_2"><span title="Kernel Netlink Sockets" class="linkLabel_P6RJ">Kernel Netlink Sockets</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch02_3"><span title="ch02_3" class="linkLabel_P6RJ">ch02_3</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch02_4"><span title="ch02_4" class="linkLabel_P6RJ">ch02_4</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch02_5"><span title="2.5  增删路由表项：在 FIB 里跳舞" class="linkLabel_P6RJ">2.5  增删路由表项：在 FIB 里跳舞</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch02_6"><span title="2.6 Generic Netlink Protocol" class="linkLabel_P6RJ">2.6 Generic Netlink Protocol</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch02_7"><span title="ch02_7" class="linkLabel_P6RJ">ch02_7</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch03"><span title="第 3 章" class="linkLabel_P6RJ">第 3 章</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch03_1"><span title="3.0  网络的神经系统：为何我们需要 ICMP" class="linkLabel_P6RJ">3.0  网络的神经系统：为何我们需要 ICMP</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch03_2"><span title="3.2  IPv6 的「瑞士军刀」：ICMPv6" class="linkLabel_P6RJ">3.2  IPv6 的「瑞士军刀」：ICMPv6</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link menu__link--active" aria-current="page" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch03_3"><span title="3.3  快速参考与实战补充" class="linkLabel_P6RJ">3.3  快速参考与实战补充</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch04"><span title="第 4 章" class="linkLabel_P6RJ">第 4 章</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch04_1"><span title="第 4 章  网络层的骨架" class="linkLabel_P6RJ">第 4 章  网络层的骨架</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch04_2"><span title="4.2  接收 IPv4 数据包" class="linkLabel_P6RJ">4.2  接收 IPv4 数据包</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch04_3"><span title="4.3 接收 IPv4 组播数据包" class="linkLabel_P6RJ">4.3 接收 IPv4 组播数据包</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch04_4"><span title="4.4  当 IP 选项在包里醒来" class="linkLabel_P6RJ">4.4  当 IP 选项在包里醒来</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch04_5"><span title="4.5  发送 IPv4 数据包" class="linkLabel_P6RJ">4.5  发送 IPv4 数据包</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch04_6"><span title="4.6  分片" class="linkLabel_P6RJ">4.6  分片</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch04_7"><span title="4.7  重组：把碎掉的镜子拼回来" class="linkLabel_P6RJ">4.7  重组：把碎掉的镜子拼回来</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch04_8"><span title="ch04_8" class="linkLabel_P6RJ">ch04_8</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch04_9"><span title="ch04_9" class="linkLabel_P6RJ">ch04_9</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch05"><span title="第 5 章" class="linkLabel_P6RJ">第 5 章</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch05_1"><span title="5.0  没有地图，就无法远行" class="linkLabel_P6RJ">5.0  没有地图，就无法远行</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch05_2"><span title="5.2  在路由子系统中执行查找" class="linkLabel_P6RJ">5.2  在路由子系统中执行查找</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch05_3"><span title="FIB Info：一张路由条目的「身份证」" class="linkLabel_P6RJ">FIB Info：一张路由条目的「身份证」</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch05_4"><span title="ch05_4" class="linkLabel_P6RJ">ch05_4</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch05_5"><span title="5.5  Policy Routing：地图之外的选择权" class="linkLabel_P6RJ">5.5  Policy Routing：地图之外的选择权</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch05_6"><span title="5.6  FIB Alias：当同一个目的地有了多个分身" class="linkLabel_P6RJ">5.6  FIB Alias：当同一个目的地有了多个分身</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch05_7"><span title="6.7  路由器的「悄悄话」：ICMPv4 Redirect" class="linkLabel_P6RJ">6.7  路由器的「悄悄话」：ICMPv4 Redirect</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch05_8"><span title="第 5 章  IPv4 路由子系统" class="linkLabel_P6RJ">第 5 章  IPv4 路由子系统</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch06"><span title="第 6 章" class="linkLabel_P6RJ">第 6 章</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch06_1"><span title="6.0  引言：一群人的信，怎么发给每一个人？" class="linkLabel_P6RJ">6.0  引言：一群人的信，怎么发给每一个人？</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch06_2"><span title="6.2  组播转发缓存 (MFC)" class="linkLabel_P6RJ">6.2  组播转发缓存 (MFC)</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch06_3"><span title="6.3  Multicast Router" class="linkLabel_P6RJ">6.3  Multicast Router</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch06_4"><span title="ch06_4" class="linkLabel_P6RJ">ch06_4</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch06_5"><span title="ch06_5" class="linkLabel_P6RJ">ch06_5</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch06_6"><span title="6.6  The ipmr_queue_xmit() Method" class="linkLabel_P6RJ">6.6  The ipmr_queue_xmit() Method</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch06_7"><span title="ch06_7" class="linkLabel_P6RJ">ch06_7</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch06_8"><span title="6.8  多路径路由" class="linkLabel_P6RJ">6.8  多路径路由</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch06_9"><span title="6.9  最后的备忘单" class="linkLabel_P6RJ">6.9  最后的备忘单</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch07"><span title="第 7 章" class="linkLabel_P6RJ">第 7 章</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch07_1"><span title="第 7 章  Linux 邻居子系统" class="linkLabel_P6RJ">第 7 章  Linux 邻居子系统</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch07_2"><span title="7.2  用户空间与邻居子系统的交互" class="linkLabel_P6RJ">7.2  用户空间与邻居子系统的交互</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch07_3"><span title="ch07_3" class="linkLabel_P6RJ">ch07_3</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch07_4"><span title="7.4  NDISC 协议 (IPv6)" class="linkLabel_P6RJ">7.4  NDISC 协议 (IPv6)</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch07_5"><span title="7.5  快速参考" class="linkLabel_P6RJ">7.5  快速参考</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch08"><span title="第 8 章" class="linkLabel_P6RJ">第 8 章</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch08_1"><span title="第 8 章  当地址不再是稀缺资源" class="linkLabel_P6RJ">第 8 章  当地址不再是稀缺资源</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch08_2"><span title="8.2  IPv6 地址类型与特殊地址" class="linkLabel_P6RJ">8.2  IPv6 地址类型与特殊地址</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch08_3"><span title="ch08_3" class="linkLabel_P6RJ">ch08_3</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch08_4"><span title="Extension Headers —— 链接式的无限扩展" class="linkLabel_P6RJ">Extension Headers —— 链接式的无限扩展</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch08_5"><span title="8.5  Autoconfiguration：无状态的魔法" class="linkLabel_P6RJ">8.5  Autoconfiguration：无状态的魔法</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch08_6"><span title="8.6 接收 IPv6 数据包" class="linkLabel_P6RJ">8.6 接收 IPv6 数据包</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch08_7"><span title="8.7  接收 IPv6 组播数据包" class="linkLabel_P6RJ">8.7  接收 IPv6 组播数据包</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch08_8"><span title="8.8  Multicast Listener Discovery (MLD)" class="linkLabel_P6RJ">8.8  Multicast Listener Discovery (MLD)</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch08_9"><span title="8.9 速查表与内核碎片（Quick Reference）" class="linkLabel_P6RJ">8.9 速查表与内核碎片（Quick Reference）</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch09"><span title="第 9 章" class="linkLabel_P6RJ">第 9 章</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch09_1"><span title="第 9 章  Netfilter Frameworks" class="linkLabel_P6RJ">第 9 章  Netfilter Frameworks</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch09_10"><span title="ch09_10" class="linkLabel_P6RJ">ch09_10</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch09_2"><span title="9.2  Netfilter Hooks" class="linkLabel_P6RJ">9.2  Netfilter Hooks</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch09_3"><span title="ch09_3" class="linkLabel_P6RJ">ch09_3</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch09_4"><span title="9.4 连接跟踪条目（Connection Tracking Entries）" class="linkLabel_P6RJ">9.4 连接跟踪条目（Connection Tracking Entries）</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch09_5"><span title="9.5  连接跟踪助手与预期连接" class="linkLabel_P6RJ">9.5  连接跟踪助手与预期连接</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch09_6"><span title="9.6  IPTables：规则的前端实现" class="linkLabel_P6RJ">9.6  IPTables：规则的前端实现</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch09_7"><span title="9.7  网络地址转换 (NAT)" class="linkLabel_P6RJ">9.7  网络地址转换 (NAT)</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch09_8"><span title="NAT Hook 回调与连接跟踪 Hook 回调的共舞" class="linkLabel_P6RJ">NAT Hook 回调与连接跟踪 Hook 回调的共舞</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch09_9"><span title="9.9  NAT Hook 回调与连接跟踪扩展" class="linkLabel_P6RJ">9.9  NAT Hook 回调与连接跟踪扩展</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch10"><span title="第 10 章" class="linkLabel_P6RJ">第 10 章</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch10_1"><span title="第 10 章  通往信任的隧道" class="linkLabel_P6RJ">第 10 章  通往信任的隧道</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch10_2"><span title="10.2  IKE (Internet Key Exchange)" class="linkLabel_P6RJ">10.2  IKE (Internet Key Exchange)</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch10_3"><span title="10.3  The XFRM Framework" class="linkLabel_P6RJ">10.3  The XFRM Framework</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch10_4"><span title="10.4  ESP 实现 (IPv4)" class="linkLabel_P6RJ">10.4  ESP 实现 (IPv4)</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch10_5"><span title="10.5  接收一个 IPsec 数据包（传输模式）" class="linkLabel_P6RJ">10.5  接收一个 IPsec 数据包（传输模式）</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch10_6"><span title="ch10_6" class="linkLabel_P6RJ">ch10_6</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch10_7"><span title="10.7  NAT Traversal in IPsec" class="linkLabel_P6RJ">10.7  NAT Traversal in IPsec</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch10_8"><span title="10.8  快速参考" class="linkLabel_P6RJ">10.8  快速参考</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch11"><span title="第 11 章" class="linkLabel_P6RJ">第 11 章</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch11_1"><span title="11.1 Sockets" class="linkLabel_P6RJ">11.1 Sockets</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch11_2"><span title="ch11_2" class="linkLabel_P6RJ">ch11_2</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch11_3"><span title="11.3  UDP (User Datagram Protocol)" class="linkLabel_P6RJ">11.3  UDP (User Datagram Protocol)</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch11_4"><span title="11.4  TCP (Transmission Control Protocol)" class="linkLabel_P6RJ">11.4  TCP (Transmission Control Protocol)</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch11_5"><span title="11.5  SCTP：工程权衡下的混血儿" class="linkLabel_P6RJ">11.5  SCTP：工程权衡下的混血儿</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch11_6"><span title="11.6  DCCP: 数据报拥塞控制协议" class="linkLabel_P6RJ">11.6  DCCP: 数据报拥塞控制协议</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch11_7"><span title="11.7 快速参考手册" class="linkLabel_P6RJ">11.7 快速参考手册</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch12"><span title="第 12 章" class="linkLabel_P6RJ">第 12 章</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch12_1"><span title="12.1  Mac80211 Subsystem" class="linkLabel_P6RJ">12.1  Mac80211 Subsystem</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch12_2"><span title="ch12_2" class="linkLabel_P6RJ">ch12_2</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch12_3"><span title="12.3  Network Topologies（网络拓扑）" class="linkLabel_P6RJ">12.3  Network Topologies（网络拓扑）</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch12_4"><span title="12.4  节电模式 (Power Save Mode)" class="linkLabel_P6RJ">12.4  节电模式 (Power Save Mode)</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch12_5"><span title="ch12_5" class="linkLabel_P6RJ">ch12_5</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch12_6"><span title="Mac80211 实现细节" class="linkLabel_P6RJ">Mac80211 实现细节</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch12_7"><span title="12.7  High Throughput (802.11n) —— 高速公路的入场券" class="linkLabel_P6RJ">12.7  High Throughput (802.11n) —— 高速公路的入场券</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch12_8"><span title="ch12_8" class="linkLabel_P6RJ">ch12_8</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch12_9"><span title="ch12_9" class="linkLabel_P6RJ">ch12_9</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch13"><span title="第 13 章" class="linkLabel_P6RJ">第 13 章</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch13_1"><span title="第 13 章  绕过内核的代价" class="linkLabel_P6RJ">第 13 章  绕过内核的代价</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch13_2"><span title="ch13_2" class="linkLabel_P6RJ">ch13_2</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch13_3"><span title="13.3  Memory Region (MR)" class="linkLabel_P6RJ">13.3  Memory Region (MR)</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch13_4"><span title="ch13_4" class="linkLabel_P6RJ">ch13_4</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch13_5"><span title="13.5  Shared Receive Queue (SRQ)" class="linkLabel_P6RJ">13.5  Shared Receive Queue (SRQ)</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch13_6"><span title="ch13_6" class="linkLabel_P6RJ">ch13_6</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch13_7"><span title="13.7  RDMA 支持的操作" class="linkLabel_P6RJ">13.7  RDMA 支持的操作</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch13_8"><span title="13.8 速查表" class="linkLabel_P6RJ">13.8 速查表</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch14"><span title="第 14 章" class="linkLabel_P6RJ">第 14 章</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch14_1"><span title="14. Namespaces Implementation" class="linkLabel_P6RJ">14. Namespaces Implementation</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch14_10"><span title="14.10 通知链" class="linkLabel_P6RJ">14.10 通知链</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch14_11"><span title="14.11  The PCI Subsystem" class="linkLabel_P6RJ">14.11  The PCI Subsystem</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch14_12"><span title="14.12 PPPoE Header —— 把协议钉在以太网上" class="linkLabel_P6RJ">14.12 PPPoE Header —— 把协议钉在以太网上</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch14_13"><span title="14.13 Android" class="linkLabel_P6RJ">14.13 Android</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch14_14"><span title="14.14  方法速查表（工具箱里的扳手和螺丝刀）" class="linkLabel_P6RJ">14.14  方法速查表（工具箱里的扳手和螺丝刀）</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch14_15"><span title="15  Macros" class="linkLabel_P6RJ">15  Macros</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch14_2"><span title="14.2  UTS 命名空间的实现" class="linkLabel_P6RJ">14.2  UTS 命名空间的实现</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch14_3"><span title="Network Namespaces Implementation" class="linkLabel_P6RJ">Network Namespaces Implementation</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch14_4"><span title="4.4  管理 Network Namespace：从上帝视角到手动操作" class="linkLabel_P6RJ">4.4  管理 Network Namespace：从上帝视角到手动操作</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch14_5"><span title="14.5 Cgroups：当隔离遇上资源争夺" class="linkLabel_P6RJ">14.5 Cgroups：当隔离遇上资源争夺</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch14_6"><span title="14.6  Busy Poll Sockets" class="linkLabel_P6RJ">14.6  Busy Poll Sockets</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch14_7"><span title="14.7  Linux Bluetooth 子系统" class="linkLabel_P6RJ">14.7  Linux Bluetooth 子系统</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch14_8"><span title="14.8  IEEE 802.15.4 和 6LoWPAN" class="linkLabel_P6RJ">14.8  IEEE 802.15.4 和 6LoWPAN</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/notes/linux_kernel_networking/ch14_9"><span title="14.9  近场通信 (NFC)" class="linkLabel_P6RJ">14.9  近场通信 (NFC)</span></a></li></ul></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-1 menu__list-item"><a class="menu__link" href="/PenguinLab/notes"><span title="Linux 内核学习笔记" class="linkLabel_P6RJ">Linux 内核学习笔记</span></a></li></ul></nav></div></div></aside><main class="docMainContainer_K2S2"><div class="container padding-top--md padding-bottom--lg"><div class="row"><div class="col docItemCol_ET6j"><div class="docItemContainer_FaDn"><article><nav class="theme-doc-breadcrumbs breadcrumbsContainer_YIgT" aria-label="页面路径"><ul class="breadcrumbs"><li class="breadcrumbs__item"><a aria-label="主页面" class="breadcrumbs__link" href="/PenguinLab/"><svg viewBox="0 0 24 24" class="breadcrumbHomeIcon_rlCt"><path d="M10 19v-5h4v5c0 .55.45 1 1 1h3c.55 0 1-.45 1-1v-7h1.7c.46 0 .68-.57.33-.87L12.67 3.6c-.38-.34-.96-.34-1.34 0l-8.36 7.53c-.34.3-.13.87.33.87H5v7c0 .55.45 1 1 1h3c.55 0 1-.45 1-1z" fill="currentColor"></path></svg></a></li><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/PenguinLab/category/linux-内核网络"><span>Linux 内核网络</span></a></li><li class="breadcrumbs__item breadcrumbs__item--active"><span class="breadcrumbs__link">3.3  快速参考与实战补充</span></li></ul></nav><div class="tocCollapsible_RqXj theme-doc-toc-mobile tocMobile_tOBB"><button type="button" class="clean-btn tocCollapsibleButton_ppfh">本页总览</button></div><div class="theme-doc-markdown markdown"><header><h1>3.3  快速参考与实战补充</h1></header>
+<p>我们在这一章里拆解了 ICMPv4 和 ICMPv6 的内部运作机制，从初始化流程到报文的收发，看了大量的内核代码。现在，是时候把这些散落在代码里的细节收拢一下，做一个速查，顺便补充两个在工程实践中非常容易忽略的「角落」。</p>
+<p>这一节看起来像是个「附录」，但我强烈建议你不要只把它当字典看。后面提到的 procfs 参数和 iptables REJECT 目标，直接决定了你生产环境的防火墙「拒绝」行为到底是礼貌地挥手，还是暴躁地沉默。</p>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="-核心方法速查">📚 核心方法速查<a href="#-核心方法速查" class="hash-link" aria-label="📚 核心方法速查的直接链接" title="📚 核心方法速查的直接链接" translate="no">​</a></h3>
+<p>我们在代码漫游中反复遇到了这些函数，它们是 ICMP 子系统的「四肢」。</p>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="接收处理">接收处理<a href="#接收处理" class="hash-link" aria-label="接收处理的直接链接" title="接收处理的直接链接" translate="no">​</a></h4>
+<p><strong><code>int icmp_rcv(struct sk_buff *skb);</code></strong></p>
+<blockquote>
+<p><strong>位置</strong>：<code>net/ipv4/icmp.c</code></p>
+</blockquote>
+<p>这是 ICMPv4 的主入口函数。当一个 IP 数据包被剥去 IP 头部，发现协议号是 <code>IPPROTO_ICMP</code> (1) 时，内核就会直接跳转到这个函数。它负责校验和检查、报文分发，以及触发生成对应的 ICMP 回复（如 Echo Reply）。</p>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="发送处理">发送处理<a href="#发送处理" class="hash-link" aria-label="发送处理的直接链接" title="发送处理的直接链接" translate="no">​</a></h4>
+<p><strong><code>void icmp_send(struct sk_buff *skb_in, int type, int code, __be32 info);</code></strong></p>
+<blockquote>
+<p><strong>位置</strong>：<code>net/ipv4/icmp.c</code></p>
+</blockquote>
+<p>内核向外发送 ICMPv4 <strong>错误消息</strong>（如 Destination Unreachable）的核心函数。</p>
+<ul>
+<li class=""><code>skb_in</code>：<strong>触发错误</strong>的那个原始数据包（provoking SKB）。内核会从这个包里剥取 IP 头来做诊断，并把这个 IP 头嵌入到新产生的 ICMP 错误包的数据部分。</li>
+<li class=""><code>type</code> / <code>code</code>： ICMP 消息的类型和代码。</li>
+<li class=""><code>info</code>：通常用于传递 MTU（在 Fragmentation Needed 场景下）或指向出错的指针。</li>
+</ul>
+<p><strong><code>void icmpv6_send(struct sk_buff *skb, u8 type, u8 code, __u32 info);</code></strong></p>
+<blockquote>
+<p><strong>位置</strong>：<code>net/ipv6/icmp.c</code></p>
+</blockquote>
+<p>ICMPv6 版本的发送函数。虽然名字很像，但内部实现要调用 <code>ip6_append_data</code> 和 <code>ip6_push_pending_frames</code>，走的是 IPv6 的发送路径。</p>
+<p><strong><code>void icmpv6_param_prob(struct sk_buff *skb, u8 code, int pos);</code></strong></p>
+<blockquote>
+<p><strong>位置</strong>：<code>net/ipv6/icmp.c</code></p>
+</blockquote>
+<p>这是一个封装函数，专门用于发送 ICMPv6 Parameter Problem 报文。它的作用是省去你手动填 <code>ICMPV6_PARAMPROB</code> 类型的麻烦，并且会在发送完毕后自动释放 <code>skb</code>（因为参数问题严重到包没法处理了，必须丢弃）。</p>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="辅助工具">辅助工具<a href="#辅助工具" class="hash-link" aria-label="辅助工具的直接链接" title="辅助工具的直接链接" translate="no">​</a></h4>
+<p><strong><code>struct icmp6hdr *icmp6_hdr(const struct sk_buff *skb);</code></strong></p>
+<blockquote>
+<p><strong>位置</strong>：<code>include/linux/icmpv6.h</code></p>
+</blockquote>
+<p>一个简单的内联辅助函数，用于从 <code>skb</code> 中安全地获取 <code>icmp6hdr</code> 指针。在 IPv6 的扩展头处理中，SKB 的指针可能一直在移动，用这个宏能避免指针运算的错误。</p>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="-关键数据表错误代码字典">📋 关键数据表：错误代码字典<a href="#-关键数据表错误代码字典" class="hash-link" aria-label="📋 关键数据表：错误代码字典的直接链接" title="📋 关键数据表：错误代码字典的直接链接" translate="no">​</a></h3>
+<p>ICMP 的「错误」消息主要靠 Type（大类）和 Code（小类）来区分。下面这几个表是你在抓包分析时需要随时对照的「字典」。</p>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="1-icmpv4-目的不可达">1. ICMPv4 目的不可达<a href="#1-icmpv4-目的不可达" class="hash-link" aria-label="1. ICMPv4 目的不可达的直接链接" title="1. ICMPv4 目的不可达的直接链接" translate="no">​</a></h4>
+<p>这是最常见的一类错误。当路由器找不到路，或者主机端口没开时，你会收到这些。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th style="text-align:left">Code</th><th style="text-align:left">内核符号</th><th style="text-align:left">人类可读含义</th></tr></thead><tbody><tr><td style="text-align:left">0</td><td style="text-align:left"><code>ICMP_NET_UNREACH</code></td><td style="text-align:left">网络<strong>不可达</strong>（路由表里没这网段）。</td></tr><tr><td style="text-align:left">1</td><td style="text-align:left"><code>ICMP_HOST_UNREACH</code></td><td style="text-align:left">主机<strong>不可达</strong>（ARP 没解析到，或者主机挂了）。</td></tr><tr><td style="text-align:left">2</td><td style="text-align:left"><code>ICMP_PROT_UNREACH</code></td><td style="text-align:left">协议<strong>不可达</strong>（比如你发了 TCP，但目标机器内核没装 TCP 模块）。</td></tr><tr><td style="text-align:left">3</td><td style="text-align:left"><code>ICMP_PORT_UNREACH</code></td><td style="text-align:left">端口<strong>不可达</strong>（最常见，UDP 发到一个没监听的端口）。</td></tr><tr><td style="text-align:left">4</td><td style="text-align:left"><code>ICMP_FRAG_NEEDED</code></td><td style="text-align:left"><strong>需要分片</strong>，但 DF 标志置位了（PMTU 发现的关键报文）。</td></tr><tr><td style="text-align:left">5</td><td style="text-align:left"><code>ICMP_SR_FAILED</code></td><td style="text-align:left"><strong>源路由失败</strong>（很少用了，说明指定的源路由路径有问题）。</td></tr><tr><td style="text-align:left">9</td><td style="text-align:left"><code>ICMP_NET_ANO</code></td><td style="text-align:left">网络<strong>被管理禁止</strong>（防火墙觉得你不该去这儿）。</td></tr><tr><td style="text-align:left">10</td><td style="text-align:left"><code>ICMP_HOST_ANO</code></td><td style="text-align:left">主机<strong>被管理禁止</strong>（防火墙觉得这台主机受保护）。</td></tr><tr><td style="text-align:left">13</td><td style="text-align:left"><code>ICMP_PKT_FILTERED</code></td><td style="text-align:left">包被<strong>过滤</strong>（通常由防火墙生成）。</td></tr></tbody></table>
+<p><em>(注：省略了部分极少见的 TOS 相关及 Historical 代码)</em></p>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="2-icmpv4-重定向">2. ICMPv4 重定向<a href="#2-icmpv4-重定向" class="hash-link" aria-label="2. ICMPv4 重定向的直接链接" title="2. ICMPv4 重定向的直接链接" translate="no">​</a></h4>
+<p>主机 A 想发数据给主机 C，必须要经过路由器 R。但路由器 R 发现，主机 A 其实可以直接发到主机 B，再由主机 B 转发，或者 R 知道一条更近的路。这时候 R 就会给 A 发 Redirect。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th style="text-align:left">Code</th><th style="text-align:left">内核符号</th><th style="text-align:left">含义</th></tr></thead><tbody><tr><td style="text-align:left">0</td><td style="text-align:left"><code>ICMP_REDIR_NET</code></td><td style="text-align:left">重定向<strong>网络</strong>。</td></tr><tr><td style="text-align:left">1</td><td style="text-align:left"><code>ICMP_REDIR_HOST</code></td><td style="text-align:left">重定向<strong>主机</strong>。</td></tr><tr><td style="text-align:left">2</td><td style="text-align:left"><code>ICMP_REDIR_NETTOS</code></td><td style="text-align:left">重定向<strong>网络（基于 TOS）</strong>。</td></tr><tr><td style="text-align:left">3</td><td style="text-align:left"><code>ICMP_REDIR_HOSTTOS</code></td><td style="text-align:left">重定向<strong>主机（基于 TOS）</strong>。</td></tr></tbody></table>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="3-icmpv4-超时">3. ICMPv4 超时<a href="#3-icmpv4-超时" class="hash-link" aria-label="3. ICMPv4 超时的直接链接" title="3. ICMPv4 超时的直接链接" translate="no">​</a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th style="text-align:left">Code</th><th style="text-align:left">内核符号</th><th style="text-align:left">含义</th></tr></thead><tbody><tr><td style="text-align:left">0</td><td style="text-align:left"><code>ICMP_EXC_TTL</code></td><td style="text-align:left"><strong>TTL 超时</strong>（Traceroute 工作的核心）。</td></tr><tr><td style="text-align:left">1</td><td style="text-align:left"><code>ICMP_EXC_FRAGTIME</code></td><td style="text-align:left"><strong>分片重组超时</strong>（收齐所有分片的时间太久了，扔掉）。</td></tr></tbody></table>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="4-icmpv6-目的不可达">4. ICMPv6 目的不可达<a href="#4-icmpv6-目的不可达" class="hash-link" aria-label="4. ICMPv6 目的不可达的直接链接" title="4. ICMPv6 目的不可达的直接链接" translate="no">​</a></h4>
+<p>IPv6 的定义略有不同。注意 IPv6 里 <code>ICMPV6_PKT_TOOBIG</code> 是一个独立的 Type，而不是 Code。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th style="text-align:left">Code</th><th style="text-align:left">内核符号</th><th style="text-align:left">含义</th></tr></thead><tbody><tr><td style="text-align:left">0</td><td style="text-align:left"><code>ICMPV6_NOROUTE</code></td><td style="text-align:left"><strong>没有路由</strong>到目的地。</td></tr><tr><td style="text-align:left">1</td><td style="text-align:left"><code>ICMPV6_ADM_PROHIBITED</code></td><td style="text-align:left"><strong>被管理禁止</strong>（管理员不许）。</td></tr><tr><td style="text-align:left">3</td><td style="text-align:left"><code>ICMPV6_ADDR_UNREACH</code></td><td style="text-align:left"><strong>地址不可达</strong>（通常指邻居不可达，NDP 失败）。</td></tr><tr><td style="text-align:left">4</td><td style="text-align:left"><code>ICMPV6_PORT_UNREACH</code></td><td style="text-align:left"><strong>端口不可达</strong>。</td></tr></tbody></table>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="5-icmpv6-参数问题">5. ICMPv6 参数问题<a href="#5-icmpv6-参数问题" class="hash-link" aria-label="5. ICMPv6 参数问题的直接链接" title="5. ICMPv6 参数问题的直接链接" translate="no">​</a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th style="text-align:left">Code</th><th style="text-align:left">内核符号</th><th style="text-align:left">含义</th></tr></thead><tbody><tr><td style="text-align:left">0</td><td style="text-align:left"><code>ICMPV6_HDR_FIELD</code></td><td style="text-align:left"><strong>头字段错误</strong>（不认得这个字段）。</td></tr><tr><td style="text-align:left">1</td><td style="text-align:left"><code>ICMPV6_UNK_NEXTHDR</code></td><td style="text-align:left"><strong>未知的 Next Header</strong>（扩展头链断了）。</td></tr><tr><td style="text-align:left">2</td><td style="text-align:left"><code>ICMPV6_UNK_OPTION</code></td><td style="text-align:left"><strong>未知的 IPv6 选项</strong>。</td></tr></tbody></table>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="️-procfs-接口从用户空间控制-icmp">⚙️ procfs 接口：从用户空间控制 ICMP<a href="#️-procfs-接口从用户空间控制-icmp" class="hash-link" aria-label="⚙️ procfs 接口：从用户空间控制 ICMP的直接链接" title="⚙️ procfs 接口：从用户空间控制 ICMP的直接链接" translate="no">​</a></h3>
+<p>Linux 允许你在不重新编译内核的情况下，通过 <code>/proc/sys</code> 调整 ICMP 的行为。这些变量都属于 <code>netns_ipv4</code> 结构体，是网络命名空间隔离的。</p>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="关键配置项">关键配置项<a href="#关键配置项" class="hash-link" aria-label="关键配置项的直接链接" title="关键配置项的直接链接" translate="no">​</a></h4>
+<p><strong>1. <code>icmp_echo_ignore_all</code></strong></p>
+<ul>
+<li class=""><strong>路径</strong>：<code>/proc/sys/net/ipv4/icmp_echo_ignore_all</code></li>
+<li class=""><strong>默认值</strong>：<code>0</code> (关闭)</li>
+<li class=""><strong>作用</strong>：置为 1 后，内核将<strong>忽略所有</strong> ICMP Echo Request（Ping 请求）。
+<ul>
+<li class=""><em>场景</em>：这是「隐身模式」的第一步。注意，这只是忽略 Ping，不代表主机不可达。</li>
+</ul>
+</li>
+</ul>
+<p><strong>2. <code>icmp_echo_ignore_broadcasts</code></strong></p>
+<ul>
+<li class=""><strong>路径</strong>：<code>/proc/sys/net/ipv4/icmp_echo_ignore_broadcasts</code></li>
+<li class=""><strong>默认值</strong>：<code>1</code> (开启)</li>
+<li class=""><strong>作用</strong>：置为 1 后，忽略发往广播/组播地址的 Ping 或 Timestamp 请求。
+<ul>
+<li class=""><em>场景</em>：<strong>一定要保持开启</strong>。如果你的网络里有个病毒在疯狂 Ping 广播地址，把这个关掉会直接导致网络风暴。</li>
+</ul>
+</li>
+</ul>
+<p><strong>3. <code>icmp_ratelimit</code></strong></p>
+<ul>
+<li class=""><strong>路径</strong>：<code>/proc/sys/net/ipv4/icmp_ratelimit</code></li>
+<li class=""><strong>默认值</strong>：<code>1 * HZ</code> (即 1 秒，1000ms)</li>
+<li class=""><strong>作用</strong>：限制特定 ICMP 错误报文（由 <code>icmp_ratemask</code> 定义）的发送频率。单位是毫秒。0 表示不限制。
+<ul>
+<li class=""><em>警告</em>：如果设为 0，攻击者可以伪造大量流量触发你的 ICMP 错误回复，导致你变成反射放大攻击的帮凶（虽然 ICMP 包很小，但也足够拥塞链路了）。</li>
+</ul>
+</li>
+</ul>
+<p><strong>4. <code>icmp_ratemask</code></strong></p>
+<ul>
+<li class=""><strong>路径</strong>：<code>/proc/sys/net/ipv4/icmp_ratemask</code></li>
+<li class=""><strong>默认值</strong>：<code>0x1818</code> (二进制 <code>0001 1000 0001 1000</code>)</li>
+<li class=""><strong>作用</strong>：一个位掩码，决定哪些 ICMP Type 需要被速率限制。每一位对应一个 ICMP Type。
+<ul>
+<li class="">比如，如果你想限制 Destination Unreachable (Type 3) 和 Time Exceeded (Type 11)，就需要把对应的位打开。默认值主要针对错误消息。</li>
+</ul>
+</li>
+</ul>
+<p><strong>5. <code>icmp_errors_use_inbound_ifaddr</code></strong></p>
+<ul>
+<li class=""><strong>路径</strong>：<code>/proc/sys/net/ipv4/icmp_errors_use_inbound_ifaddr</code></li>
+<li class=""><strong>默认值</strong>：<code>0</code></li>
+<li class=""><strong>作用</strong>：决定发送 ICMP 错误消息时，源 IP 地址怎么选。
+<ul>
+<li class=""><code>0</code> (默认)：使用<strong>出站接口</strong>（outbound）的主地址。</li>
+<li class=""><code>1</code>：使用<strong>入站接口</strong>（inbound，即收到触发包的那个接口）的主地址。</li>
+<li class=""><em>坑点</em>：在多宿主主机或复杂的非对称路由场景下，如果你选错了源地址，对方收到的错误包可能被当作伪造包丢弃，或者对方回复时又迷路了。通常保持默认就好，除非你的网络拓扑非常特殊。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="️-主动拒接使用-iptablesip6tables-reject">🛡️ 主动拒接：使用 iptables/ip6tables REJECT<a href="#️-主动拒接使用-iptablesip6tables-reject" class="hash-link" aria-label="🛡️ 主动拒接：使用 iptables/ip6tables REJECT的直接链接" title="🛡️ 主动拒接：使用 iptables/ip6tables REJECT的直接链接" translate="no">​</a></h3>
+<p>防火墙有一条铁律：<strong>拒绝 比丢弃 更好</strong>。</p>
+<ul>
+<li class=""><strong>DROP</strong>：你的机器直接把包扔了，客户端会一直等，直到超时。体验很差，且攻击者很难判断是被防火墙拦了还是机器挂了。</li>
+<li class=""><strong>REJECT</strong>：你的机器礼貌地回一个 ICMP 错误包（&quot;Host Unreachable&quot; 或 &quot;Port Unreachable&quot;）。客户端立刻知道「此路不通」，并停止尝试。</li>
+</ul>
+<p>但在 IPv4 和 IPv6 下，这个机制的细节有点不同。</p>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="ipv4-iptables">IPv4 (iptables)<a href="#ipv4-iptables" class="hash-link" aria-label="IPv4 (iptables)的直接链接" title="IPv4 (iptables)的直接链接" translate="no">​</a></h4>
+<p><code>ipt_REJECT</code> 模块允许你指定返回什么样的 ICMP 错误。</p>
+<p><strong>最常用的例子</strong>：禁止访问，并告知对方「管理员禁止」。</p>
+<div class="language-bash codeBlockContainer_DwR3 theme-code-block" style="--prism-background-color:hsl(230, 1%, 98%);--prism-color:hsl(230, 8%, 24%)"><div class="codeBlockContent_JaXi"><pre tabindex="0" class="prism-code language-bash codeBlock_F1SS thin-scrollbar" style="background-color:hsl(230, 1%, 98%);color:hsl(230, 8%, 24%)"><code class="codeBlockLines_lgPH"><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain">iptables </span><span class="token parameter variable" style="color:hsl(221, 87%, 60%)">-A</span><span class="token plain"> INPUT </span><span class="token parameter variable" style="color:hsl(221, 87%, 60%)">-j</span><span class="token plain"> REJECT --reject-with icmp-host-prohibited</span><br></div></code></pre></div></div>
+<p><strong><code>--reject-with</code> 可选参数</strong>：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th style="text-align:left">参数</th><th style="text-align:left">发送的 ICMP 消息</th><th style="text-align:left">含义</th></tr></thead><tbody><tr><td style="text-align:left"><code>icmp-net-unreachable</code></td><td style="text-align:left"><code>ICMP_NET_UNREACH</code></td><td style="text-align:left">网络不可达。</td></tr><tr><td style="text-align:left"><code>icmp-host-unreachable</code></td><td style="text-align:left"><code>ICMP_HOST_UNREACH</code></td><td style="text-align:left">主机不可达。</td></tr><tr><td style="text-align:left"><code>icmp-port-unreachable</code></td><td style="text-align:left"><code>ICMP_PORT_UNREACH</code></td><td style="text-align:left">端口不可达（这是默认行为）。</td></tr><tr><td style="text-align:left"><code>icmp-proto-unreachable</code></td><td style="text-align:left"><code>ICMP_PROT_UNREACH</code></td><td style="text-align:left">协议不可达。</td></tr><tr><td style="text-align:left"><code>icmp-net-prohibited</code></td><td style="text-align:left"><code>ICMP_NET_ANO</code></td><td style="text-align:left">网络被禁止。</td></tr><tr><td style="text-align:left"><code>icmp-host-prohibited</code></td><td style="text-align:left"><code>ICMP_HOST_ANO</code></td><td style="text-align:left"><strong>主机被禁止</strong>（常用）。</td></tr><tr><td style="text-align:left"><code>icmp-admin-prohibited</code></td><td style="text-align:left"><code>ICMP_PKT_FILTERED</code></td><td style="text-align:left">被管理过滤（明确告知是过滤动作）。</td></tr></tbody></table>
+<ul>
+<li class=""><em>额外彩蛋</em>：<code>--reject-with tcp-reset</code>。如果这是一个 TCP 包，内核会伪造一个 TCP RST 包回去，而不是 ICMP。这对打破处于 <code>SYN_SENT</code> 状态的僵死连接非常有效。</li>
+</ul>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="ipv6-ip6tables">IPv6 (ip6tables)<a href="#ipv6-ip6tables" class="hash-link" aria-label="IPv6 (ip6tables)的直接链接" title="IPv6 (ip6tables)的直接链接" translate="no">​</a></h4>
+<p>在 IPv6 下，<code>ip6t_REJECT</code> 的工作方式类似，但可用的错误类型变少了（因为 IPv6 的错误类型本身就精简了）。</p>
+<p><strong>例子</strong>：拒绝某个 IPv6 网段的 ICMPv6 请求。</p>
+<div class="language-bash codeBlockContainer_DwR3 theme-code-block" style="--prism-background-color:hsl(230, 1%, 98%);--prism-color:hsl(230, 8%, 24%)"><div class="codeBlockContent_JaXi"><pre tabindex="0" class="prism-code language-bash codeBlock_F1SS thin-scrollbar" style="background-color:hsl(230, 1%, 98%);color:hsl(230, 8%, 24%)"><code class="codeBlockLines_lgPH"><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain">ip6tables </span><span class="token parameter variable" style="color:hsl(221, 87%, 60%)">-A</span><span class="token plain"> INPUT </span><span class="token parameter variable" style="color:hsl(221, 87%, 60%)">-s</span><span class="token plain"> </span><span class="token number" style="color:hsl(35, 99%, 36%)">2001</span><span class="token plain">::/64 </span><span class="token parameter variable" style="color:hsl(221, 87%, 60%)">-p</span><span class="token plain"> ICMPv6 </span><span class="token parameter variable" style="color:hsl(221, 87%, 60%)">-j</span><span class="token plain"> REJECT --reject-with icmp6-adm-prohibited</span><br></div></code></pre></div></div>
+<p><strong><code>--reject-with</code> 可选参数</strong>：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th style="text-align:left">参数</th><th style="text-align:left">发送的 ICMPv6 消息</th></tr></thead><tbody><tr><td style="text-align:left"><code>no-route</code> / <code>icmp6-no-route</code></td><td style="text-align:left"><code>ICMPV6_NOROUTE</code></td></tr><tr><td style="text-align:left"><code>adm-prohibited</code> / <code>icmp6-adm-prohibited</code></td><td style="text-align:left"><code>ICMPV6_ADM_PROHIBITED</code></td></tr><tr><td style="text-align:left"><code>addr-unreach</code> / <code>icmp6-addr-unreachable</code></td><td style="text-align:left"><code>ICMPV6_ADDR_UNREACH</code></td></tr><tr><td style="text-align:left"><code>port-unreach</code> / <code>icmp6-port-unreachable</code></td><td style="text-align:left"><code>ICMPV6_PORT_UNREACH</code></td></tr></tbody></table>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="本章回响">本章回响<a href="#本章回响" class="hash-link" aria-label="本章回响的直接链接" title="本章回响的直接链接" translate="no">​</a></h3>
+<p>ICMP 经常被误解。很多人把它和「Ping」画等号，甚至觉得它是安全隐患，恨不得在防火墙第一行就把它全禁了。</p>
+<p>但通过这一章的源码漫游，你应该建立了一个新的认知：<strong>ICMP 是 IP 协议的维保人员</strong>。如果没有 ICMP 错误报文，IP 路由就是单向的盲目投递——包发出去没人收，或者发错了路，发送者永远不知道。PMTU 发现会挂掉（导致大包通而不畅），重定向会失效（导致路径永远是次优的），连通性测试会变成「盲人摸象」。</p>
+<p>我们在本章开头提到的那几个直觉——Ping 只是测试连通性、防火墙要禁 Ping——现在看来，都太粗糙了。</p>
+<ul>
+<li class="">Ping 测试的不只是连通性，还包括路由的完整性、名字解析的效率（如果在 IPv6 环境下涉及 NDP）。</li>
+<li class="">防火墙不应该盲目 DROP 所有 ICMP，而应该精细控制（允许 Type 3 Code 4 用于 MTU 发现，允许 Type 11 用于 Traceroute），并优先使用 REJECT 目标而不是 DROP。</li>
+</ul>
+<p>理解了 ICMP 的收发机制、数据结构和 <code>inet</code> 协议注册流程，你就掌握了调试网络层问题的「听诊器」。当网络出问题时，不要只盯着 TCP 三次握手，把视角下沉到 L3，问自己一句：<strong>ICMP 报错了吗？报的是什么错？</strong> 那个错误包里，往往藏着真相。</p>
+<p>接下来，我们将正式进入 IPv4 网络层的核心——那些负责路由、分片和转发的核心引擎。既然已经搞定了「控制信号」，接下来就是看「数据车流」是怎么被调度和转场的了。</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_bBfE" id="练习题">练习题<a href="#练习题" class="hash-link" aria-label="练习题的直接链接" title="练习题的直接链接" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="练习-1understanding">练习 1：understanding<a href="#练习-1understanding" class="hash-link" aria-label="练习 1：understanding的直接链接" title="练习 1：understanding的直接链接" translate="no">​</a></h3>
+<p><strong>题目</strong>：在 Linux 内核初始化阶段，<code>icmp_sk_init()</code> 函数会为每个 CPU 创建一个内核套接字（<code>net-&gt;ipv4.icmp_sk[i]</code>）。请问创建这些套接字时指定的协议类型（<code>protocol</code>）是什么？这些套接字的主要用途是什么？</p>
+<details class="details_O3kF alert alert--info details_Dlld" data-collapsed="true"><summary>答案与解析</summary><div><div class="collapsibleContent_GZgo">
+<p><strong>答案</strong>：协议类型是 <code>IPPROTO_ICMP</code> (值为 1)。这些套接字是内核用来发送 ICMP 错误消息（如目的不可达、超时）或回复消息（如 Echo Reply）的，它们属于 Raw Socket，不用于用户态直接通信，而是内核协议栈内部使用。</p>
+<p><strong>解析</strong>：根据文中 <code>icmp_sk_init</code> 的代码片段：
+<code>err = inet_ctl_sock_create(&amp;sk, PF_INET, SOCK_RAW, IPPROTO_ICMP, net);</code>
+可以看出，第三个参数 <code>IPPROTO_ICMP</code> 指定了协议类型。
+这些套接字在文中被描述为“kernel ICMP socket for sending ICMP messages”，并在 <code>icmp_push_reply()</code> 中被使用，用于构建和发送内核产生的 ICMP 报文。</p>
+</div></div></details>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="练习-2application">练习 2：application<a href="#练习-2application" class="hash-link" aria-label="练习 2：application的直接链接" title="练习 2：application的直接链接" translate="no">​</a></h3>
+<p><strong>题目</strong>：假设你的主机作为路由器正在转发一个数据包。如果该数据包的长度（1500 字节）超过了下一跳链路的 MTU（1400 字节），且 IP 头部设置了 DF（Don&#x27;t Fragment）标志。此时内核会向发送方返回哪种 ICMP 消息？在内核代码中，是哪个函数负责发送此消息，以及它携带的 <code>info</code> 参数代表什么含义？</p>
+<details class="details_O3kF alert alert--info details_Dlld" data-collapsed="true"><summary>答案与解析</summary><div><div class="collapsibleContent_GZgo">
+<p><strong>答案</strong>：返回“Destination Unreachable” (Type 3)，代码为“Fragmentation Needed” (Code 4) 的 ICMP 消息。
+发送函数为 <code>icmp_send()</code> (在 <code>ip_forward</code> 中调用)。
+<code>info</code> 参数（对应下一跳 MTU 的值）会被设置为 1400 (即 <code>dst_mtu(&amp;rt-&gt;dst)</code>)。</p>
+<p><strong>解析</strong>：这是一个典型的 MTU 发现场景。根据文中 <code>ip_forward</code> 函数的代码片段：
+<code>icmp_send(skb, ICMP_DEST_UNREACH, ICMP_FRAG_NEEDED, htonl(dst_mtu(&amp;rt-&gt;dst)));</code>
+当数据包长度大于 MTU 且 DF 标志置位时，内核会触发此逻辑。<code>icmp_send</code> 函数的第四个参数 <code>info</code> 在这种情况下用于告知对方需要的 MTU 大小，从而实现 Path MTU Discovery。</p>
+</div></div></details>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="练习-3thinking">练习 3：thinking<a href="#练习-3thinking" class="hash-link" aria-label="练习 3：thinking的直接链接" title="练习 3：thinking的直接链接" translate="no">​</a></h3>
+<p><strong>题目</strong>：在 <code>icmp_rcv()</code> 函数处理接收到的 ICMPv4 报文时，如果校验和检查失败，内核通常会丢弃该报文。请思考并分析：为什么内核在校验和失败时只更新统计计数器并丢弃报文，而不返回负错误值（如 -EINVAL）？</p>
+<details class="details_O3kF alert alert--info details_Dlld" data-collapsed="true"><summary>答案与解析</summary><div><div class="collapsibleContent_GZgo">
+<p><strong>答案</strong>：因为 <code>ip_local_deliver_finish()</code> 中的协议处理机制如果收到负返回值，会尝试重新处理该数据包（例如可能认为是传输层问题等）。然而，对于 ICMP 报文本身校验和错误，表明报文已损坏，没有任何恢复或重处理的必要，唯一的正确做法就是丢弃。返回 0 表示协议栈已处理完毕（即使处理方式是丢弃），避免系统无谓的消耗。</p>
+<p><strong>解析</strong>：文中提到：<code>The icmp_rcv() method does not return an error in this case... when a protocol handler returns a negative error, another attempt to process the packet is performed, and it is not needed in this case.</code>
+这是网络协议栈健壮性设计的一部分。ICMP 主要是控制报文，校验和错误意味着内容不可信，必须静默丢弃以防止基于错误报文的操作。如果返回错误，可能会触发上层重传或其他副作用，这是不安全的。</p>
+</div></div></details>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_bBfE" id="要点提炼">要点提炼<a href="#要点提炼" class="hash-link" aria-label="要点提炼的直接链接" title="要点提炼的直接链接" translate="no">​</a></h2>
+<p>ICMP 是 IP 网络中不可或缺的“神经系统”，它超越了单纯的 Ping 工具范畴，充当了网络层的异常处理与反馈机制。其核心价值在于打破 IP 协议“尽力而为”投递的黑盒属性，通过报告错误（如目标不可达、超时）和传输诊断信息，让发送端能感知网络状态并进行调整（如 PMTU 发现），是维护网络可调试性和健壮性的基石。</p>
+<p>内核处理 ICMP 的核心机制依赖于高效的分发与并行架构。对于接收路径，内核通过查表或跳转分发，将不同类型的包（如 Echo、超时、不可达）交给特定的 Handler 处理；对于发送路径，为了规避多核系统下的锁竞争，Linux 内核采用了为每个 CPU 创建独立 Raw Socket 的设计，确保即使在高负载下也能高效地生成和发送控制报文。</p>
+<p>ICMPv4 与 ICMPv6 虽名相似，但在职责上存在本质差异。ICMPv4 主要用于辅助 IPv4 进行差错报告；而 ICMPv6 在 IPv6 架构中地位极高，它不仅继承了报错功能，还彻底接管了 ARP（地址解析）和 IGMP（组播管理）的职责，成为邻居发现（ND）和组播监听（MLD）的统一载体，是 IPv6 网络运作的绝对核心。</p>
+<p>为了防止网络风暴，ICMP 的发送受到严格的速率限制。内核默认会对错误报文进行限流，以避免因网络故障引发的“雪崩式”反馈导致拥塞崩溃。然而，这一规则有两个关键例外：PMTU 发现所需的“包太大”报文和发给回环设备的报文必须立即发送，以确保路径 MTU 的及时更新和本地通信的流畅。</p>
+<p>工程实践中，安全策略应倾向于“拒绝”而非“丢弃”。盲目使用防火墙 DROP 所有 ICMP 会导致 MTU 发现失败（引发大包传输卡死）和 Traceroute 失效；更明智的做法是利用 iptables REJECT 目标或精细化的 procfs 配置（如 <code>icmp_echo_ignore_all</code>），在隐藏主机特定信息的同时，允许必要的错误消息（如 Fragmentation Needed）通过，以确保网络连通性。</p></div><footer class="theme-doc-footer docusaurus-mt-lg"><div class="row margin-top--sm theme-doc-footer-edit-meta-row"><div class="col noPrint_MpOp"><a href="https://github.com/Awesome-Embedded-Learning-Studio/PenguinLab/tree/main/../document/notes/linux_kernel_networking/ch03_3.md" target="_blank" rel="noopener noreferrer" class="theme-edit-this-page"><svg fill="currentColor" height="20" width="20" viewBox="0 0 40 40" class="iconEdit_Xu8_" aria-hidden="true"><g><path d="m34.5 11.7l-3 3.1-6.3-6.3 3.1-3q0.5-0.5 1.2-0.5t1.1 0.5l3.9 3.9q0.5 0.4 0.5 1.1t-0.5 1.2z m-29.5 17.1l18.4-18.5 6.3 6.3-18.4 18.4h-6.3v-6.2z"></path></g></svg>编辑此页</a></div><div class="col lastUpdated_nSfX"><span class="theme-last-updated">最后<!-- -->由 <b>Charliechen114514</b> <!-- -->于 <b><time datetime="2026-05-06T00:06:46.000Z" itemprop="dateModified">2026年5月6日</time></b> <!-- -->更新</span></div></div></footer></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="文件选项卡"><a class="pagination-nav__link pagination-nav__link--prev" href="/PenguinLab/notes/linux_kernel_networking/ch03_2"><div class="pagination-nav__sublabel">上一页</div><div class="pagination-nav__label">3.2  IPv6 的「瑞士军刀」：ICMPv6</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/PenguinLab/notes/linux_kernel_networking/ch04"><div class="pagination-nav__sublabel">下一页</div><div class="pagination-nav__label">第 4 章</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_VJ1c thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#-核心方法速查" class="table-of-contents__link toc-highlight">📚 核心方法速查</a><ul><li><a href="#接收处理" class="table-of-contents__link toc-highlight">接收处理</a></li><li><a href="#发送处理" class="table-of-contents__link toc-highlight">发送处理</a></li><li><a href="#辅助工具" class="table-of-contents__link toc-highlight">辅助工具</a></li></ul></li><li><a href="#-关键数据表错误代码字典" class="table-of-contents__link toc-highlight">📋 关键数据表：错误代码字典</a><ul><li><a href="#1-icmpv4-目的不可达" class="table-of-contents__link toc-highlight">1. ICMPv4 目的不可达</a></li><li><a href="#2-icmpv4-重定向" class="table-of-contents__link toc-highlight">2. ICMPv4 重定向</a></li><li><a href="#3-icmpv4-超时" class="table-of-contents__link toc-highlight">3. ICMPv4 超时</a></li><li><a href="#4-icmpv6-目的不可达" class="table-of-contents__link toc-highlight">4. ICMPv6 目的不可达</a></li><li><a href="#5-icmpv6-参数问题" class="table-of-contents__link toc-highlight">5. ICMPv6 参数问题</a></li></ul></li><li><a href="#️-procfs-接口从用户空间控制-icmp" class="table-of-contents__link toc-highlight">⚙️ procfs 接口：从用户空间控制 ICMP</a><ul><li><a href="#关键配置项" class="table-of-contents__link toc-highlight">关键配置项</a></li></ul></li><li><a href="#️-主动拒接使用-iptablesip6tables-reject" class="table-of-contents__link toc-highlight">🛡️ 主动拒接：使用 iptables/ip6tables REJECT</a><ul><li><a href="#ipv4-iptables" class="table-of-contents__link toc-highlight">IPv4 (iptables)</a></li><li><a href="#ipv6-ip6tables" class="table-of-contents__link toc-highlight">IPv6 (ip6tables)</a></li></ul></li><li><a href="#本章回响" class="table-of-contents__link toc-highlight">本章回响</a></li><li><a href="#练习题" class="table-of-contents__link toc-highlight">练习题</a><ul><li><a href="#练习-1understanding" class="table-of-contents__link toc-highlight">练习 1：understanding</a></li><li><a href="#练习-2application" class="table-of-contents__link toc-highlight">练习 2：application</a></li><li><a href="#练习-3thinking" class="table-of-contents__link toc-highlight">练习 3：thinking</a></li></ul></li><li><a href="#要点提炼" class="table-of-contents__link toc-highlight">要点提炼</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="footer__bottom text--center"><div class="footer__copyright">Copyright © 2026 Charliechen</div></div></div></footer></div>
+</body>
+</html>

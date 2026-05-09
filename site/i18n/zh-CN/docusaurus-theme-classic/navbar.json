@@ -1,0 +1,30 @@
+{
+  "title": {
+    "message": "PenguinLab",
+    "description": "The title in the navbar"
+  },
+  "logo.alt": {
+    "message": "PenguinLab Logo",
+    "description": "The alt text of navbar logo"
+  },
+  "item.label.教程": {
+    "message": "教程",
+    "description": "Navbar item with label 教程"
+  },
+  "item.label.参考": {
+    "message": "参考",
+    "description": "Navbar item with label 参考"
+  },
+  "item.label.笔记": {
+    "message": "笔记",
+    "description": "Navbar item with label 笔记"
+  },
+  "item.label.内核新闻": {
+    "message": "内核新闻",
+    "description": "Navbar item with label 内核新闻"
+  },
+  "item.label.GitHub": {
+    "message": "GitHub",
+    "description": "Navbar item with label GitHub"
+  }
+}

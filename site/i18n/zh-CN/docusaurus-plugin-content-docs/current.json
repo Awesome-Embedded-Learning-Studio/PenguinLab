@@ -1,0 +1,50 @@
+{
+  "version.label": {
+    "message": "Next",
+    "description": "The label for version current"
+  },
+  "sidebar.tutorialSidebar.category.通识基础": {
+    "message": "通识基础",
+    "description": "The label for category '通识基础' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.doc.首页": {
+    "message": "首页",
+    "description": "The label for the doc item '首页' in sidebar 'tutorialSidebar', linking to the doc intro"
+  },
+  "sidebar.referenceSidebar.category.参考文档": {
+    "message": "参考文档",
+    "description": "The label for category '参考文档' in sidebar 'referenceSidebar'"
+  },
+  "sidebar.notesSidebar.category.Linux 内核编程": {
+    "message": "Linux 内核编程",
+    "description": "The label for category 'Linux 内核编程' in sidebar 'notesSidebar'"
+  },
+  "sidebar.notesSidebar.category.Linux 内核编程.link.generated-index.description": {
+    "message": "Linux 内核编程基础 — 从零搭建内核工作空间，涵盖模块开发、字符设备、进程调度等。共 13 章。",
+    "description": "The generated-index page description for category 'Linux 内核编程' in sidebar 'notesSidebar'"
+  },
+  "sidebar.notesSidebar.category.Linux 设备驱动": {
+    "message": "Linux 设备驱动",
+    "description": "The label for category 'Linux 设备驱动' in sidebar 'notesSidebar'"
+  },
+  "sidebar.notesSidebar.category.Linux 设备驱动.link.generated-index.description": {
+    "message": "Linux 内核设备驱动 — 驱动模型、字符/块/网络设备驱动的编写与实践。共 22 篇。",
+    "description": "The generated-index page description for category 'Linux 设备驱动' in sidebar 'notesSidebar'"
+  },
+  "sidebar.notesSidebar.category.Linux 内核调试": {
+    "message": "Linux 内核调试",
+    "description": "The label for category 'Linux 内核调试' in sidebar 'notesSidebar'"
+  },
+  "sidebar.notesSidebar.category.Linux 内核调试.link.generated-index.description": {
+    "message": "Linux 内核调试 — 调试工具、崩溃分析、性能调优等排障技巧。共 93 篇。",
+    "description": "The generated-index page description for category 'Linux 内核调试' in sidebar 'notesSidebar'"
+  },
+  "sidebar.notesSidebar.category.Linux 内核网络": {
+    "message": "Linux 内核网络",
+    "description": "The label for category 'Linux 内核网络' in sidebar 'notesSidebar'"
+  },
+  "sidebar.notesSidebar.category.Linux 内核网络.link.generated-index.description": {
+    "message": "Linux 内核网络 — 网络协议栈源码剖析，从链路层到套接字层。共 124 篇。",
+    "description": "The generated-index page description for category 'Linux 内核网络' in sidebar 'notesSidebar'"
+  }
+}

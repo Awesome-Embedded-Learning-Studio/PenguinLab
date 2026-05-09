@@ -2,6 +2,10 @@
 
 # PenguinLab
 
+<!-- COVERAGE_START -->
+![English Coverage](https://img.shields.io/badge/en_coverage-100%25-green.svg) 262/262 docs translated
+<!-- COVERAGE_END -->
+
 **Linux 内核学习站 — 从 QEMU 实践到内核原理、驱动开发与嵌入式全栈**
 
 [![Kernel](https://img.shields.io/badge/Linux%20Kernel-6.19.y-blue)](https://kernel.org)

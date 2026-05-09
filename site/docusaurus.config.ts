@@ -19,7 +19,17 @@ const config: Config = {
 
   i18n: {
     defaultLocale: 'zh-CN',
-    locales: ['zh-CN'],
+    locales: ['zh-CN', 'en'],
+    localeConfigs: {
+      'zh-CN': {
+        label: '简体中文',
+        path: 'zh-CN',
+      },
+      en: {
+        label: 'English',
+        direction: 'ltr',
+      },
+    },
   },
 
   markdown: {
@@ -92,6 +102,10 @@ const config: Config = {
           label: '笔记',
         },
         {to: '/blog', label: '内核新闻', position: 'left'},
+        {
+          type: 'localeDropdown',
+          position: 'right',
+        },
         {
           href: 'https://github.com/Awesome-Embedded-Learning-Studio/PenguinLab',
           label: 'GitHub',

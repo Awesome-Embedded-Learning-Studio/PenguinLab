@@ -1,0 +1,50 @@
+{
+  "version.label": {
+    "message": "Next",
+    "description": "The label for version current"
+  },
+  "sidebar.tutorialSidebar.category.通识基础": {
+    "message": "Foundations",
+    "description": "The label for category '通识基础' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.doc.首页": {
+    "message": "Home",
+    "description": "The label for the doc item '首页' in sidebar 'tutorialSidebar', linking to the doc intro"
+  },
+  "sidebar.referenceSidebar.category.参考文档": {
+    "message": "Reference",
+    "description": "The label for category '参考文档' in sidebar 'referenceSidebar'"
+  },
+  "sidebar.notesSidebar.category.Linux 内核编程": {
+    "message": "Linux Kernel Programming",
+    "description": "The label for category 'Linux 内核编程' in sidebar 'notesSidebar'"
+  },
+  "sidebar.notesSidebar.category.Linux 内核编程.link.generated-index.description": {
+    "message": "Linux kernel programming basics — building a kernel workspace from scratch, covering module development, character devices, process scheduling, and more. 13 chapters.",
+    "description": "The generated-index page description for category 'Linux 内核编程' in sidebar 'notesSidebar'"
+  },
+  "sidebar.notesSidebar.category.Linux 设备驱动": {
+    "message": "Linux Device Drivers",
+    "description": "The label for category 'Linux 设备驱动' in sidebar 'notesSidebar'"
+  },
+  "sidebar.notesSidebar.category.Linux 设备驱动.link.generated-index.description": {
+    "message": "Linux kernel device drivers — driver model, character/block/network device driver development and practice. 22 chapters.",
+    "description": "The generated-index page description for category 'Linux 设备驱动' in sidebar 'notesSidebar'"
+  },
+  "sidebar.notesSidebar.category.Linux 内核调试": {
+    "message": "Linux Kernel Debugging",
+    "description": "The label for category 'Linux 内核调试' in sidebar 'notesSidebar'"
+  },
+  "sidebar.notesSidebar.category.Linux 内核调试.link.generated-index.description": {
+    "message": "Linux kernel debugging — debugging tools, crash analysis, performance tuning, and troubleshooting techniques. 93 chapters.",
+    "description": "The generated-index page description for category 'Linux 内核调试' in sidebar 'notesSidebar'"
+  },
+  "sidebar.notesSidebar.category.Linux 内核网络": {
+    "message": "Linux Kernel Networking",
+    "description": "The label for category 'Linux 内核网络' in sidebar 'notesSidebar'"
+  },
+  "sidebar.notesSidebar.category.Linux 内核网络.link.generated-index.description": {
+    "message": "Linux kernel networking — network stack source code analysis, from link layer to socket layer. 124 chapters.",
+    "description": "The generated-index page description for category 'Linux 内核网络' in sidebar 'notesSidebar'"
+  }
+}

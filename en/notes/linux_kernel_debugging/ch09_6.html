@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="generator" content="Docusaurus v3.10.1">
 <title data-rh="true">9.6 Hands-on: Tracing a Single Ping Request with Raw ftrace | PenguinLab</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://awesome-embedded-learning-studio.github.io/PenguinLab/en/notes/linux_kernel_debugging/ch09_6"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" property="og:locale:alternate" content="zh_CN"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="9.6 Hands-on: Tracing a Single Ping Request with Raw ftrace | PenguinLab"><meta data-rh="true" name="description" content="Alright, the toolbox is open. We now have the ability to configure the kernel, simple tracing methods at our disposal, and a whole bunch of advanced filtering techniques—Glob, index, blacklist, and commands."><meta data-rh="true" property="og:description" content="Alright, the toolbox is open. We now have the ability to configure the kernel, simple tracing methods at our disposal, and a whole bunch of advanced filtering techniques—Glob, index, blacklist, and commands."><link data-rh="true" rel="icon" href="/PenguinLab/en/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://awesome-embedded-learning-studio.github.io/PenguinLab/en/notes/linux_kernel_debugging/ch09_6"><link data-rh="true" rel="alternate" href="https://awesome-embedded-learning-studio.github.io/PenguinLab/notes/linux_kernel_debugging/ch09_6" hreflang="zh-CN"><link data-rh="true" rel="alternate" href="https://awesome-embedded-learning-studio.github.io/PenguinLab/en/notes/linux_kernel_debugging/ch09_6" hreflang="en"><link data-rh="true" rel="alternate" href="https://awesome-embedded-learning-studio.github.io/PenguinLab/notes/linux_kernel_debugging/ch09_6" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Linux Kernel Debugging","item":"https://awesome-embedded-learning-studio.github.io/PenguinLab/en/category/linux-内核调试"},{"@type":"ListItem","position":2,"name":"9.6 Hands-on: Tracing a Single Ping Request with Raw ftrace","item":"https://awesome-embedded-learning-studio.github.io/PenguinLab/en/notes/linux_kernel_debugging/ch09_6"}]}</script><link rel="stylesheet" href="/PenguinLab/en/assets/css/styles.60aea433.css">
-<script src="/PenguinLab/en/assets/js/runtime~main.e2fe7f5f.js" defer="defer"></script>
+<script src="/PenguinLab/en/assets/js/runtime~main.c3e97c24.js" defer="defer"></script>
 <script src="/PenguinLab/en/assets/js/main.9054ff80.js" defer="defer"></script>
 </head>
 <body>
@@ -63,7 +63,7 @@
 <h3 class="anchor anchorTargetStickyNavbar_bBfE" id="lets-go-looking-at-the-results">Let&#x27;s Go! Looking at the Results<a href="#lets-go-looking-at-the-results" class="hash-link" aria-label="Direct link to Let&#x27;s Go! Looking at the Results" title="Direct link to Let&#x27;s Go! Looking at the Results" translate="no">​</a></h3>
 <p>Let&#x27;s run the script.</p>
 <p>Figure 9.11 shows the moment the script runs. You can see the script outputting various logs, ping doing its job, and finally a prompt indicating the report has been generated.</p>
-<p><img decoding="async" loading="lazy" src="images/ch09_fig144.webp" alt="figure" class="img_5kRW"></p>
+<p><img decoding="async" loading="lazy" alt="figure" src="/PenguinLab/en/assets/images/ch09_fig144-b7ba74836f381ab2ab0701c9530b638f.webp" width="1100" height="753" class="img_5kRW"></p>
 <p><em>Figure 9.11 – Our raw ftrace script tracing a single ping</em></p>
 <p>Notice the size of the generated report—only 272 KB.</p>
 <p>If you didn&#x27;t apply any filtering, a single ping could produce a trace of tens of MB. This shows our filtering strategy worked: we chopped out the irrelevant noise and kept only the essence of the network stack.</p>
@@ -88,10 +88,10 @@
 </ul>
 <p>This last function is the gateway to the driver. In this example, it calls <code>e1000_xmit_frame()</code> to hand the packet off to the actual network hardware.</p>
 <p>Look at Figure 9.12, which is a screenshot from the real trace report. You can clearly see <code>sock_sendmsg</code> and <code>inet_sendmsg</code> highlighted.</p>
-<p><img decoding="async" loading="lazy" src="images/ch09_fig145.webp" alt="figure" class="img_5kRW"></p>
+<p><img decoding="async" loading="lazy" alt="figure" src="/PenguinLab/en/assets/images/ch09_fig145-f93eea01d6d0fe7d3a0d76cce469c223.webp" width="1159" height="356" class="img_5kRW"></p>
 <p><em>Figure 9.12 – Trace snippet of the transmit path (upper half)</em></p>
 <p>Scrolling down a bit further, Figure 9.13 shows the deeper levels of the call chain.</p>
-<p><img decoding="async" loading="lazy" src="images/ch09_fig146.webp" alt="figure" class="img_5kRW"></p>
+<p><img decoding="async" loading="lazy" alt="figure" src="/PenguinLab/en/assets/images/ch09_fig146-edcfb7841c7c78035c84ff028b2207b6.webp" width="867" height="775" class="img_5kRW"></p>
 <p><em>Figure 9.13 – Trace snippet of the transmit path (lower half, diving into the UDP/IP layer and driver layer)</em></p>
 <p>See that indentation?</p>
 <p>That&#x27;s not just formatting; that&#x27;s <strong>the passage of time</strong>. Every indentation level is a function call; every indentation step back is a return.</p>
@@ -108,10 +108,10 @@
 <li class=""><code>sock_recvmsg()</code>: The data finally arrives in user space.</li>
 </ul>
 <p>Look at Figure 9.14, which shows the beginning of the receive path.</p>
-<p><img decoding="async" loading="lazy" src="images/ch09_fig147.webp" alt="figure" class="img_5kRW"></p>
+<p><img decoding="async" loading="lazy" alt="figure" src="/PenguinLab/en/assets/images/ch09_fig147-03a9adfc4a9b90431a4c369f65773b85.webp" width="998" height="757" class="img_5kRW"></p>
 <p><em>Figure 9.14 – Trace snippet of the receive path</em></p>
 <p>And Figure 9.15 shows how the packet is ultimately delivered to the Socket layer.</p>
-<p><img decoding="async" loading="lazy" src="images/ch09_fig148.webp" alt="figure" class="img_5kRW"></p>
+<p><img decoding="async" loading="lazy" alt="figure" src="/PenguinLab/en/assets/images/ch09_fig148-71359edf475b28e9c62af42929f9cacd.webp" width="1133" height="550" class="img_5kRW"></p>
 <p><em>Figure 9.15 – The final stage of the receive path</em></p>
 <h3 class="anchor anchorTargetStickyNavbar_bBfE" id="validating-our-intuition">Validating Our Intuition<a href="#validating-our-intuition" class="hash-link" aria-label="Direct link to Validating Our Intuition" title="Direct link to Validating Our Intuition" translate="no">​</a></h3>
 <p>Honestly, the first time I saw this output, it felt magical.</p>

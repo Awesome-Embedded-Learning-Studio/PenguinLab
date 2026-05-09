@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="generator" content="Docusaurus v3.10.1">
 <title data-rh="true">7.5  Decoding Kernel Bug Diagnostics (Part 2) | PenguinLab</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://awesome-embedded-learning-studio.github.io/PenguinLab/en/notes/linux_kernel_debugging/ch07_5"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" property="og:locale:alternate" content="zh_CN"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="7.5  Decoding Kernel Bug Diagnostics (Part 2) | PenguinLab"><meta data-rh="true" name="description" content="7.5   Leveraging Kernel Scripts — Don&#x27;t Reinvent the Wheel"><meta data-rh="true" property="og:description" content="7.5   Leveraging Kernel Scripts — Don&#x27;t Reinvent the Wheel"><link data-rh="true" rel="icon" href="/PenguinLab/en/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://awesome-embedded-learning-studio.github.io/PenguinLab/en/notes/linux_kernel_debugging/ch07_5"><link data-rh="true" rel="alternate" href="https://awesome-embedded-learning-studio.github.io/PenguinLab/notes/linux_kernel_debugging/ch07_5" hreflang="zh-CN"><link data-rh="true" rel="alternate" href="https://awesome-embedded-learning-studio.github.io/PenguinLab/en/notes/linux_kernel_debugging/ch07_5" hreflang="en"><link data-rh="true" rel="alternate" href="https://awesome-embedded-learning-studio.github.io/PenguinLab/notes/linux_kernel_debugging/ch07_5" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Linux Kernel Debugging","item":"https://awesome-embedded-learning-studio.github.io/PenguinLab/en/category/linux-内核调试"},{"@type":"ListItem","position":2,"name":"7.5  Decoding Kernel Bug Diagnostics (Part 2)","item":"https://awesome-embedded-learning-studio.github.io/PenguinLab/en/notes/linux_kernel_debugging/ch07_5"}]}</script><link rel="stylesheet" href="/PenguinLab/en/assets/css/styles.60aea433.css">
-<script src="/PenguinLab/en/assets/js/runtime~main.e2fe7f5f.js" defer="defer"></script>
+<script src="/PenguinLab/en/assets/js/runtime~main.c3e97c24.js" defer="defer"></script>
 <script src="/PenguinLab/en/assets/js/main.9054ff80.js" defer="defer"></script>
 </head>
 <body>
@@ -20,7 +20,7 @@
 <hr>
 <h3 class="anchor anchorTargetStickyNavbar_bBfE" id="tool-overview">Tool Overview<a href="#tool-overview" class="hash-link" aria-label="Direct link to Tool Overview" title="Direct link to Tool Overview" translate="no">​</a></h3>
 <p>Before diving into the details, it&#x27;s always good to have a map. Table 7.3 lists the key scripts we&#x27;ll focus on in this section and the specific problems they solve. This isn&#x27;t an exhaustive list (there are more in the source tree), but these are the &quot;lifelines&quot; you&#x27;ll want on your debugging journey.</p>
-<p><img decoding="async" loading="lazy" src="images/ch07_fig106.webp" alt="Table 7.3" class="img_5kRW"></p>
+<p><img decoding="async" loading="lazy" alt="Table 7.3" src="/PenguinLab/en/assets/images/ch07_fig106-08255ad86271ab767dba037b21df11db.webp" width="1631" height="1485" class="img_5kRW"></p>
 <p><strong>Table 7.3 — Quick Reference for Common Kernel Helper Scripts</strong></p>
 <p>Don&#x27;t bother memorizing this just yet. We&#x27;ll pick each one up and take it for a spin below to see exactly where it shines.</p>
 <hr>
@@ -89,7 +89,7 @@ A few hundred bytes in your module might look fine, but remember that kernel cal
 <p>It simply takes the machine code you pass in and feeds it directly to <code>decodecode</code> for processing.</p>
 <h4 class="anchor anchorTargetStickyNavbar_bBfE" id="output-demonstration">Output Demonstration<a href="#output-demonstration" class="hash-link" aria-label="Direct link to Output Demonstration" title="Direct link to Output Demonstration" translate="no">​</a></h4>
 <p>Suppose we take the machine code section from when <code>do_the_work</code> triggered the Oops and feed it directly to <code>decodecode</code>. It would spit out something like Figure 7.17:</p>
-<p><img decoding="async" loading="lazy" src="images/ch07_fig107.webp" alt="Figure 7.17" class="img_5kRW"></p>
+<p><img decoding="async" loading="lazy" alt="Figure 7.17" src="/PenguinLab/en/assets/images/ch07_fig107-b1f97965a54a94e67f604c4d8a51ed13.webp" width="920" height="665" class="img_5kRW"></p>
 <p><strong>Figure 7.17 — Example output of the decodecode script</strong></p>
 <p>Notice the <code>&lt;-- trapping instruction</code> in the output. It precisely points out which assembly instruction caused the MMU to throw an exception.</p>
 <p>In this example, a <code>movb</code> instruction is trying to access the address <code>0x30</code> (which is the offset of that null pointer in our code). Seeing this line, you can be absolutely certain: this is exactly where the code crashed.</p>
@@ -143,7 +143,7 @@ A few hundred bytes in your module might look fine, but remember that kernel cal
 <p>Or specify the file directly:</p>
 <div class="language-bash codeBlockContainer_DwR3 theme-code-block" style="--prism-background-color:hsl(230, 1%, 98%);--prism-color:hsl(230, 8%, 24%)"><div class="codeBlockContent_JaXi"><pre tabindex="0" class="prism-code language-bash codeBlock_F1SS thin-scrollbar" style="background-color:hsl(230, 1%, 98%);color:hsl(230, 8%, 24%)"><code class="codeBlockLines_lgPH"><div class="token-line" style="color:hsl(230, 8%, 24%)"><span class="token plain">$ ./scripts/get_maintainer.pl </span><span class="token parameter variable" style="color:hsl(221, 87%, 60%)">-f</span><span class="token plain"> kernel/debug/gdbstub.c</span><br></div></code></pre></div></div>
 <p>The script will magically spit out a bunch of information (see Figure 7.19):</p>
-<p><img decoding="async" loading="lazy" src="images/ch07_fig109.webp" alt="Figure 7.19" class="img_5kRW"></p>
+<p><img decoding="async" loading="lazy" alt="Figure 7.19" src="/PenguinLab/en/assets/images/ch07_fig109-6eb837d5fca2ead466b732cc77e47db5.webp" width="821" height="319" class="img_5kRW"></p>
 <p><strong>Figure 7.19 — Example output of get_maintainer.pl</strong></p>
 <p>It tells you:</p>
 <ul>

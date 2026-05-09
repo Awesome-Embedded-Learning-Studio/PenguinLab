@@ -1,0 +1,21 @@
+# common/Makefile.arch — Architecture detection and kernel source path
+#
+# Variables:
+#   ARCH          — Target architecture (arm, arm64, riscv, x86_64)
+#   CROSS_COMPILE — Cross-compiler prefix
+#   KDIR          — Path to kernel source tree
+
+# Default: ARM64
+ARCH ?= arm64
+KDIR ?= $(shell realpath $(dir $(lastword $(MAKEFILE_LIST)))/../../out/build_latest_$(ARCH))
+
+ifeq ($(ARCH),arm)
+  CROSS_COMPILE ?= arm-linux-gnueabihf-
+else ifeq ($(ARCH),arm64)
+  CROSS_COMPILE ?= aarch64-linux-gnu-
+else ifeq ($(ARCH),riscv)
+  CROSS_COMPILE ?= riscv64-linux-gnu-
+else ifeq ($(ARCH),x86_64)
+  CROSS_COMPILE ?=
+  KDIR ?= /lib/modules/$(shell uname -r)/build
+endif

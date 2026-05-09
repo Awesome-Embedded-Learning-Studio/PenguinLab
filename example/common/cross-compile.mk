@@ -3,8 +3,8 @@
 # Usage: include ../../common/cross-compile.mk
 
 # ARM32 toolchain
-CC_ARM32   = arm-linux-gnueabihf-gcc
-LD_ARM32   = arm-linux-gnueabihf-ld
+CC_ARM32   = arm-none-linux-gnueabihf-gcc
+LD_ARM32   = arm-none-linux-gnueabihf-ld
 
 # ARM64 toolchain
 CC_ARM64   = aarch64-linux-gnu-gcc

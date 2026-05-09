@@ -16,7 +16,7 @@
 # Environment Variables (with defaults):
 #   LINUX_SRC         - Kernel source path (default: project_root/third_party/linux)
 #   ARCH              - Target architecture (default: arm)
-#   CROSS_COMPILE     - Cross-compiler prefix (default: arm-linux-gnueabihf-)
+#   CROSS_COMPILE     - Cross-compiler prefix (default: arm-none-linux-gnueabihf-)
 #   LINUX_DEFCONFIG   - Defconfig name (required for config command)
 #   BUILD_OUTPUT_BASE - Build output directory (default: out/build_latest)
 #   BUILD_JOBS        - Parallel jobs (default: auto-detect via nproc)
@@ -62,7 +62,7 @@ PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 # Set defaults with environment variable overrides
 : "${LINUX_SRC:=${PROJECT_ROOT}/third_party/linux}"
 : "${ARCH:=arm}"
-: "${CROSS_COMPILE:=arm-linux-gnueabihf-}"
+: "${CROSS_COMPILE:=arm-none-linux-gnueabihf-}"
 
 # Map architecture names (toolchain naming -> kernel naming)
 # aarch64 toolchain uses 'arm64' in Linux kernel

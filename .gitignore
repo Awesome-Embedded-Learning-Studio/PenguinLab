@@ -1,6 +1,8 @@
 # AI
 .claude
 CLAUDE.md
+# Self Private Ignores
+helpers/
 
 out/
 compile_commands.json

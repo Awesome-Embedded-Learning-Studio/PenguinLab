@@ -25,7 +25,7 @@
 #
 # Environment Variables:
 #   ARCH               - Target architecture (arm or aarch64, default: arm)
-#   CROSS_COMPILE      - Toolchain prefix (default: arm-linux-gnueabihf-)
+#   CROSS_COMPILE      - Toolchain prefix (default: arm-none-linux-gnueabihf-)
 #   BUILD_OUTPUT_BASE  - Base output directory (default: out/build_latest_${ARCH})
 #   BUILD_JOBS         - Parallel jobs (default: auto-detect)
 #   DEBUG              - Enable debug output (set to 1)
@@ -88,7 +88,7 @@ ROOTFS_INSTALL="${BUILD_OUTPUT_BASE}/rootfs"
 
 # Architecture and toolchain
 : "${ARCH:=arm}"
-: "${CROSS_COMPILE:=arm-linux-gnueabihf-}"
+: "${CROSS_COMPILE:=arm-none-linux-gnueabihf-}"
 
 # Build jobs
 : "${BUILD_JOBS:=$(nproc 2>/dev/null || echo 4)}"
@@ -129,7 +129,7 @@ Options:
 
 Environment Variables:
   ARCH               - Target architecture (arm, aarch64) [default: arm]
-  CROSS_COMPILE      - Toolchain prefix [default: arm-linux-gnueabihf-]
+  CROSS_COMPILE      - Toolchain prefix [default: arm-none-linux-gnueabihf-]
   BUILD_OUTPUT_BASE  - Base output directory [default: out/build_latest_${ARCH}]
   BUILD_JOBS         - Parallel jobs [default: auto-detect]
   DEBUG              - Enable debug output (set to 1)
@@ -156,7 +156,7 @@ check_toolchain() {
         log_error "Please ensure the toolchain is installed and in your PATH"
         echo ""
         log_info "For Ubuntu/Debian, install with:"
-        echo -e "  ${COLOR_YELLOW}sudo apt install gcc-arm-linux-gnueabihf${COLOR_RESET} (for ARM32)"
+        echo -e "  ${COLOR_YELLOW}sudo apt install gcc-arm-none-linux-gnueabihf${COLOR_RESET} (for ARM32)"
         echo -e "  ${COLOR_YELLOW}sudo apt install gcc-aarch64-linux-gnu${COLOR_RESET} (for ARM64)"
         echo ""
         exit 1

@@ -10,7 +10,7 @@ ARCH ?= arm64
 KDIR ?= $(shell realpath $(dir $(lastword $(MAKEFILE_LIST)))/../../out/build_latest_$(ARCH))
 
 ifeq ($(ARCH),arm)
-  CROSS_COMPILE ?= arm-linux-gnueabihf-
+  CROSS_COMPILE ?= arm-none-linux-gnueabihf-
 else ifeq ($(ARCH),arm64)
   CROSS_COMPILE ?= aarch64-linux-gnu-
 else ifeq ($(ARCH),riscv)

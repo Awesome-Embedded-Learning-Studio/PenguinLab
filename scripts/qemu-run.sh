@@ -431,6 +431,17 @@ build_qemu_command() {
     echo "${cmd}"
 }
 
+build_qemu_debug_command() {
+    local cmd
+    cmd="$(build_qemu_command)"
+    # nokaslr: disable KASLR so GDB breakpoints match vmlinux symbols
+    cmd="${cmd/rdinit=\/init/rdinit=\/init nokaslr}"
+    # -s: open GDB stub on port 1234
+    # -S: freeze CPU at startup, wait for GDB to continue
+    cmd+=" -s -S"
+    echo "${cmd}"
+}
+
 cmd_run() {
     log_info "=== QEMU ARM System Emulation ==="
     log_info "Architecture:     ${QEMU_ARCH}"
@@ -472,6 +483,45 @@ cmd_run() {
     log_info "Press Ctrl+A, X to exit QEMU console"
 
     # Run QEMU
+    eval "${qemu_cmd}"
+}
+
+cmd_debug() {
+    log_info "=== QEMU ARM System Emulation (Debug Mode) ==="
+    log_info "Architecture:     ${QEMU_ARCH}"
+    log_info "Machine:          ${QEMU_MACHINE}"
+    log_info "CPU:              ${QEMU_CPU}"
+    log_info "Memory:           ${QEMU_MEMORY}"
+    log_info "SMP:              ${QEMU_SMP}"
+    log_info "GDB:              port 1234, waiting for connection..."
+    log_info "================================================"
+
+    if ! detect_qemu_binary; then
+        return 1
+    fi
+
+    if ! detect_kernel_image; then
+        return 1
+    fi
+
+    if ! detect_dtb_file; then
+        return 1
+    fi
+
+    if ! detect_initrd; then
+        return 1
+    fi
+
+    local qemu_cmd
+    qemu_cmd="$(build_qemu_debug_command)"
+
+    mkdir -p "${PID_DIR}"
+
+    log_info "Starting QEMU in debug mode..."
+    log_info "GDB waiting on localhost:1234"
+    log_info "Connect from VSCode (F5) or: aarch64-linux-gnu-gdb vmlinux -ex 'target remote :1234'"
+    log_info "Press Ctrl+A, X to exit QEMU console"
+
     eval "${qemu_cmd}"
 }
 
@@ -521,6 +571,9 @@ main() {
     case "${command}" in
         run)
             cmd_run "$@"
+            ;;
+        debug)
+            cmd_debug "$@"
             ;;
         stop)
             cmd_stop "$@"

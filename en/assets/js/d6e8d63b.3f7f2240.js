@@ -1,0 +1,1 @@
+"use strict";(globalThis.webpackChunkpenguinlab=globalThis.webpackChunkpenguinlab||[]).push([[5047],{58644(e){e.exports=JSON.parse('{"metadata":{"permalink":"/PenguinLab/en/blog","page":1,"postsPerPage":10,"totalPages":1,"totalCount":0,"blogDescription":"Tracking the latest Linux kernel merge windows and feature evolution","blogTitle":"Kernel Feature Dispatch"}}')}}]);

@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="en" dir="ltr" class="docs-wrapper plugin-docs plugin-id-default docs-version-current docs-doc-page docs-doc-id-notes/linux_kernel_debugging/ch02_3" data-has-hydrated="false">
+<head>
+<meta charset="UTF-8">
+<meta name="generator" content="Docusaurus v3.10.1">
+<title data-rh="true">2.3 The Kernel Debugging Panorama — When to Use What | PenguinLab</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://awesome-embedded-learning-studio.github.io/PenguinLab/en/notes/linux_kernel_debugging/ch02_3"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" property="og:locale:alternate" content="zh_CN"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="2.3 The Kernel Debugging Panorama — When to Use What | PenguinLab"><meta data-rh="true" name="description" content="Alright, we&#x27;ve classified bugs and figured out why they make the system misbehave."><meta data-rh="true" property="og:description" content="Alright, we&#x27;ve classified bugs and figured out why they make the system misbehave."><link data-rh="true" rel="icon" href="/PenguinLab/en/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://awesome-embedded-learning-studio.github.io/PenguinLab/en/notes/linux_kernel_debugging/ch02_3"><link data-rh="true" rel="alternate" href="https://awesome-embedded-learning-studio.github.io/PenguinLab/notes/linux_kernel_debugging/ch02_3" hreflang="zh-CN"><link data-rh="true" rel="alternate" href="https://awesome-embedded-learning-studio.github.io/PenguinLab/en/notes/linux_kernel_debugging/ch02_3" hreflang="en"><link data-rh="true" rel="alternate" href="https://awesome-embedded-learning-studio.github.io/PenguinLab/notes/linux_kernel_debugging/ch02_3" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Linux Kernel Debugging","item":"https://awesome-embedded-learning-studio.github.io/PenguinLab/en/category/linux-内核调试"},{"@type":"ListItem","position":2,"name":"2.3 The Kernel Debugging Panorama — When to Use What","item":"https://awesome-embedded-learning-studio.github.io/PenguinLab/en/notes/linux_kernel_debugging/ch02_3"}]}</script><link rel="stylesheet" href="/PenguinLab/en/assets/css/styles.60aea433.css">
+<script src="/PenguinLab/en/assets/js/runtime~main.e2fe7f5f.js" defer="defer"></script>
+<script src="/PenguinLab/en/assets/js/main.9054ff80.js" defer="defer"></script>
+</head>
+<body>
+<svg style="display: none;"><defs>
+<symbol id="theme-svg-external-link" viewBox="0 0 24 24"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"/></symbol>
+</defs></svg>
+<script>!function(){var t=function(){try{return new URLSearchParams(window.location.search).get("docusaurus-theme")}catch(t){}}()||function(){try{return window.localStorage.getItem("theme")}catch(t){}}();document.documentElement.setAttribute("data-theme",t||(window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")),document.documentElement.setAttribute("data-theme-choice",t||"system")}(),function(){try{const c=new URLSearchParams(window.location.search).entries();for(var[t,e]of c)if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script><div id="__docusaurus"><link rel="preload" as="image" href="/PenguinLab/en/img/logo.png"><div role="region" aria-label="Skip to main content"><a class="skipToContent_gWEo" href="#__docusaurus_skipToContent_fallback">Skip to main content</a></div><nav aria-label="Main" class="theme-layout-navbar navbar navbar--fixed-top"><div class="navbar__inner"><div class="theme-layout-navbar-left navbar__items"><button aria-label="Toggle navigation bar" aria-expanded="false" class="navbar__toggle clean-btn" type="button"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg></button><a class="navbar__brand" href="/PenguinLab/en/"><div class="navbar__logo"><img src="/PenguinLab/en/img/logo.png" alt="PenguinLab Logo" class="themedComponent_og9b themedComponent--light_JnSk"><img src="/PenguinLab/en/img/logo.png" alt="PenguinLab Logo" class="themedComponent_og9b themedComponent--dark_nacK"></div><b class="navbar__title text--truncate">PenguinLab</b></a><a class="navbar__item navbar__link" href="/PenguinLab/en/">Tutorials</a><a class="navbar__item navbar__link" href="/PenguinLab/en/booklist">Reference</a><a aria-current="page" class="navbar__item navbar__link navbar__link--active" href="/PenguinLab/en/category/linux-内核编程">Notes</a><a class="navbar__item navbar__link" href="/PenguinLab/en/blog">Kernel News</a></div><div class="theme-layout-navbar-right navbar__items navbar__items--right"><div class="navbar__item dropdown dropdown--hoverable dropdown--right"><a href="#" aria-haspopup="true" aria-expanded="false" role="button" class="navbar__link"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" class="iconLanguage_O5DD"><path fill="currentColor" d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v1.99h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"></path></svg>English</a><ul class="dropdown__menu"><li><a href="/PenguinLab/notes/linux_kernel_debugging/ch02_3" target="_self" rel="noopener noreferrer" class="dropdown__link" lang="zh-CN">简体中文</a></li><li><a href="/PenguinLab/en/notes/linux_kernel_debugging/ch02_3" target="_self" rel="noopener noreferrer" class="dropdown__link dropdown__link--active" lang="en">English</a></li></ul></div><a href="https://github.com/Awesome-Embedded-Learning-Studio/PenguinLab" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_FARA"><use href="#theme-svg-external-link"></use></svg></a><div class="toggle_OQuL colorModeToggle__y1s"><button class="clean-btn toggleButton_xgE0 toggleButtonDisabled_Je_F" type="button" disabled="" title="system mode" aria-label="Switch between dark and light mode (currently system mode)"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_ceR6 lightToggleIcon_opXY"><path fill="currentColor" d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_ceR6 darkToggleIcon_A2Wk"><path fill="currentColor" d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_ceR6 systemToggleIcon_NwoM"><path fill="currentColor" d="m12 21c4.971 0 9-4.029 9-9s-4.029-9-9-9-9 4.029-9 9 4.029 9 9 9zm4.95-13.95c1.313 1.313 2.05 3.093 2.05 4.95s-0.738 3.637-2.05 4.95c-1.313 1.313-3.093 2.05-4.95 2.05v-14c1.857 0 3.637 0.737 4.95 2.05z"></path></svg></button></div><div class="navbarSearchContainer_hDB6"></div></div></div><div role="presentation" class="navbar-sidebar__backdrop"></div></nav><div id="__docusaurus_skipToContent_fallback" class="theme-layout-main main-wrapper mainWrapper_hv_0"><div class="docsWrapper_VlxT"><button aria-label="Scroll back to top" class="clean-btn theme-back-to-top-button backToTopButton_v2Wu" type="button"></button><div class="docRoot_mHc3"><aside class="theme-doc-sidebar-container docSidebarContainer_C6m2"><div class="sidebarViewport_flJk"><div class="sidebar_sAne"><nav aria-label="Docs sidebar" class="menu thin-scrollbar menu_NeO_"><ul class="theme-doc-sidebar-menu menu__list"><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink__19u menu__link menu__link--sublist" href="/PenguinLab/en/category/linux-内核编程"><span title="Linux Kernel Programming" class="categoryLinkLabel_lzOE">Linux Kernel Programming</span></a><button aria-label="Expand sidebar category &#x27;Linux Kernel Programming&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink__19u menu__link menu__link--sublist" href="/PenguinLab/en/category/linux-设备驱动"><span title="Linux Device Drivers" class="categoryLinkLabel_lzOE">Linux Device Drivers</span></a><button aria-label="Expand sidebar category &#x27;Linux Device Drivers&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink__19u menu__link menu__link--sublist menu__link--active" href="/PenguinLab/en/category/linux-内核调试"><span title="Linux Kernel Debugging" class="categoryLinkLabel_lzOE">Linux Kernel Debugging</span></a><button aria-label="Collapse sidebar category &#x27;Linux Kernel Debugging&#x27;" aria-expanded="true" type="button" class="clean-btn menu__caret"></button></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch01"><span title="Chapter 1: Setting Up the Debugging Environment" class="linkLabel_P6RJ">Chapter 1: Setting Up the Debugging Environment</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch01_1"><span title="Chapter 1: On the Edge of Low-Level Disorder" class="linkLabel_P6RJ">Chapter 1: On the Edge of Low-Level Disorder</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch01_10"><span title="1.10 Further Reading" class="linkLabel_P6RJ">1.10 Further Reading</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch01_2"><span title="1.2 Software Debugging — Essence, Origins, and Myths" class="linkLabel_P6RJ">1.2 Software Debugging — Essence, Origins, and Myths</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch01_3"><span title="1.3 Software Defects — Real-World Tragedies" class="linkLabel_P6RJ">1.3 Software Defects — Real-World Tragedies</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch01_4"><span title="1.4 Setting Up the Workbench" class="linkLabel_P6RJ">1.4 Setting Up the Workbench</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch01_5"><span title="1.7 Two Kernels: The Frugal Producer and the Detective with a Magnifying Glass" class="linkLabel_P6RJ">1.7 Two Kernels: The Frugal Producer and the Detective with a Magnifying Glass</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch01_6"><span title="1.7 Building Your Custom Production Kernel" class="linkLabel_P6RJ">1.7 Building Your Custom Production Kernel</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch01_7"><span title="1.7 Building Our Custom Debug Kernel" class="linkLabel_P6RJ">1.7 Building Our Custom Debug Kernel</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch01_8"><span title="1.8 Seeing the Difference — Production vs. Debug Kernel Config Showdown" class="linkLabel_P6RJ">1.8 Seeing the Difference — Production vs. Debug Kernel Config Showdown</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch01_9"><span title="1.9 The Zen and Intuition of Debugging" class="linkLabel_P6RJ">1.9 The Zen and Intuition of Debugging</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch02"><span title="Chapter 2: Bug Classification and Debugging Methodology" class="linkLabel_P6RJ">Chapter 2: Bug Classification and Debugging Methodology</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch02_1"><span title="Chapter 2: A Torch in the Dark Forest" class="linkLabel_P6RJ">Chapter 2: A Torch in the Dark Forest</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch02_2"><span title="2.2 Bug Classification" class="linkLabel_P6RJ">2.2 Bug Classification</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link menu__link--active" aria-current="page" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch02_3"><span title="2.3 The Kernel Debugging Panorama — When to Use What" class="linkLabel_P6RJ">2.3 The Kernel Debugging Panorama — When to Use What</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch03"><span title="Chapter 3: Kernel Printing and Log Debugging" class="linkLabel_P6RJ">Chapter 3: Kernel Printing and Log Debugging</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch03_1"><span title="3.0  Preparation and Motivation for This Chapter" class="linkLabel_P6RJ">3.0  Preparation and Motivation for This Chapter</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch03_2"><span title="3.1 The Ubiquitous Kernel printk" class="linkLabel_P6RJ">3.1 The Ubiquitous Kernel printk</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch03_3"><span title="3.3 Debugging with printk" class="linkLabel_P6RJ">3.3 Debugging with printk</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch03_4"><span title="3.4  Wielding the Kernel&#x27;s Dynamic Debug Powerhouse" class="linkLabel_P6RJ">3.4  Wielding the Kernel&#x27;s Dynamic Debug Powerhouse</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch03_5"><span title="3.4 Remaining printk Miscellanea and Ultimate Debugging Techniques" class="linkLabel_P6RJ">3.4 Remaining printk Miscellanea and Ultimate Debugging Techniques</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch04"><span title="Chapter 4: Kprobes Dynamic Tracing" class="linkLabel_P6RJ">Chapter 4: Kprobes Dynamic Tracing</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch04_1"><span title="Chapter 4: Seeing the Elephant Through a Needle&#x27;s Eye — Kernel Probes and Dynamic Tracing" class="linkLabel_P6RJ">Chapter 4: Seeing the Elephant Through a Needle&#x27;s Eye — Kernel Probes and Dynamic Tracing</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch04_2"><span title="Chapter 4: Inside the Black Box: Kprobes and Kernel Instrumentation" class="linkLabel_P6RJ">Chapter 4: Inside the Black Box: Kprobes and Kernel Instrumentation</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch04_3"><span title="4.3  Using Static kprobes — Demo 3 &amp; Demo 4" class="linkLabel_P6RJ">4.3  Using Static kprobes — Demo 3 &amp; Demo 4</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch04_4"><span title="4.4  Getting Started with kretprobes" class="linkLabel_P6RJ">4.4  Getting Started with kretprobes</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch04_5"><span title="4.5  Kprobe-Based Event Tracing — The Internals" class="linkLabel_P6RJ">4.5  Kprobe-Based Event Tracing — The Internals</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch04_6"><span title="4.6 Setting Up Dynamic Kprobes (via kprobe events) — Placing a Watchpoint on Any Function" class="linkLabel_P6RJ">4.6 Setting Up Dynamic Kprobes (via kprobe events) — Placing a Watchpoint on Any Function</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch04_7"><span title="4.7  Dynamic kprobe Event Tracing on Kernel Modules" class="linkLabel_P6RJ">4.7  Dynamic kprobe Event Tracing on Kernel Modules</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch04_8"><span title="4.8  The God&#x27;s-Eye View of Process Tracing — Exploring execve with perf and eBPF Tools" class="linkLabel_P6RJ">4.8  The God&#x27;s-Eye View of Process Tracing — Exploring execve with perf and eBPF Tools</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch04_9"><span title="4.9  Further Reading and Exploration Paths" class="linkLabel_P6RJ">4.9  Further Reading and Exploration Paths</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch05"><span title="Chapter 5: Memory Debugging Tools: KASAN and UBSAN" class="linkLabel_P6RJ">Chapter 5: Memory Debugging Tools: KASAN and UBSAN</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch05_1"><span title="Chapter 5: Gazing into the Abyss — Dynamic Analysis of Memory Corruption and Undefined Behavior" class="linkLabel_P6RJ">Chapter 5: Gazing into the Abyss — Dynamic Analysis of Memory Corruption and Undefined Behavior</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch05_2"><span title="5.2  What Exactly Is Wrong with Memory?" class="linkLabel_P6RJ">5.2  What Exactly Is Wrong with Memory?</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch05_3"><span title="5.3 Understanding the Fundamentals of KASAN" class="linkLabel_P6RJ">5.3 Understanding the Fundamentals of KASAN</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch05_4"><span title="5.4  Configuring Generic KASAN Mode" class="linkLabel_P6RJ">5.4  Configuring Generic KASAN Mode</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch05_5"><span title="5.5  Catching Bugs with KASAN" class="linkLabel_P6RJ">5.5  Catching Bugs with KASAN</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch05_6"><span title="5.6  Catching Undefined Behavior with the UBSAN Kernel Checker" class="linkLabel_P6RJ">5.6  Catching Undefined Behavior with the UBSAN Kernel Checker</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch05_7"><span title="5.7 Building the Kernel and Modules with Clang" class="linkLabel_P6RJ">5.7 Building the Kernel and Modules with Clang</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch05_8"><span title="5.8  Catching Memory Defects in the Kernel — Comparison and Notes (Part 1)" class="linkLabel_P6RJ">5.8  Catching Memory Defects in the Kernel — Comparison and Notes (Part 1)</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch05_9"><span title="5.9  Further Reading: Rust, the Security Abyss, and the End of the Toolchain" class="linkLabel_P6RJ">5.9  Further Reading: Rust, the Security Abyss, and the End of the Toolchain</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch06"><span title="Chapter 6: SLUB Debugging and Memory Leak Detection" class="linkLabel_P6RJ">Chapter 6: SLUB Debugging and Memory Leak Detection</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch06_1"><span title="Chapter 6: Who Touched My Memory? (Part 1) — Catching Ghosts in the Kernel Stack" class="linkLabel_P6RJ">Chapter 6: Who Touched My Memory? (Part 1) — Catching Ghosts in the Kernel Stack</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch06_2"><span title="6.2  Precision Strikes: Planting Landmines with the slub_debug Parameter" class="linkLabel_P6RJ">6.2  Precision Strikes: Planting Landmines with the slub_debug Parameter</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch06_3"><span title="ch06_3" class="linkLabel_P6RJ">ch06_3</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch06_4"><span title="6.4  Decoding SLUB Debug Error Reports" class="linkLabel_P6RJ">6.4  Decoding SLUB Debug Error Reports</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch06_5"><span title="6.5  Using slabinfo and Its Companion Tools" class="linkLabel_P6RJ">6.5  Using slabinfo and Its Companion Tools</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch06_6"><span title="Using kmemleak" class="linkLabel_P6RJ">Using kmemleak</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch06_7"><span title="6.7 Practical Tips for Developers" class="linkLabel_P6RJ">6.7 Practical Tips for Developers</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch07"><span title="Chapter 7: Kernel Oops and Crash Analysis" class="linkLabel_P6RJ">Chapter 7: Kernel Oops and Crash Analysis</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch07_1"><span title="Chapter 7: When the Kernel Roars" class="linkLabel_P6RJ">Chapter 7: When the Kernel Roars</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch07_2"><span title="7.2 Generating a Simple Kernel Bug and Oops" class="linkLabel_P6RJ">7.2 Generating a Simple Kernel Bug and Oops</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch07_3"><span title="7.3 The Devil in the Details — Anatomy of a Crash Scene" class="linkLabel_P6RJ">7.3 The Devil in the Details — Anatomy of a Crash Scene</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch07_4"><span title="7.4  Precision Strike: Pinpointing the Culprit with objdump and GDB" class="linkLabel_P6RJ">7.4  Precision Strike: Pinpointing the Culprit with objdump and GDB</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch07_5"><span title="7.5  Decoding Kernel Bug Diagnostics (Part 2)" class="linkLabel_P6RJ">7.5  Decoding Kernel Bug Diagnostics (Part 2)</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch07_6"><span title="7.6  Capturing Crash Logs in Interrupt Context Using a Console Device" class="linkLabel_P6RJ">7.6  Capturing Crash Logs in Interrupt Context Using a Console Device</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch07_7"><span title="7.7  The Heterogeneous Battlefield: Oops and netconsole in Action on ARM Linux" class="linkLabel_P6RJ">7.7  The Heterogeneous Battlefield: Oops and netconsole in Action on ARM Linux</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch08"><span title="Chapter 8: Lock Debugging and Concurrency Issues" class="linkLabel_P6RJ">Chapter 8: Lock Debugging and Concurrency Issues</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch08_1"><span title="8.1  Lock Debugging Overview" class="linkLabel_P6RJ">8.1  Lock Debugging Overview</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch08_2"><span title="8.2  Locking Mechanisms — Key Concepts Cheat Sheet" class="linkLabel_P6RJ">8.2  Locking Mechanisms — Key Concepts Cheat Sheet</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch08_3"><span title="8.3  Catching Concurrency Bugs with KCSAN" class="linkLabel_P6RJ">8.3  Catching Concurrency Bugs with KCSAN</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch08_4"><span title="8.4  Real-World Lock Defect Cases" class="linkLabel_P6RJ">8.4  Real-World Lock Defect Cases</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch08_5"><span title="8.5  Further Reading" class="linkLabel_P6RJ">8.5  Further Reading</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch09"><span title="Chapter 9: Ftrace Tracing Technology" class="linkLabel_P6RJ">Chapter 9: Ftrace Tracing Technology</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch09_1"><span title="Chapter 9: The Kernel Under a Microscope: Tracing, Profiling, and the End of the Black Box" class="linkLabel_P6RJ">Chapter 9: The Kernel Under a Microscope: Tracing, Profiling, and the End of the Black Box</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch09_10"><span title="9.10 Using trace-cmd, KernelShark, and perf-tools Frontends" class="linkLabel_P6RJ">9.10 Using trace-cmd, KernelShark, and perf-tools Frontends</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch09_11"><span title="9.11 LTTng and Trace Compass: The God Mode of High-Level Perspectives" class="linkLabel_P6RJ">9.11 LTTng and Trace Compass: The God Mode of High-Level Perspectives</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch09_12"><span title="9.12  Further Reading and Technical Map" class="linkLabel_P6RJ">9.12  Further Reading and Technical Map</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch09_2"><span title="9.2  The Panorama of Kernel Tracing Technologies" class="linkLabel_P6RJ">9.2  The Panorama of Kernel Tracing Technologies</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch09_3"><span title="9.3  Configuring the Kernel for ftrace Support" class="linkLabel_P6RJ">9.3  Configuring the Kernel for ftrace Support</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch09_4"><span title="9.4 Tracing Kernel Flow with ftrace" class="linkLabel_P6RJ">9.4 Tracing Kernel Flow with ftrace</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch09_5"><span title="9.5 Practical ftrace Filter Options: From Firing Blind to Precision Guided" class="linkLabel_P6RJ">9.5 Practical ftrace Filter Options: From Firing Blind to Precision Guided</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch09_6"><span title="9.6 Hands-on: Tracing a Single Ping Request with Raw ftrace" class="linkLabel_P6RJ">9.6 Hands-on: Tracing a Single Ping Request with Raw ftrace</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch09_7"><span title="9.7  Hands-on: Tracing a Single Ping Request with the set_event Interface" class="linkLabel_P6RJ">9.7  Hands-on: Tracing a Single Ping Request with the set_event Interface</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch09_8"><span title="9.8 Ftrace Miscellanea and Lingering Questions (FAQ)" class="linkLabel_P6RJ">9.8 Ftrace Miscellanea and Lingering Questions (FAQ)</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch09_9"><span title="9.9  Ftrace in Action: From Stack Overflow Monitoring to Android Debugging" class="linkLabel_P6RJ">9.9  Ftrace in Action: From Stack Overflow Monitoring to Android Debugging</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch10"><span title="Chapter 10: Kernel Panic and Deadlock Detection" class="linkLabel_P6RJ">Chapter 10: Kernel Panic and Deadlock Detection</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch10_1"><span title="Chapter 10: The Undying Echo: When the Kernel Gives Up" class="linkLabel_P6RJ">Chapter 10: The Undying Echo: When the Kernel Gives Up</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch10_2"><span title="10.2  When the Kernel Gives Up — A Complete Guide to the Panic Mechanism" class="linkLabel_P6RJ">10.2  When the Kernel Gives Up — A Complete Guide to the Panic Mechanism</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch10_3"><span title="10.3 Writing a Custom Kernel Panic Handler" class="linkLabel_P6RJ">10.3 Writing a Custom Kernel Panic Handler</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch10_4"><span title="10.4  Detecting Deadlocks and CPU Stalls in the Kernel" class="linkLabel_P6RJ">10.4  Detecting Deadlocks and CPU Stalls in the Kernel</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch10_5"><span title="10.5  Leveraging the Kernel&#x27;s Hung Task and Workqueue Stall Detectors" class="linkLabel_P6RJ">10.5  Leveraging the Kernel&#x27;s Hung Task and Workqueue Stall Detectors</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch11"><span title="Chapter 11: KGDB Kernel Debugger" class="linkLabel_P6RJ">Chapter 11: KGDB Kernel Debugger</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch11_1"><span title="Chapter 11: Deep into the Kernel: When the Debugger Becomes Part of the Kernel" class="linkLabel_P6RJ">Chapter 11: Deep into the Kernel: When the Debugger Becomes Part of the Kernel</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch11_2"><span title="11.2  Understanding How KGDB Works Conceptually" class="linkLabel_P6RJ">11.2  Understanding How KGDB Works Conceptually</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch11_3"><span title="11.3  Building the ARM Target System and Kernel" class="linkLabel_P6RJ">11.3  Building the ARM Target System and Kernel</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch11_4"><span title="11.4  Debugging the Kernel Hard with KGDB" class="linkLabel_P6RJ">11.4  Debugging the Kernel Hard with KGDB</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch11_5"><span title="11.5 Debugging Kernel Modules: When the Symbol Table Hides in Memory" class="linkLabel_P6RJ">11.5 Debugging Kernel Modules: When the Symbol Table Hides in Memory</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch11_6"><span title="11.6 Advanced [K]GDB Tips and Tricks" class="linkLabel_P6RJ">11.6 Advanced [K]GDB Tips and Tricks</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch11_7"><span title="11.7  Further Reading" class="linkLabel_P6RJ">11.7  Further Reading</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch12"><span title="Chapter 12: Summary and Further Reading" class="linkLabel_P6RJ">Chapter 12: Summary and Further Reading</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch12_1"><span title="Chapter 12: The Debugging Arsenal: No Silver Bullet" class="linkLabel_P6RJ">Chapter 12: The Debugging Arsenal: No Silver Bullet</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/PenguinLab/en/notes/linux_kernel_debugging/ch12_2"><span title="12.2  Further Reading" class="linkLabel_P6RJ">12.2  Further Reading</span></a></li></ul></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink__19u menu__link menu__link--sublist" href="/PenguinLab/en/category/linux-内核网络"><span title="Linux Kernel Networking" class="categoryLinkLabel_lzOE">Linux Kernel Networking</span></a><button aria-label="Expand sidebar category &#x27;Linux Kernel Networking&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-1 menu__list-item"><a class="menu__link" href="/PenguinLab/en/notes"><span title="Linux Kernel Study Notes" class="linkLabel_P6RJ">Linux Kernel Study Notes</span></a></li></ul></nav></div></div></aside><main class="docMainContainer_K2S2"><div class="container padding-top--md padding-bottom--lg"><div class="row"><div class="col docItemCol_ET6j"><div class="docItemContainer_FaDn"><article><nav class="theme-doc-breadcrumbs breadcrumbsContainer_YIgT" aria-label="Breadcrumbs"><ul class="breadcrumbs"><li class="breadcrumbs__item"><a aria-label="Home page" class="breadcrumbs__link" href="/PenguinLab/en/"><svg viewBox="0 0 24 24" class="breadcrumbHomeIcon_rlCt"><path d="M10 19v-5h4v5c0 .55.45 1 1 1h3c.55 0 1-.45 1-1v-7h1.7c.46 0 .68-.57.33-.87L12.67 3.6c-.38-.34-.96-.34-1.34 0l-8.36 7.53c-.34.3-.13.87.33.87H5v7c0 .55.45 1 1 1h3c.55 0 1-.45 1-1z" fill="currentColor"></path></svg></a></li><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/PenguinLab/en/category/linux-内核调试"><span>Linux Kernel Debugging</span></a></li><li class="breadcrumbs__item breadcrumbs__item--active"><span class="breadcrumbs__link">2.3 The Kernel Debugging Panorama — When to Use What</span></li></ul></nav><div class="tocCollapsible_RqXj theme-doc-toc-mobile tocMobile_tOBB"><button type="button" class="clean-btn tocCollapsibleButton_ppfh">On this page</button></div><div class="theme-doc-markdown markdown"><header><h1>2.3 The Kernel Debugging Panorama — When to Use What</h1></header>
+<p>Alright, we&#x27;ve classified bugs and figured out why they make the system misbehave.</p>
+<p>Now the question is: with so many bugs and so many scenarios, which weapon do we actually reach for?</p>
+<p><strong>If you take away only one thing from this chapter, let it be this: there is no universal debugging tool.</strong></p>
+<p>It&#x27;s like being a doctor. When a patient comes in, you don&#x27;t just order an MRI right off the bat. If the patient just scraped their arm, an MRI is a massive waste of resources and won&#x27;t show anything useful. Conversely, if the patient has intracranial bleeding, slapping a Band-Aid on them is malpractice.</p>
+<p>Debugging is no different. KGDB is powerful, but using it in a production environment is asking for trouble. <code>printk</code> is rudimentary, but at the scene of a kernel panic, it might be your only hope.</p>
+<p>In this section, we&#x27;ll do two things:</p>
+<ol>
+<li class="">Map out a panorama showing which tools are available at different stages and in different scenarios.</li>
+<li class="">Create a matrix mapping these tools to bug types, so you know exactly &quot;which row to look at to fix this kind of bug.&quot;</li>
+</ol>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="phase-1-development-stage--the-gods-eye-view">Phase 1: Development Stage — The God&#x27;s-Eye View<a href="#phase-1-development-stage--the-gods-eye-view" class="hash-link" aria-label="Direct link to Phase 1: Development Stage — The God&#x27;s-Eye View" title="Direct link to Phase 1: Development Stage — The God&#x27;s-Eye View" translate="no">​</a></h3>
+<p>When you&#x27;re writing kernel code or driver modules, this is when you have the <strong>maximum privileges</strong>.</p>
+<p>At this point, the system is usually running on a development board or in your own virtual machine. You can crash it anytime and reboot anytime. You can oversee the entire system&#x27;s running state like a god.</p>
+<p>In this phase, what we pursue is <strong>visibility</strong>.</p>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="1-code-level-instrumentation">1. Code-Level Instrumentation<a href="#1-code-level-instrumentation" class="hash-link" aria-label="Direct link to 1. Code-Level Instrumentation" title="Direct link to 1. Code-Level Instrumentation" translate="no">​</a></h4>
+<p>This is the most primitive, but often the most effective method.</p>
+<ul>
+<li class="">
+<p><strong><code>printk()</code> and its family</strong>: The <code>printf</code> of the kernel.</p>
+<ul>
+<li class="">You can use <code>pr_info()</code> to print routine information, and <code>pr_debug()</code> for debug information.</li>
+<li class=""><em>Tip</em>: Use log levels (like <code>KERN_DEBUG</code>) to control console output so your key messages don&#x27;t get drowned in the noise.</li>
+</ul>
+</li>
+<li class="">
+<p><strong>Dynamic Debug</strong>:</p>
+<ul>
+<li class="">Sometimes you don&#x27;t want to recompile the kernel (too slow); you just want to temporarily flip the debug switch on a specific module.</li>
+<li class="">By mounting and configuring via <code>debugfs</code>, you can dynamically enable or disable <code>pr_debug()</code> statements in the code. It&#x27;s like installing an &quot;adjustable valve&quot; in your code.</li>
+</ul>
+</li>
+<li class="">
+<p><strong>Stack Dumps</strong>:</p>
+<ul>
+<li class="">When a certain condition triggers, you can manually call <code>dump_stack()</code>.</li>
+<li class="">It prints the current CPU register states and the function call chain.</li>
+<li class=""><em>Use case</em>: When you don&#x27;t know &quot;who called this function&quot; or &quot;where exactly the code went,&quot; this trick is extremely useful.</li>
+</ul>
+</li>
+<li class="">
+<p><strong>Assertions</strong>:</p>
+<ul>
+<li class="">Use <code>BUG_ON()</code> or <code>WARN_ON()</code>.</li>
+<li class="">If the condition isn&#x27;t met, <code>BUG_ON()</code> will directly trigger a panic (system halt), while <code>WARN_ON()</code> only prints a warning along with a stack trace.</li>
+<li class=""><em>Warning</em>: Never abuse <code>BUG_ON</code> in production environments—it will kill the system outright.</li>
+</ul>
+</li>
+</ul>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="2-debug-hooks">2. Debug Hooks<a href="#2-debug-hooks" class="hash-link" aria-label="Direct link to 2. Debug Hooks" title="Direct link to 2. Debug Hooks" translate="no">​</a></h4>
+<p>Sometimes you don&#x27;t want to keep printing logs; you just want to intervene at a critical moment.</p>
+<ul>
+<li class="">
+<p><strong>debugfs interface</strong>:</p>
+<ul>
+<li class="">Create a file in <code>debugfs</code>.</li>
+<li class="">A userspace program just needs to <code>echo 1 &gt; /sys/kernel/debug/my_module/debug_trigger</code> to trigger a specific kernel function. This is much more convenient than <code>ioctl</code>.</li>
+</ul>
+</li>
+<li class="">
+<p><strong>ioctl hooks</strong>:</p>
+<ul>
+<li class="">A traditional approach. Write a dedicated character device driver paired with a private <code>ioctl</code> command.</li>
+<li class="">Although it&#x27;s a bit more tedious to write, it&#x27;s very reliable if you need to pass complex parameters to the kernel for testing.</li>
+</ul>
+</li>
+</ul>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="3-source-level-debugging--kgdb">3. Source-Level Debugging — KGDB<a href="#3-source-level-debugging--kgdb" class="hash-link" aria-label="Direct link to 3. Source-Level Debugging — KGDB" title="Direct link to 3. Source-Level Debugging — KGDB" translate="no">​</a></h4>
+<p>If you&#x27;re a developer coming from userspace, the thing you probably miss the most is GDB.</p>
+<p>The good news is that the kernel also has a stub called <strong>KGDB</strong>.</p>
+<ul>
+<li class="">
+<p><strong>How to play</strong>: You need two machines (or one machine running two VMs). One runs the kernel, the other runs GDB.</p>
+</li>
+<li class="">
+<p><strong>Connection method</strong>: Via serial port or network.</p>
+</li>
+<li class="">
+<p><strong>What you can do</strong>:</p>
+<ul>
+<li class="">Set breakpoints.</li>
+<li class="">Single-step execution.</li>
+<li class="">Inspect variables.</li>
+<li class="">Modify variables (this is some serious dark magic).</li>
+</ul>
+</li>
+<li class="">
+<p><strong>The cost</strong>: When you hit a breakpoint, the entire kernel <strong>pauses</strong>. This means all tasks stop, network interrupts drop packets, and the watchdog might bite. Therefore, <strong>this is strictly for the development stage</strong>.</p>
+</li>
+</ul>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="phase-2-testing-and-qa-stage--automation-and-checkups">Phase 2: Testing and QA Stage — Automation and Checkups<a href="#phase-2-testing-and-qa-stage--automation-and-checkups" class="hash-link" aria-label="Direct link to Phase 2: Testing and QA Stage — Automation and Checkups" title="Direct link to Phase 2: Testing and QA Stage — Automation and Checkups" translate="no">​</a></h3>
+<p>The code is written. Next come unit tests, integration tests, and the QA team.</p>
+<p>The goal of this stage is to <strong>uncover as many hidden dangers as possible before handing the code to users</strong>. Manual intervention decreases here, and the demand for tool automation increases.</p>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="1-dynamic-analysis">1. Dynamic Analysis<a href="#1-dynamic-analysis" class="hash-link" aria-label="Direct link to 1. Dynamic Analysis" title="Direct link to 1. Dynamic Analysis" translate="no">​</a></h4>
+<p>Let the program run and watch it with specialized tools.</p>
+<ul>
+<li class="">
+<p><strong>Memory Checkers</strong>:</p>
+<ul>
+<li class="">Such as <strong>KASAN</strong> (Kernel Address Sanitizer).</li>
+<li class="">What can it find? Out-of-bounds access, use-after-free, double-free.</li>
+<li class=""><em>Principle</em>: It monitors illegal accesses by filling &quot;poison&quot; around memory or using shadow memory.</li>
+<li class=""><em>Cost</em>: It significantly slows down the system and doubles memory usage. Turn it on during development and testing, but remember to turn it off before going live.</li>
+</ul>
+</li>
+<li class="">
+<p><strong>Undefined Behavior Checkers</strong>:</p>
+<ul>
+<li class=""><strong>UB (Undefined Behavior)</strong> is the root of all evil in C.</li>
+<li class="">Examples: integer overflow, incorrect shift operations.</li>
+<li class="">The kernel has a dedicated UBSAN (Undefined Behavior Sanitizer) to catch these things.</li>
+</ul>
+</li>
+<li class="">
+<p><strong>Lock Debugging Tools</strong>:</p>
+<ul>
+<li class=""><strong>Lockdep</strong>: A god-tier tool built into the kernel.</li>
+<li class="">It doesn&#x27;t require you to enable special locks; it just dynamically detects lock dependencies at runtime.</li>
+<li class="">What can it find? Deadlocks, potential deadlock risks, self-deadlocks.</li>
+</ul>
+</li>
+</ul>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="2-static-analysis">2. Static Analysis<a href="#2-static-analysis" class="hash-link" aria-label="Direct link to 2. Static Analysis" title="Direct link to 2. Static Analysis" translate="no">​</a></h4>
+<p>Find faults just by looking at the source code without running it.</p>
+<ul>
+<li class="">Tools like <strong>Sparse</strong> (checks for semantic errors, like mixing userspace/kernel pointers) and <strong>Coccinelle</strong> (semantic patches).</li>
+<li class=""><em>Purpose</em>: Although there can be false positives, running them before code is merged into mainline can save you a lot of midnight wake-up calls. They can uncover security vulnerabilities and coding standard violations.</li>
+</ul>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="3-code-coverage-analysis">3. Code Coverage Analysis<a href="#3-code-coverage-analysis" class="hash-link" aria-label="Direct link to 3. Code Coverage Analysis" title="Direct link to 3. Code Coverage Analysis" translate="no">​</a></h4>
+<ul>
+<li class=""><strong>Tools</strong>: <strong>Gcov</strong> / <strong>Lcov</strong>.</li>
+<li class=""><strong>Purpose</strong>: Confirm exactly how much of your code your tests are actually hitting.</li>
+<li class=""><strong>Why it matters</strong>: If 30% of your code branches have never been executed by tests, the bugs hiding in there are ticking time bombs.</li>
+<li class=""><strong>Goal</strong>: Achieving 100% coverage is hard, but it should be the direction we strive for.</li>
+</ul>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="phase-3-production-and-runtime--look-dont-touch">Phase 3: Production and Runtime — Look, Don&#x27;t Touch<a href="#phase-3-production-and-runtime--look-dont-touch" class="hash-link" aria-label="Direct link to Phase 3: Production and Runtime — Look, Don&#x27;t Touch" title="Direct link to Phase 3: Production and Runtime — Look, Don&#x27;t Touch" translate="no">​</a></h3>
+<p>The system has been delivered to the customer or is running critical online business.</p>
+<p>At this point, your overriding principle is: <strong>do not stop the business</strong>. Unless the system has already crashed, you cannot use system-pausing methods like KGDB.</p>
+<p>What you need is <strong>non-intrusive</strong> monitoring.</p>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="1-monitoring-and-tracing-tools">1. Monitoring and Tracing Tools<a href="#1-monitoring-and-tracing-tools" class="hash-link" aria-label="Direct link to 1. Monitoring and Tracing Tools" title="Direct link to 1. Monitoring and Tracing Tools" translate="no">​</a></h4>
+<p>This tier of tools is extremely rich and represents one of the most powerful aspects of the modern Linux kernel.</p>
+<ul>
+<li class="">
+<p><strong>Tracing Infrastructure</strong>:</p>
+<ul>
+<li class=""><strong>Ftrace</strong>: The kernel&#x27;s internal tracer; can show function call graphs and latency.</li>
+<li class=""><strong>Perf</strong>: The holy grail of performance analysis; can show CPU cache hit rates, context switch counts, and can be used to identify hot functions.</li>
+<li class=""><strong>eBPF</strong>: The current rising star. Allows you to run small sandboxed programs inside the kernel to do almost anything: monitor network packets, measure filesystem latency, or even intercept system calls.</li>
+<li class=""><strong>LTTng</strong>: Suited for ultra-large-scale trace tracking.</li>
+</ul>
+</li>
+<li class="">
+<p><strong>Kprobes (Kernel Probes)</strong>:</p>
+<ul>
+<li class="">It&#x27;s like burying a &quot;landmine&quot; in your code.</li>
+<li class=""><strong>Jprobe</strong>: Used to intercept function entry.</li>
+<li class=""><strong>Kretprobe</strong>: Used to intercept function return.</li>
+<li class="">When the program executes to that point, it triggers your pre-written handler. When you&#x27;re done, just remove it—no source code modifications needed.</li>
+</ul>
+</li>
+<li class="">
+<p><strong>Watchdogs and Soft/Hard Lockup Detectors</strong>:</p>
+<ul>
+<li class="">The kernel has built-in detection mechanisms called <strong>softlockup</strong> and <strong>hardlockup</strong>.</li>
+<li class="">If a CPU gets stuck in a kernel-mode loop and can&#x27;t get out, the watchdog will sound the alarm, or even directly panic and leave a log.</li>
+</ul>
+</li>
+<li class="">
+<p><strong>Magic SysRq</strong>:</p>
+<ul>
+<li class="">When the system looks dead, but you can still type on the keyboard.</li>
+<li class="">Press <code>Alt + SysRq + [command]</code>.</li>
+<li class="">Common commands:
+<ul>
+<li class=""><code>t</code>: Display the state of all current tasks.</li>
+<li class=""><code>p</code>: Display the current CPU&#x27;s registers and stack.</li>
+<li class=""><code>c</code>: Force a crash (to work with kdump).</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="2-debug-hooks-and-logs">2. Debug Hooks and Logs<a href="#2-debug-hooks-and-logs" class="hash-link" aria-label="Direct link to 2. Debug Hooks and Logs" title="Direct link to 2. Debug Hooks and Logs" translate="no">​</a></h4>
+<ul>
+<li class="">The hooks here mainly refer to backdoors left via <code>debugfs</code> or <code>ioctl</code>.</li>
+<li class=""><strong>Logs</strong>: <code>systemd journal</code>, <code>dmesg</code>. Never underestimate logs; the final clues to many baffling issues lie in the last few lines of <code>dmesg</code>.</li>
+</ul>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="phase-4-post-mortem-analysis--the-autopsy-report">Phase 4: Post-Mortem Analysis — The Autopsy Report<a href="#phase-4-post-mortem-analysis--the-autopsy-report" class="hash-link" aria-label="Direct link to Phase 4: Post-Mortem Analysis — The Autopsy Report" title="Direct link to Phase 4: Post-Mortem Analysis — The Autopsy Report" translate="no">​</a></h3>
+<p>The system has crashed and rebooted. Now all you have is a <code>vmcore</code> file (or a photo of the screen).</p>
+<p>What you need to do now is perform an <strong>autopsy</strong>, like a forensic pathologist.</p>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="1-kernel-oops-analysis">1. Kernel Oops Analysis<a href="#1-kernel-oops-analysis" class="hash-link" aria-label="Direct link to 1. Kernel Oops Analysis" title="Direct link to 1. Kernel Oops Analysis" translate="no">​</a></h4>
+<ul>
+<li class=""><strong>What is an Oops</strong>: When the kernel encounters an error it can&#x27;t recover from (like a null pointer dereference), it prints a diagnostic message.</li>
+<li class=""><strong>Contents</strong>: Register values, stack trace, and the location of the faulty code.</li>
+<li class=""><strong>How to do it</strong>: Take the Oops text and cross-reference it with the source code. Although primitive, most simple bugs can be pinpointed to an exact line number via the IP (Instruction Pointer) in the stack trace.</li>
+</ul>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="2-kdump-and-crash">2. Kdump and Crash<a href="#2-kdump-and-crash" class="hash-link" aria-label="Direct link to 2. Kdump and Crash" title="Direct link to 2. Kdump and Crash" translate="no">​</a></h4>
+<ul>
+<li class=""><strong>Kdump</strong>: This is a mechanism. When the main kernel crashes, it boots a spare, minimal kernel (the Capture Kernel). The spare kernel dumps the main kernel&#x27;s memory to disk.</li>
+<li class=""><strong>Crash tool</strong>: This is an analysis tool. You use the <code>crash</code> command to open the <code>vmcore</code> file.</li>
+<li class=""><strong>What you can do</strong>:
+<ul>
+<li class=""><code>bt</code> (backtrace): View the process stack at the time of the crash.</li>
+<li class=""><code>ps</code>: See which processes were in the system at that time.</li>
+<li class=""><code>kmem</code>: Inspect kernel memory structures, like whether a certain slab is full.</li>
+<li class="">This is critical for analyzing &quot;why it deadlocked&quot; or &quot;who corrupted the memory.&quot;</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="the-trade-off-between-tools-and-hardwaresoftware">The Trade-off Between Tools and Hardware/Software<a href="#the-trade-off-between-tools-and-hardwaresoftware" class="hash-link" aria-label="Direct link to The Trade-off Between Tools and Hardware/Software" title="Direct link to The Trade-off Between Tools and Hardware/Software" translate="no">​</a></h3>
+<p>When choosing tools, we must look not only at functionality but also at our <strong>resources</strong>.</p>
+<ol>
+<li class="">
+<p><strong>Hardware Constraints</strong>:</p>
+<ul>
+<li class=""><strong>Kdump</strong>: Requires reserving a chunk of memory. On an embedded router with only 64MB of RAM, you might not be able to afford that luxury.</li>
+<li class=""><strong>KASAN</strong>: Doubles memory usage. If your board has very tight memory, running it might directly trigger an OOM.</li>
+<li class=""><strong>KGDB</strong>: Requires a serial or network port. Some closed devices don&#x27;t even expose these ports.</li>
+</ul>
+</li>
+<li class="">
+<p><strong>Software Constraints</strong>:</p>
+<ul>
+<li class="">Your kernel configuration (<code>.config</code>) might have disabled many debugging options for the sake of performance and size.</li>
+<li class="">For example: If <code>CONFIG_KPROBES</code> isn&#x27;t enabled, you can&#x27;t use kprobes.</li>
+<li class=""><strong>Static analysis</strong> doesn&#x27;t need hardware resources; it only costs compilation time.</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="tool-selection-matrix-quick-reference">Tool Selection Matrix (Quick Reference)<a href="#tool-selection-matrix-quick-reference" class="hash-link" aria-label="Direct link to Tool Selection Matrix (Quick Reference)" title="Direct link to Tool Selection Matrix (Quick Reference)" translate="no">​</a></h3>
+<p>Finally, to make it easy for you to look up later, we&#x27;ve condensed everything we just discussed into a few tables. Pin them next to your workstation—or at least keep a mental impression of them.</p>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="table-21-developmentcoding-stage--you-have-the-power">Table 2.1: Development/Coding Stage — You Have the Power<a href="#table-21-developmentcoding-stage--you-have-the-power" class="hash-link" aria-label="Direct link to Table 2.1: Development/Coding Stage — You Have the Power" title="Direct link to Table 2.1: Development/Coding Stage — You Have the Power" translate="no">​</a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th style="text-align:left">Scenario</th><th style="text-align:left">Recommended Tool/Technique</th><th style="text-align:left">Notes</th></tr></thead><tbody><tr><td style="text-align:left"><strong>Print debugging</strong></td><td style="text-align:left"><code>printk</code>, <code>pr_debug</code>, <code>dynamic debug</code></td><td style="text-align:left">Fastest to pick up, highest efficiency</td></tr><tr><td style="text-align:left"><strong>Stack info</strong></td><td style="text-align:left"><code>dump_stack()</code></td><td style="text-align:left">View the call path</td></tr><tr><td style="text-align:left"><strong>Breakpoint debugging</strong></td><td style="text-align:left"><code>KGDB</code></td><td style="text-align:left">Requires two machines, pauses the kernel</td></tr><tr><td style="text-align:left"><strong>Assertions</strong></td><td style="text-align:left"><code>BUG_ON()</code>, <code>WARN_ON()</code></td><td style="text-align:left"><code>BUG_ON</code> will directly panic, use with caution</td></tr><tr><td style="text-align:left"><strong>Manual triggering</strong></td><td style="text-align:left"><code>debugfs</code>, <code>ioctl</code> hooks</td><td style="text-align:left">Convenient for dynamic testing</td></tr></tbody></table>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="table-22-testingqa-stage--the-bug-hunt-sweep">Table 2.2: Testing/QA Stage — The Bug Hunt Sweep<a href="#table-22-testingqa-stage--the-bug-hunt-sweep" class="hash-link" aria-label="Direct link to Table 2.2: Testing/QA Stage — The Bug Hunt Sweep" title="Direct link to Table 2.2: Testing/QA Stage — The Bug Hunt Sweep" translate="no">​</a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th style="text-align:left">Scenario</th><th style="text-align:left">Recommended Tool/Technique</th><th style="text-align:left">Notes</th></tr></thead><tbody><tr><td style="text-align:left"><strong>Memory corruption</strong></td><td style="text-align:left"><strong>KASAN</strong></td><td style="text-align:left">Must-have for dev/QA, a performance killer</td></tr><tr><td style="text-align:left"><strong>Locks/Deadlocks</strong></td><td style="text-align:left"><strong>Lockdep</strong></td><td style="text-align:left">Incredibly powerful, a shame not to run it</td></tr><tr><td style="text-align:left"><strong>Undefined behavior</strong></td><td style="text-align:left"><strong>UBSAN</strong></td><td style="text-align:left">Catches integer overflows, bitwise operation errors</td></tr><tr><td style="text-align:left"><strong>Code standards</strong></td><td style="text-align:left"><strong>Sparse</strong>, <strong>Coccinelle</strong></td><td style="text-align:left">Static checking, finds rookie mistakes</td></tr><tr><td style="text-align:left"><strong>Coverage</strong></td><td style="text-align:left"><strong>Gcov</strong>, <strong>Lcov</strong></td><td style="text-align:left">Ensures your tests aren&#x27;t running in vain</td></tr></tbody></table>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="table-23-productionruntime--observing-from-the-shadows">Table 2.3: Production/Runtime — Observing from the Shadows<a href="#table-23-productionruntime--observing-from-the-shadows" class="hash-link" aria-label="Direct link to Table 2.3: Production/Runtime — Observing from the Shadows" title="Direct link to Table 2.3: Production/Runtime — Observing from the Shadows" translate="no">​</a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th style="text-align:left">Scenario</th><th style="text-align:left">Recommended Tool/Technique</th><th style="text-align:left">Notes</th></tr></thead><tbody><tr><td style="text-align:left"><strong>Performance analysis</strong></td><td style="text-align:left"><strong>Perf</strong>, <strong>Ftrace</strong></td><td style="text-align:left">Top choice for hotspot analysis</td></tr><tr><td style="text-align:left"><strong>Dynamic tracing</strong></td><td style="text-align:left"><strong>eBPF</strong>, <strong>SystemTap</strong></td><td style="text-align:left">Powerful and safe, no reboot required</td></tr><tr><td style="text-align:left"><strong>Probes</strong></td><td style="text-align:left"><strong>Kprobes</strong>, <strong>Jprobes</strong></td><td style="text-align:left">Dynamically insert monitoring points</td></tr><tr><td style="text-align:left"><strong>Hang detection</strong></td><td style="text-align:left"><strong>Watchdog</strong>, <strong>Softlockup detector</strong></td><td style="text-align:left">Automatic alerts</td></tr><tr><td style="text-align:left"><strong>Emergency rescue</strong></td><td style="text-align:left"><strong>Magic SysRq</strong></td><td style="text-align:left">Last resort when the system is unresponsive</td></tr></tbody></table>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="table-24-post-mortem-analysis--the-autopsy">Table 2.4: Post-Mortem Analysis — The Autopsy<a href="#table-24-post-mortem-analysis--the-autopsy" class="hash-link" aria-label="Direct link to Table 2.4: Post-Mortem Analysis — The Autopsy" title="Direct link to Table 2.4: Post-Mortem Analysis — The Autopsy" translate="no">​</a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th style="text-align:left">Scenario</th><th style="text-align:left">Recommended Tool/Technique</th><th style="text-align:left">Notes</th></tr></thead><tbody><tr><td style="text-align:left"><strong>Crash scene</strong></td><td style="text-align:left"><strong>Oops</strong> analysis</td><td style="text-align:left">Relies on screen photos or serial logs</td></tr><tr><td style="text-align:left"><strong>Memory dump</strong></td><td style="text-align:left"><strong>Kdump</strong> (generate) + <strong>Crash</strong> (analyze)</td><td style="text-align:left">Standard in server environments, limited in embedded</td></tr><tr><td style="text-align:left"><strong>Log review</strong></td><td style="text-align:left"><code>dmesg</code>, <code>/var/log/messages</code></td><td style="text-align:left">The most fundamental information source</td></tr></tbody></table>
+<h4 class="anchor anchorTargetStickyNavbar_bBfE" id="table-25-targeted-remedies-for-different-bug-types-abridged">Table 2.5: Targeted Remedies for Different Bug Types (Abridged)<a href="#table-25-targeted-remedies-for-different-bug-types-abridged" class="hash-link" aria-label="Direct link to Table 2.5: Targeted Remedies for Different Bug Types (Abridged)" title="Direct link to Table 2.5: Targeted Remedies for Different Bug Types (Abridged)" translate="no">​</a></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th style="text-align:left">Bug Type</th><th style="text-align:left">Primary Tool</th><th style="text-align:left">Secondary Tool</th></tr></thead><tbody><tr><td style="text-align:left"><strong>Memory leak</strong></td><td style="text-align:left">Kmemleak</td><td style="text-align:left">KASAN</td></tr><tr><td style="text-align:left"><strong>Memory corruption</strong></td><td style="text-align:left"><strong>KASAN</strong></td><td style="text-align:left">SLUB debug</td></tr><tr><td style="text-align:left"><strong>Deadlock</strong></td><td style="text-align:left"><strong>Lockdep</strong></td><td style="text-align:left">Crash stack analysis</td></tr><tr><td style="text-align:left"><strong>Logic error</strong></td><td style="text-align:left">KGDB / printk</td><td style="text-align:left">Dynamic debug</td></tr><tr><td style="text-align:left"><strong>Performance issue</strong></td><td style="text-align:left"><strong>Perf</strong> / Ftrace</td><td style="text-align:left">Trace</td></tr><tr><td style="text-align:left"><strong>Concurrency/Race condition</strong></td><td style="text-align:left"><strong>Lockdep</strong> / Thread Sanitizer (TSAN)</td><td style="text-align:left">Kprobes</td></tr></tbody></table>
+<p><em>(Note: Y = Highly recommended, N = Not recommended, ? = Depends on the situation)</em></p>
+<hr>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="chapter-echoes">Chapter Echoes<a href="#chapter-echoes" class="hash-link" aria-label="Direct link to Chapter Echoes" title="Direct link to Chapter Echoes" translate="no">​</a></h3>
+<p>Returning to the question we asked at the beginning of this chapter: why is kernel debugging so hard?</p>
+<p>Because you&#x27;re dealing with a <strong>decentralized, concurrently running system with no safety net</strong>.</p>
+<p>We spent a lot of space in this chapter on &quot;classification&quot;—classifying bugs, classifying debugging stages. This might seem dry, even like rote memorization.</p>
+<p>But this is exactly what separates professional debuggers from amateurs.</p>
+<p>Amateurs see the system hang and just reboot, or blindly sprinkle a bunch of <code>printk</code> everywhere.
+Professionals see the system hang and quickly run through this panorama in their heads:</p>
+<ul>
+<li class="">Is it a deadlock? (Is <code>Lockdep</code> enabled?)</li>
+<li class="">Is it memory corruption? (Can <code>KASAN</code> reproduce it?)</li>
+<li class="">Or is it simply a performance issue? (Fire up <code>Perf</code> to check hotspots.)</li>
+</ul>
+<p>The tools themselves are just moves; <strong>judging the scenario is the inner strength</strong>.</p>
+<p>In the next chapter, we&#x27;ll truly get our hands dirty.
+We&#x27;ll start with the oldest, most unadorned, yet never-outdated method—<strong>code instrumentation</strong>. We&#x27;ll dive deep into the mechanisms of <code>printk</code> to see exactly how it gets characters from kernel space onto your screen. Don&#x27;t assume it&#x27;s simple; sometimes, the simplest tools, when mastered, become legendary skills.</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_bBfE" id="exercises">Exercises<a href="#exercises" class="hash-link" aria-label="Direct link to Exercises" title="Direct link to Exercises" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="exercise-1-understanding">Exercise 1: Understanding<a href="#exercise-1-understanding" class="hash-link" aria-label="Direct link to Exercise 1: Understanding" title="Direct link to Exercise 1: Understanding" translate="no">​</a></h3>
+<p><strong>Question</strong>: In C language development, <code>if (ptr = NULL)</code> is a classic syntactic flaw. What operation does this statement actually perform? How does it differ from the developer&#x27;s original intent, <code>if (ptr == NULL)</code>, in terms of compiler behavior (especially regarding compiler optimizations and static analysis)?</p>
+<details class="details_O3kF alert alert--info details_Dlld" data-collapsed="true"><summary>Answer and Analysis</summary><div><div class="collapsibleContent_GZgo">
+<p><strong>Answer</strong>: This statement is actually an assignment operation—it assigns NULL to ptr, and then evaluates the value of ptr (which is false/0). This is completely different from the intended equality check. Modern compilers (with warnings like -Wall enabled) will usually detect this obvious assignment behavior and issue a warning; static analysis tools will classify it as a potential logic flaw.</p>
+<p><strong>Analysis</strong>: This question tests your understanding of &quot;syntactic flaws.&quot; In C, <code>=</code> is the assignment operator, while <code>==</code> is the relational operator. <code>if (ptr = NULL)</code> will first assign NULL to ptr, causing ptr to become a null pointer (and creating a risk of leaking the memory ptr originally pointed to), and then the result of the expression is 0 (false), causing the if branch not to execute. This is a typical logic error, and it also falls under syntactic misuse.</p>
+</div></div></details>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="exercise-2-application">Exercise 2: Application<a href="#exercise-2-application" class="hash-link" aria-label="Direct link to Exercise 2: Application" title="Direct link to Exercise 2: Application" translate="no">​</a></h3>
+<p><strong>Question</strong>: In Linux kernel development, code coverage and dynamic analysis tools (like KASAN) are common debugging methods. Suppose you enable KASAN during the development stage, run your test suite, and achieve 100% code coverage. Does this mean your code is completely free of memory corruption risks (like Use-After-Free or out-of-bounds access)? Please explain why based on the characteristics of &quot;dynamic analysis.&quot;</p>
+<details class="details_O3kF alert alert--info details_Dlld" data-collapsed="true"><summary>Answer and Analysis</summary><div><div class="collapsibleContent_GZgo">
+<p><strong>Answer</strong>: No. 100% code coverage only means that every line of code has been executed at least once. It does not guarantee that the code is correct under all possible execution flows, all concurrent scenarios, or all input boundaries. KASAN can only detect illegal memory accesses triggered during &quot;this specific run&quot;; it cannot detect potential vulnerabilities not triggered by specific test cases.</p>
+<p><strong>Analysis</strong>: This question tests your &quot;application&quot; skills. KASAN (Kernel Address Sanitizer) is a dynamic analysis tool whose core principle is to detect memory accesses at runtime. If a certain code path that leads to an out-of-bounds access is not triggered during testing (e.g., a specific asynchronous race condition or a rare boundary input), KASAN cannot report an error. Therefore, high coverage is a necessary condition for high-quality testing, but not a sufficient condition to guarantee a complete absence of bugs.</p>
+</div></div></details>
+<h3 class="anchor anchorTargetStickyNavbar_bBfE" id="exercise-3-thinking">Exercise 3: Thinking<a href="#exercise-3-thinking" class="hash-link" aria-label="Direct link to Exercise 3: Thinking" title="Direct link to Exercise 3: Thinking" translate="no">​</a></h3>
+<p><strong>Question</strong>: When the Linux kernel encounters an unrecoverable error (like a fatal exception), it usually triggers a &#x27;Kernel Panic&#x27;. In contrast, a &#x27;Kernel Oops&#x27; typically refers to a non-fatal but serious error (like a page fault). From the perspective of &quot;post-mortem analysis,&quot; why is it that in a production kernel, even if an Oops occurs, the system state is no longer trustworthy, and a prompt reboot is usually recommended? How does this relate to the &#x27;kdump&#x27; debugging technique?</p>
+<details class="details_O3kF alert alert--info details_Dlld" data-collapsed="true"><summary>Answer and Analysis</summary><div><div class="collapsibleContent_GZgo">
+<p><strong>Answer</strong>: A Kernel Oops means the kernel has already violated its original design constraints (like accessing an illegal pointer). Although the kernel tries to continue running (for example, by killing the offending process), the memory state may have been corrupted (data structure corruption, abnormal lock holders, etc.). Continuing to run in this &quot;compromised&quot; state could lead to further data corruption or security vulnerabilities, so the state is untrustworthy.</p>
+<p>The connection to kdump lies in the fact that kdump&#x27;s design purpose is precisely to handle this untrustworthy state. When the system crashes (Panic or severe Oops), it uses a clean, reserved spare kernel to capture the main kernel&#x27;s memory dump. Without using kdump or a similar dumping mechanism, once the system completely deadlocks from corruption (Panic), developers will lose the critical clues needed to analyze the root cause.</p>
+<p><strong>Analysis</strong>: This is a deep-thinking question involving kernel state consistency and debugging strategies. 1. <strong>State trustworthiness</strong>: An Oops indicates that &quot;unpredictable behavior&quot; has already occurred, and continuing to run is a gamble based on luck. 2. <strong>Debugging strategy</strong>: Post-mortem analysis relies on scene data. kdump provides a mechanism where, when the main kernel is &quot;terminally ill,&quot; a spare kernel performs the &quot;autopsy.&quot; This corresponds to the knowledge point about &quot;Post-mortem analysis,&quot; which involves using crash dumps to analyze fatal errors that cannot be debugged on the live scene.</p>
+</div></div></details>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_bBfE" id="key-takeaways">Key Takeaways<a href="#key-takeaways" class="hash-link" aria-label="Direct link to Key Takeaways" title="Direct link to Key Takeaways" translate="no">​</a></h2>
+<p>Kernel debugging differs fundamentally from userspace debugging because the kernel environment lacks isolation and protection. A minor pointer error can paralyze the entire system and lose context. Therefore, the design of the debugging toolchain is essentially about extracting information through specific constraints in an extremely restricted environment.</p>
+<p>Effective debugging begins with the precise classification of bugs, just as a doctor must diagnose before treating. Debuggers must distinguish between logic errors, memory corruption (like UAF, out-of-bounds), race conditions, or resource leaks, because the nature of the bug dictates the choice of subsequent methods. Misjudging the bug type is the most common cause of debugging failure.</p>
+<p>There is no universal, one-size-fits-all debugging tool. We must choose targeted &quot;weapons&quot; based on the scenario where the bug occurs and the development stage. During the development stage, intrusive tools like KGDB or printk can be used, but in production environments, we must rely on non-intrusive tracing methods like eBPF and Kprobes to avoid interrupting business workflows.</p>
+<p>Tool selection is constrained by hardware resources and software configurations. Embedded devices might lack the memory to run Kdump, and kernels without specific compilation options enabled (like CONFIG_KGDB) cannot use the corresponding advanced debugging features. This requires developers to precisely build and configure the system during the environment preparation stage.</p>
+<p>Post-mortem analysis is a crucial part of the debugging system. When the system has already crashed and rebooted, debuggers must use the vmcore file generated by Kdump, combined with the Crash tool, to perform an &quot;autopsy.&quot; By analyzing register states, stack backtraces, and memory structures at the time of the crash, we can pinpoint the root cause of the panic or deadlock.</p></div><footer class="theme-doc-footer docusaurus-mt-lg"><div class="row margin-top--sm theme-doc-footer-edit-meta-row"><div class="col noPrint_MpOp"><a href="https://github.com/Awesome-Embedded-Learning-Studio/PenguinLab/tree/main/../document/notes/linux_kernel_debugging/ch02_3.md" target="_blank" rel="noopener noreferrer" class="theme-edit-this-page"><svg fill="currentColor" height="20" width="20" viewBox="0 0 40 40" class="iconEdit_Xu8_" aria-hidden="true"><g><path d="m34.5 11.7l-3 3.1-6.3-6.3 3.1-3q0.5-0.5 1.2-0.5t1.1 0.5l3.9 3.9q0.5 0.4 0.5 1.1t-0.5 1.2z m-29.5 17.1l18.4-18.5 6.3 6.3-18.4 18.4h-6.3v-6.2z"></path></g></svg>Edit this page</a></div><div class="col lastUpdated_nSfX"><span class="theme-last-updated">Last updated<!-- --> on <b><time datetime="2026-05-09T11:34:39.000Z" itemprop="dateModified">May 9, 2026</time></b> by <b>Charliechen114514</b></span></div></div></footer></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/PenguinLab/en/notes/linux_kernel_debugging/ch02_2"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">2.2 Bug Classification</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/PenguinLab/en/notes/linux_kernel_debugging/ch03"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">Chapter 3: Kernel Printing and Log Debugging</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_VJ1c thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#phase-1-development-stage--the-gods-eye-view" class="table-of-contents__link toc-highlight">Phase 1: Development Stage — The God&#39;s-Eye View</a><ul><li><a href="#1-code-level-instrumentation" class="table-of-contents__link toc-highlight">1. Code-Level Instrumentation</a></li><li><a href="#2-debug-hooks" class="table-of-contents__link toc-highlight">2. Debug Hooks</a></li><li><a href="#3-source-level-debugging--kgdb" class="table-of-contents__link toc-highlight">3. Source-Level Debugging — KGDB</a></li></ul></li><li><a href="#phase-2-testing-and-qa-stage--automation-and-checkups" class="table-of-contents__link toc-highlight">Phase 2: Testing and QA Stage — Automation and Checkups</a><ul><li><a href="#1-dynamic-analysis" class="table-of-contents__link toc-highlight">1. Dynamic Analysis</a></li><li><a href="#2-static-analysis" class="table-of-contents__link toc-highlight">2. Static Analysis</a></li><li><a href="#3-code-coverage-analysis" class="table-of-contents__link toc-highlight">3. Code Coverage Analysis</a></li></ul></li><li><a href="#phase-3-production-and-runtime--look-dont-touch" class="table-of-contents__link toc-highlight">Phase 3: Production and Runtime — Look, Don&#39;t Touch</a><ul><li><a href="#1-monitoring-and-tracing-tools" class="table-of-contents__link toc-highlight">1. Monitoring and Tracing Tools</a></li><li><a href="#2-debug-hooks-and-logs" class="table-of-contents__link toc-highlight">2. Debug Hooks and Logs</a></li></ul></li><li><a href="#phase-4-post-mortem-analysis--the-autopsy-report" class="table-of-contents__link toc-highlight">Phase 4: Post-Mortem Analysis — The Autopsy Report</a><ul><li><a href="#1-kernel-oops-analysis" class="table-of-contents__link toc-highlight">1. Kernel Oops Analysis</a></li><li><a href="#2-kdump-and-crash" class="table-of-contents__link toc-highlight">2. Kdump and Crash</a></li></ul></li><li><a href="#the-trade-off-between-tools-and-hardwaresoftware" class="table-of-contents__link toc-highlight">The Trade-off Between Tools and Hardware/Software</a></li><li><a href="#tool-selection-matrix-quick-reference" class="table-of-contents__link toc-highlight">Tool Selection Matrix (Quick Reference)</a><ul><li><a href="#table-21-developmentcoding-stage--you-have-the-power" class="table-of-contents__link toc-highlight">Table 2.1: Development/Coding Stage — You Have the Power</a></li><li><a href="#table-22-testingqa-stage--the-bug-hunt-sweep" class="table-of-contents__link toc-highlight">Table 2.2: Testing/QA Stage — The Bug Hunt Sweep</a></li><li><a href="#table-23-productionruntime--observing-from-the-shadows" class="table-of-contents__link toc-highlight">Table 2.3: Production/Runtime — Observing from the Shadows</a></li><li><a href="#table-24-post-mortem-analysis--the-autopsy" class="table-of-contents__link toc-highlight">Table 2.4: Post-Mortem Analysis — The Autopsy</a></li><li><a href="#table-25-targeted-remedies-for-different-bug-types-abridged" class="table-of-contents__link toc-highlight">Table 2.5: Targeted Remedies for Different Bug Types (Abridged)</a></li></ul></li><li><a href="#chapter-echoes" class="table-of-contents__link toc-highlight">Chapter Echoes</a></li><li><a href="#exercises" class="table-of-contents__link toc-highlight">Exercises</a><ul><li><a href="#exercise-1-understanding" class="table-of-contents__link toc-highlight">Exercise 1: Understanding</a></li><li><a href="#exercise-2-application" class="table-of-contents__link toc-highlight">Exercise 2: Application</a></li><li><a href="#exercise-3-thinking" class="table-of-contents__link toc-highlight">Exercise 3: Thinking</a></li></ul></li><li><a href="#key-takeaways" class="table-of-contents__link toc-highlight">Key Takeaways</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="footer__bottom text--center"><div class="footer__copyright">Copyright © 2026 Charliechen</div></div></div></footer></div>
+</body>
+</html>

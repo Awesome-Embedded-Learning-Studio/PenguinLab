@@ -45,7 +45,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: site/.vitepress/.build-cache
-          key: vitepress-build-${{ runner.os }}-${{ hashFiles('document/**', 'site/.vitepress/**', 'scripts/build.ts', 'site/package.json', 'site/pnpm-lock.yaml') }}
+          key: vitepress-build-${{ runner.os }}-${{ hashFiles('site/pnpm-lock.yaml', 'scripts/build.ts', 'site/.vitepress/config/*') }}
 
       - name: Install dependencies
         working-directory: site

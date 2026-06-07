@@ -1,4 +1,4 @@
-name: Deploy Docusaurus
+name: Deploy VitePress
 
 on:
   push:
@@ -41,6 +41,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
 
+      - name: Setup build cache
+        uses: actions/cache@v4
+        with:
+          path: site/.vitepress/.build-cache
+          key: vitepress-build-${{ runner.os }}-${{ hashFiles('document/**', 'site/.vitepress/**', 'scripts/build.ts', 'site/package.json', 'site/pnpm-lock.yaml') }}
+
       - name: Install dependencies
         working-directory: site
         run: pnpm install --frozen-lockfile
@@ -48,9 +54,12 @@ jobs:
       - name: Build website
         working-directory: site
         run: pnpm build
+        env:
+          NODE_OPTIONS: --max-old-space-size=6144
+          BUILD_CONCURRENCY: 8
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./site/build
+          publish_dir: ./site/.vitepress/dist

@@ -1,0 +1,142 @@
+/* ===================================================
+   PenguinLab Custom Styles for VitePress
+   Migrated from Docusaurus custom.css
+   =================================================== */
+
+/* ---------- Brand Colors ---------- */
+:root {
+  --vp-c-brand-1: #3f51b5;
+  --vp-c-brand-2: #5c6bc0;
+  --vp-c-brand-3: #42a5f5;
+  --vp-c-brand-soft: rgba(63, 81, 181, 0.14);
+}
+
+.dark {
+  --vp-c-brand-1: #7986cb;
+  --vp-c-brand-2: #5c6bc0;
+  --vp-c-brand-3: #42a5f5;
+  --vp-c-brand-soft: rgba(121, 134, 203, 0.14);
+}
+
+/* ---------- Fonts ---------- */
+:root {
+  --vp-font-family-base: 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+  --vp-font-family-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+}
+
+/* ---------- Typography ---------- */
+.vp-doc {
+  line-height: 1.85;
+  font-size: 0.92rem;
+}
+
+.vp-doc h1 { line-height: 1.4; }
+.vp-doc h2 { line-height: 1.45; }
+.vp-doc h3 { line-height: 1.5; }
+
+.vp-doc p {
+  margin-bottom: 1.2em;
+}
+
+/* ---------- Code Blocks ---------- */
+.vp-doc div[class*='language-'] {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  margin: 1em 0;
+}
+
+.vp-doc code {
+  font-size: 0.88em;
+  border-radius: 4px;
+}
+
+.dark .vp-doc div[class*='language-'] {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* ---------- Tables ---------- */
+.vp-doc table {
+  font-size: 0.88rem;
+  line-height: 1.6;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  display: table;
+  width: 100%;
+}
+
+.vp-doc th {
+  font-weight: 600;
+}
+
+.vp-doc tr:nth-child(even) {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.dark .vp-doc tr:nth-child(even) {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+/* ---------- Blockquotes / Custom Containers ---------- */
+.vp-doc blockquote {
+  border-left: 4px solid var(--vp-c-brand-1);
+  border-radius: 0 4px 4px 0;
+  background: rgba(81, 107, 232, 0.04);
+  padding: 0.5em 1em;
+  font-style: normal;
+}
+
+.dark .vp-doc blockquote {
+  background: rgba(99, 126, 255, 0.06);
+}
+
+/* ---------- Links ---------- */
+.vp-doc a {
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 3px;
+}
+
+.vp-doc a:hover {
+  text-decoration-style: solid;
+}
+
+/* ---------- Images ---------- */
+.vp-doc img {
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* ---------- Custom Scrollbar ---------- */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* ---------- Print ---------- */
+@media print {
+  .VPNav, .VPFooter, .VPLocalNavOutlineDropdown, .VPSidebar {
+    display: none !important;
+  }
+}

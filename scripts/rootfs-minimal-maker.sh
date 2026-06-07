@@ -80,15 +80,31 @@ PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 # BusyBox source directory
 BUSYBOX_SRC="${PROJECT_ROOT}/third_party/busybox"
 
-# Output directories (with environment variable overrides)
-# Follow project convention: out/build_latest_${ARCH}/
-: "${BUILD_OUTPUT_BASE:=${PROJECT_ROOT}/out/build_latest_${ARCH}}"
-BUSYBOX_OUTPUT="${BUILD_OUTPUT_BASE}/busybox"
-ROOTFS_INSTALL="${BUILD_OUTPUT_BASE}/rootfs"
-
 # Architecture and toolchain
 : "${ARCH:=arm}"
-: "${CROSS_COMPILE:=arm-none-linux-gnueabihf-}"
+: "${CROSS_COMPILE:=}"
+
+# Map user-facing ARCH to output directory name (match kernel convention)
+case "${ARCH}" in
+    aarch64) OUTPUT_ARCH=arm64 ;;
+    *)       OUTPUT_ARCH="${ARCH}" ;;
+esac
+
+# Auto-detect CROSS_COMPILE if not set
+if [[ -z "${CROSS_COMPILE}" ]]; then
+    case "${ARCH}" in
+        aarch64) CROSS_COMPILE="aarch64-linux-gnu-" ;;
+        arm)     CROSS_COMPILE="arm-none-linux-gnueabihf-" ;;
+        *)       CROSS_COMPILE="" ;;
+    esac
+fi
+
+# Output directories (with environment variable overrides)
+# Follow project convention: out/build_latest_${OUTPUT_ARCH}/
+: "${BUILD_OUTPUT_BASE:=${PROJECT_ROOT}/out/build_latest_${OUTPUT_ARCH}}"
+BUSYBOX_OUTPUT="${BUILD_OUTPUT_BASE}/busybox"
+ROOTFS_INSTALL="${BUILD_OUTPUT_BASE}/rootfs"
+ROOTFS_CPIO="${BUILD_OUTPUT_BASE}/rootfs.cpio.gz"
 
 # Build jobs
 : "${BUILD_JOBS:=$(nproc 2>/dev/null || echo 4)}"
@@ -98,6 +114,7 @@ STATIC_BUILD=1
 CLEAN_BUILD=0
 BUILD_ONLY=0
 INSTALL_ONLY=0
+PACK_ONLY=0
 SHOW_HELP=0
 
 # Default target
@@ -125,22 +142,24 @@ Options:
   --dynamic      - Build dynamic binary
   --build-only   - Build only, using existing .config
   --install-only - Install only, using existing build
+  --pack-only    - Re-pack rootfs into cpio (no build/install)
   --help, -h     - Show this help
 
 Environment Variables:
   ARCH               - Target architecture (arm, aarch64) [default: arm]
-  CROSS_COMPILE      - Toolchain prefix [default: arm-none-linux-gnueabihf-]
-  BUILD_OUTPUT_BASE  - Base output directory [default: out/build_latest_${ARCH}]
+  CROSS_COMPILE      - Toolchain prefix [default: auto-detect by ARCH]
+  BUILD_OUTPUT_BASE  - Base output directory [default: out/build_latest_${OUTPUT_ARCH}]
   BUILD_JOBS         - Parallel jobs [default: auto-detect]
   DEBUG              - Enable debug output (set to 1)
 
 Examples:
-  $0                              # Full build with defconfig
+  $0                              # Full build with defconfig (ARM32)
+  ARCH=aarch64 $0                 # Full build for ARM64
   $0 menuconfig                    # Interactive configuration only
   $0 --build-only                  # Build using existing .config
   $0 --clean                      # Clean and rebuild
   $0 defconfig --clean --static    # Clean static build
-  ARCH=aarch64 $0                 # Build for ARM64
+  $0 --pack-only                    # Re-pack rootfs after adding files
 
 EOF
 }
@@ -428,6 +447,49 @@ FSTAB_EOF
 }
 
 #-----------------------------------------------------------------------------
+# Pack rootfs into cpio.gz (initramfs image)
+#-----------------------------------------------------------------------------
+do_pack_cpio() {
+    log_info "Packing rootfs into cpio archive..."
+
+    if [ ! -d "${ROOTFS_INSTALL}" ]; then
+        log_error "Rootfs directory not found: ${ROOTFS_INSTALL}"
+        log_error "Please run with install step first"
+        return 1
+    fi
+
+    # Check that there's actually something in rootfs
+    local file_count
+    file_count=$(find "${ROOTFS_INSTALL}" -type f | wc -l)
+    if [ "${file_count}" -eq 0 ]; then
+        log_error "Rootfs directory is empty: ${ROOTFS_INSTALL}"
+        return 1
+    fi
+
+    local old_dir
+    old_dir=$(pwd)
+    cd "${ROOTFS_INSTALL}"
+
+    log_cmd "find . | cpio -o -H newc 2>/dev/null | gzip > ${ROOTFS_CPIO}"
+    find . | cpio -o -H newc 2>/dev/null | gzip > "${ROOTFS_CPIO}"
+
+    cd "${old_dir}"
+
+    if [ ! -f "${ROOTFS_CPIO}" ]; then
+        log_error "Failed to create cpio archive"
+        return 1
+    fi
+
+    local cpio_size
+    cpio_size=$(stat -c%s "${ROOTFS_CPIO}" 2>/dev/null || stat -f%z "${ROOTFS_CPIO}" 2>/dev/null)
+    local cpio_size_mb
+    cpio_size_mb=$(echo "scale=2; ${cpio_size} / 1048576" | bc 2>/dev/null || echo "${cpio_size}")
+
+    log_success "Cpio archive created: ${ROOTFS_CPIO} (${cpio_size_mb} MB)"
+    log_info "  Use with qemu-run.sh (auto-detected) or: -initrd ${ROOTFS_CPIO}"
+}
+
+#-----------------------------------------------------------------------------
 # Verify build artifacts
 #-----------------------------------------------------------------------------
 verify_build_artifacts() {
@@ -502,7 +564,7 @@ main() {
     fi
 
     log_info "========================================"
-    log_info "BusyBox Build for ${ARCH}"
+    log_info "BusyBox Build for ${ARCH} (output: ${OUTPUT_ARCH})"
     log_info "Target: ${TARGET}"
     log_info "========================================"
 
@@ -523,9 +585,17 @@ main() {
         exit 1
     fi
 
+    if [ ${PACK_ONLY} -eq 1 ]; then
+        if [ ${BUILD_ONLY} -eq 1 ] || [ ${INSTALL_ONLY} -eq 1 ] || [ ${CLEAN_BUILD} -eq 1 ]; then
+            log_error "Error: --pack-only cannot be used with --build-only, --install-only, or --clean"
+            exit 1
+        fi
+    fi
+
     # Show configuration
     log_debug "Configuration:"
     log_debug "  ARCH: ${ARCH}"
+    log_debug "  OUTPUT_ARCH: ${OUTPUT_ARCH}"
     log_debug "  CROSS_COMPILE: ${CROSS_COMPILE}"
     log_debug "  BUILD_OUTPUT_BASE: ${BUILD_OUTPUT_BASE}"
     log_debug "  BUSYBOX_OUTPUT: ${BUSYBOX_OUTPUT}"
@@ -533,10 +603,12 @@ main() {
     log_debug "  BUILD_JOBS: ${BUILD_JOBS}"
     log_debug "  STATIC_BUILD: ${STATIC_BUILD}"
 
-    # Pre-flight checks
+    # Pre-flight checks (skip for --pack-only)
     log_info "========================================"
-    check_toolchain
-    check_busybox_source
+    if [ ${PACK_ONLY} -eq 0 ]; then
+        check_toolchain
+        check_busybox_source
+    fi
 
     log_info "========================================"
     log_success "All checks passed"
@@ -557,6 +629,12 @@ main() {
         exit 0
     fi
 
+    # === Mode: Pack only (skip build/install, just re-pack cpio) ===
+    if [ ${PACK_ONLY} -eq 1 ]; then
+        do_pack_cpio
+        exit 0
+    fi
+
     # === Mode: Install only ===
     if [ ${INSTALL_ONLY} -eq 1 ]; then
         if [ ! -f "${BUSYBOX_OUTPUT}/busybox" ]; then
@@ -567,6 +645,7 @@ main() {
         log_info "Install-only mode: installing existing build..."
         do_install
         setup_rootfs
+        do_pack_cpio
         log_success "========================================"
         log_success "Installation completed successfully!"
         log_info "Install directory: ${ROOTFS_INSTALL}"
@@ -592,11 +671,12 @@ main() {
         exit 0
     fi
 
-    # === Mode: Default (configure + build + install) ===
+    # === Mode: Default (configure + build + install + pack) ===
     do_configure
     do_build
     do_install
     setup_rootfs
+    do_pack_cpio
 
     # Verification
     log_info "========================================"
@@ -612,6 +692,7 @@ main() {
     log_info "Installation:"
     log_info "  Directory: ${ROOTFS_INSTALL}"
     log_info "  BusyBox: ${ROOTFS_INSTALL}/bin/busybox"
+    log_info "  Cpio:    ${ROOTFS_CPIO}"
     log_success "========================================"
 }
 
@@ -637,6 +718,9 @@ while [[ $# -gt 0 ]]; do
             ;;
         --install-only)
             INSTALL_ONLY=1
+            ;;
+        --pack-only)
+            PACK_ONLY=1
             ;;
         defconfig|menuconfig|config|allnoconfig|allyesconfig)
             TARGET="$1"

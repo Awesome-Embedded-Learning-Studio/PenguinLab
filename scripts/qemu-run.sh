@@ -321,20 +321,9 @@ detect_initrd() {
     local initrd_path=""
     local initrd_name="rootfs.cpio.gz"
 
-    # Determine architecture-specific output directory
-    # Note: BUILD_OUTPUT_BASE uses 'arm64' for kernel, but rootfs may use 'aarch64'
-    local output_dirs=()
-
-    if [[ "${QEMU_ARCH}" == "aarch64" ]]; then
-        output_dirs=(
-            "${PROJECT_ROOT}/out/build_latest_aarch64/${initrd_name}"
-            "${PROJECT_ROOT}/out/build_latest_arm64/${initrd_name}"
-        )
-    else
-        output_dirs=(
-            "${BUILD_OUTPUT_BASE}/${initrd_name}"
-        )
-    fi
+    local output_dirs=(
+        "${BUILD_OUTPUT_BASE}/${initrd_name}"
+    )
 
     for dir in "${output_dirs[@]}"; do
         if [[ -f "${dir}" ]]; then

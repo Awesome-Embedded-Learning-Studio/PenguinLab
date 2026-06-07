@@ -3,7 +3,7 @@ Diagnostics:
     - unknown_argument
 
 CompileFlags:
-  CompilationDatabase: .
+  CompilationDatabase: third_party/linux
   Remove:
     - -fno-allow-store-data-races
     - -fzero-init-padding-bits=all

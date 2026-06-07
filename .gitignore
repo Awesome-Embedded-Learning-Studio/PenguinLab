@@ -23,7 +23,9 @@ Thumbs.db
 # Dependencies
 node_modules/
 
-# Docusaurus (in site/)
+# VitePress (in site/)
 site/node_modules/
-site/build/
-site/.docusaurus/
+site/.vitepress/dist
+site/.vitepress/.build-tmp
+site/.vitepress/.build-cache
+site/.vitepress/cache

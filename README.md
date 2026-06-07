@@ -134,27 +134,6 @@ sudo apt install build-essential libncurses-dev bison flex libssl-dev
 
 内核启动后在 QEMU shell 里操作。退出：`Ctrl+A X`。
 
-## 目录结构
-
-```
-PenguinLab/
-├── document/                  # 教程、笔记和参考文档
-│   ├── tutorials/             #   教程（按知识图谱 6 层组织）
-│   └── notes/                 #   学习笔记（253 篇）
-├── example/                   # 可构建的示例代码
-│   ├── mini/                  #   单概念小示例（12 个）
-│   ├── project/               #   综合实战项目
-│   └── common/                #   共享构建文件（多架构支持）
-├── scripts/                   # 自动化脚本
-│   ├── linux-action-scripts.sh      # 内核配置与交叉编译
-│   ├── qemu-run.sh                  # QEMU ARM 仿真
-│   └── rootfs-minimal-maker.sh      # BusyBox 最小根文件系统
-├── third_party/               # 第三方子模块
-│   ├── linux/                 #   Linux 内核 6.19.y
-│   └── busybox/               #   BusyBox
-└── site/                      # Docusaurus 网站源码
-```
-
 ## 推荐学习路径
 
 PenguinLab 的知识图谱支持多条路径，这里列出四条典型路线：
@@ -182,6 +161,12 @@ PenguinLab 的知识图谱支持多条路径，这里列出四条典型路线：
 通识基础 → 交叉编译 → QEMU → U-Boot → 内核裁剪
 → 根文件系统 → Buildroot → 完整 BSP 项目
 ```
+
+## 其他兄弟仓库？
+
+如果你手头有一块真实的硬件开发板，比如说imx-forge，那就更棒了。
+
+🚀👉[IMX-Forge](https://github.com/Awesome-Embedded-Learning-Studio/imx-forge)
 
 ## 参考书单
 

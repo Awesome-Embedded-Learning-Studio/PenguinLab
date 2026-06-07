@@ -1,1 +1,0 @@
-"use strict";(globalThis.webpackChunkpenguinlab=globalThis.webpackChunkpenguinlab||[]).push([[61],{20061(e,a,n){n.d(a,{createInfoServices:()=>b.v});var b=n(76435);n(61311)}}]);

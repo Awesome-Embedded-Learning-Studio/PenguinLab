@@ -1,1 +1,0 @@
-"use strict";(globalThis.webpackChunkpenguinlab=globalThis.webpackChunkpenguinlab||[]).push([[9878],{68042(e){e.exports=JSON.parse('{"authors":[{"name":"Charliechen","title":"PenguinLab Maintainer","url":"https://github.com/Awesome-Embedded-Learning-Studio","email":"725610365@qq.com","key":"charliechen","page":null,"count":0}]}')}}]);

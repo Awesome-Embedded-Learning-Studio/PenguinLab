@@ -46,6 +46,9 @@ jobs:
         with:
           path: site/.vitepress/.build-cache
           key: vitepress-build-${{ runner.os }}-${{ hashFiles('site/pnpm-lock.yaml', 'scripts/build.ts', 'site/.vitepress/config/*') }}
+          restore-keys: |
+            vitepress-build-${{ runner.os }}-
+            vitepress-build-
 
       - name: Install dependencies
         working-directory: site

@@ -1,6 +1,7 @@
 import type { DefaultTheme } from 'vitepress'
 import { mermaidPlugin } from '../plugins/mermaid-plugin'
 import { escapeAngleBrackets } from '../plugins/escape-angle-brackets'
+import { langAliasPlugin } from '../plugins/lang-alias'
 
 export const sharedBase = {
   base: '/PenguinLab/',
@@ -33,6 +34,7 @@ export const sharedBase = {
     },
     config(md) {
       md.use(escapeAngleBrackets)
+      md.use(langAliasPlugin)
       md.use(mermaidPlugin)
     },
   },

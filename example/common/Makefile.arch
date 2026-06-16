@@ -19,3 +19,5 @@ else ifeq ($(ARCH),x86_64)
   CROSS_COMPILE ?=
   KDIR ?= /lib/modules/$(shell uname -r)/build
 endif
+
+export ARCH CROSS_COMPILE

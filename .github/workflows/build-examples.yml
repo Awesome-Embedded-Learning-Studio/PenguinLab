@@ -3,9 +3,10 @@ name: Build Examples
 # example/mini 多架构内核模块编译 smoke。
 #
 # 核心约束:内核模块编译(make -C $(KDIR) M=... modules)需要一份预编过的内核树
-# (out/build_latest_<arch>,含 scripts/ + 完整 Module.symvers)。所以每个架构先编 vmlinux
-# (生成完整 Module.symvers,含 _printk 等内核导出符号——modules_prepare 不编 vmlinux,
-# Module.symvers 缺符号,外部模块 modpost 会报 "_printk undefined"),缓存这份内核树,再编 example/mini。
+# (out/build_latest_<arch>,含 scripts/ + 完整 Module.symvers)。所以每个架构先编 modules
+# (modpost vmlinux 出完整 Module.symvers,含 _printk 等内核导出符号——modules_prepare / vmlinux
+# 都不 modpost,Module.symvers 缺符号,外部模块 modpost 会报 "_printk undefined"),
+# 缓存这份内核树,再编 example/mini。
 #
 # 第一版矩阵:arm64 + riscv(两个交叉编译架构,机制一致)。
 #   - arm32 暂缓:Makefile.arch 写的 arm-none-linux-gnueabihf- 在 Ubuntu apt 里没对应包
@@ -59,20 +60,21 @@ jobs:
         uses: actions/cache@v4
         with:
           path: out/build_latest_${{ matrix.arch }}
-          key: kernel-${{ matrix.arch }}-${{ env.LINUX_SHA }}-vmlinux
+          key: kernel-${{ matrix.arch }}-${{ env.LINUX_SHA }}-modules
 
-      - name: Prepare kernel tree (vmlinux → Module.symvers)
+      - name: Prepare kernel tree (modules → Module.symvers)
         if: steps.kcache.outputs.cache-hit != 'true'
         run: |
           KOUT="$PWD/out/build_latest_${{ matrix.arch }}"
           mkdir -p "$KOUT"
           cd third_party/linux
           make ARCH=${{ matrix.arch }} CROSS_COMPILE=${{ matrix.cc }} O="$KOUT" defconfig
-          # 编 vmlinux 生成完整 Module.symvers(含 _printk 等内核导出符号)。
-          # modules_prepare 不够:它不编 vmlinux,Module.symvers 缺内核导出符号,
-          # 外部模块 modpost 会报 "_printk [hello.ko] undefined!"。
-          make ARCH=${{ matrix.arch }} CROSS_COMPILE=${{ matrix.cc }} O="$KOUT" -j$(nproc) vmlinux
-          echo "::notice::vmlinux 内核树大小: $(du -sh "$KOUT" | cut -f1)"
+          # 编 modules 生成完整 Module.symvers(modpost vmlinux,含 _printk 等内核导出符号)。
+          # modules_prepare / vmlinux 都不够:前者不编 vmlinux,后者只链接不 modpost,
+          # Module.symvers 缺内核导出符号,外部模块 modpost 报 "_printk [hello.ko] undefined!"。
+          # 第一次慢(~15min/架构),缓存命中后(key 含 linux 子模块 SHA)秒级。
+          make ARCH=${{ matrix.arch }} CROSS_COMPILE=${{ matrix.cc }} O="$KOUT" -j$(nproc) modules
+          echo "::notice::modules 内核树大小: $(du -sh "$KOUT" | cut -f1)"
 
       - name: Build example/mini modules (${{ matrix.arch }})
         run: python3 scripts/build_examples.py ${{ matrix.arch }} ${{ matrix.cc }}

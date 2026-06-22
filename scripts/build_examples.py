@@ -24,11 +24,12 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 EXAMPLE_ROOT = ROOT / 'example' / 'mini'
 CI = os.environ.get('GITHUB_ACTIONS') == 'true' or os.environ.get('CI') == 'true'
 
-# ARCH → `file` 输出里应出现的 ELF Machine 关键字
+# ARCH → readelf -h 的 Machine 字段里应出现的关键字(小写匹配)。
+# 用 readelf 不用 file:file 对 arm64 输出 "ARM aarch64",容易和大写 AArch64 匹配失败。
 ELF_MACHINE = {
-    'arm64': 'AArch64',
-    'arm': 'ARM',
-    'riscv': 'RISC-V',
+    'arm64': 'aarch64',
+    'arm': 'arm',
+    'riscv': 'risc-v',
     'x86_64': 'x86-64',
 }
 
@@ -81,13 +82,15 @@ def build_one(arch, cc, directory):
     if not kos:
         return (name, False, '编译通过但无 .ko 产物')
 
-    # 校验 ELF 机器类型匹配架构(需 file 命令)
+    # 校验 ELF 机器类型匹配架构(readelf -h 的 Machine 字段)
     expected = ELF_MACHINE.get(arch)
     if expected:
         for ko in kos:
-            fr = subprocess.run(['file', str(ko)], capture_output=True, text=True)
-            if expected not in fr.stdout:
-                return (name, False, f'{ko.name} 架构不匹配: {fr.stdout.strip()[:120]}')
+            rr = subprocess.run(['readelf', '-h', str(ko)], capture_output=True, text=True)
+            machine = [l for l in rr.stdout.splitlines() if 'Machine:' in l]
+            got = machine[0].lower() if machine else ''
+            if expected not in got:
+                return (name, False, f'{ko.name} 架构不匹配: {machine[0].strip() if machine else "无 Machine 字段"}')
 
     return (name, True, f'OK ({len(kos)} .ko)')
 

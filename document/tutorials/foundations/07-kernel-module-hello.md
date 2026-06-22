@@ -10,6 +10,7 @@ architectures: [arm64]
 kernel_version: "6.19"
 sources:
   - guide: helpers/study-guides/layer-0/kernel-module-basics-0
+maturity: verified
 ---
 
 ## 做什么
@@ -95,7 +96,7 @@ make: *** Error 2
 
 根因藏在 make 的变量传递机制里。`include ../../common/Makefile.arch` 确实在当前这一层 make 里设好了 `ARCH=arm64` 和 `CROSS_COMPILE=aarch64-linux-gnu-`，但 `all` 规则里的 `$(MAKE) -C $(KDIR) ... modules` 是**递归调用 make**——它会切到内核目录、启动一个全新的 make 进程。这里的关键是：当前 make 里的变量是"局部的"，新的子 make 进程默认看不到它们，就好比你在函数 A 里设了个局部变量，调用函数 B 时不传参，B 自然访问不到。子 make（也就是内核构建系统）拿不到 `CROSS_COMPILE`，就退回默认的本机 `gcc`，于是报错。
 
-解法是把这两个变量 `export` 成环境变量，子进程就能继承了。最干净的修法是改共享的 [example/common/Makefile.arch](example/common/Makefile.arch)，在文件末尾加一行：
+解法是把这两个变量 `export` 成环境变量，子进程就能继承了。最干净的修法是改共享的 [example/common/Makefile.arch](https://github.com/Awesome-Embedded-Learning-Studio/PenguinLab/blob/main/example/common/Makefile.arch)，在文件末尾加一行：
 
 ```makefile
 # 导出给内核构建系统的递归子 make（外部模块编译必需）
@@ -119,7 +120,7 @@ $ make
 
 `hello.ko` 编出来了，但它在宿主机上，怎么把它弄进 QEMU 跑的虚拟机里？这里要先理解我们的 rootfs 是怎么组织的。我们用的是 initramfs 方式启动——`out/build_latest_arm64/rootfs.cpio.gz` 是一个 cpio 打包的根文件系统镜像，内核启动时把它解包到内存里作为根目录。关键性质是：这个镜像在**启动的那一刻就固定了**，它是一个只读快照，启动之后我们在虚拟机 shell 里没法往根目录写新文件。所以宿主机上后来编译出来的 `hello.ko`，自然不在虚拟机的文件系统里——这也是笔者一开始对着 `ls` 找不到 ko 一脸懵的原因。
 
-最直接的解法是把 `.ko` 放进 rootfs 目录、重新打包 cpio。项目提供了 [scripts/rootfs-minimal-maker.sh](scripts/rootfs-minimal-maker.sh)，而且它有个 `--pack-only` 选项，专门用来"只重新打包 cpio、不重新编译 BusyBox"，非常轻量：
+最直接的解法是把 `.ko` 放进 rootfs 目录、重新打包 cpio。项目提供了 [scripts/rootfs-minimal-maker.sh](https://github.com/Awesome-Embedded-Learning-Studio/PenguinLab/blob/main/scripts/rootfs-minimal-maker.sh)，而且它有个 `--pack-only` 选项，专门用来"只重新打包 cpio、不重新编译 BusyBox"，非常轻量：
 
 ```bash
 $ cp example/mini/00-kernel_module_hello/hello.ko out/build_latest_arm64/rootfs/

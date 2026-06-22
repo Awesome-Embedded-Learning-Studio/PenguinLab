@@ -2,6 +2,7 @@ import type { DefaultTheme } from 'vitepress'
 
 export const navZh: DefaultTheme.NavItem[] = [
   { text: '首页', link: '/' },
+  { text: '路线图', link: '/roadmap/' },
   {
     text: '教程',
     items: [
@@ -13,6 +14,8 @@ export const navZh: DefaultTheme.NavItem[] = [
       { text: '虚拟化与容器', link: '/tutorials/virtualization/' },
     ],
   },
+  { text: '项目指南', link: '/guides/' },
+  { text: '更新日志', link: '/changelogs/' },
   {
     text: '参考',
     items: [

@@ -29,6 +29,9 @@ const VOLUMES: Volume[] = [
   { name: 'embedded', srcDir: 'tutorials/embedded', urlPrefix: '/tutorials/embedded' },
   { name: 'debugging', srcDir: 'tutorials/debugging', urlPrefix: '/tutorials/debugging' },
   { name: 'virtualization', srcDir: 'tutorials/virtualization', urlPrefix: '/tutorials/virtualization' },
+  { name: 'guides', srcDir: 'guides', urlPrefix: '/guides' },
+  { name: 'changelogs', srcDir: 'changelogs', urlPrefix: '/changelogs' },
+  { name: 'roadmap', srcDir: 'roadmap', urlPrefix: '/roadmap' },
   { name: 'notes', srcDir: 'notes', urlPrefix: '/notes' },
   { name: 'blog', srcDir: 'blog', urlPrefix: '/blog' },
 ]
@@ -434,6 +437,101 @@ function unifyCrossVolumeData(distDir: string) {
   log(`  Patched ${patched} files with unified data`)
 }
 
+// ── Post-build Issue Check ──────────────────────────────────
+
+/** Read `base` from site config without importing shared.ts (which pulls vitepress). */
+function readBase(): string {
+  try {
+    const shared = readFileSync(join(SITE_DIR, '.vitepress', 'config', 'shared.ts'), 'utf-8')
+    const m = shared.match(/base:\s*['"]([^'"]+)['"]/)
+    return m ? m[1] : '/'
+  } catch { return '/' }
+}
+
+/** Resolve a markdown link target (relative to its .md file) to a site URL with base prefix. */
+function resolveLinkUrl(mdDir: string, target: string, base: string): string | null {
+  let t = target.replace(/\s+['"].*$/, '').replace(/[?#].*$/, '')
+  if (!t || /^(https?:|mailto:|tel:)/.test(t)) return null
+  if (t.startsWith('/')) return (base + t.replace(/^\/+/, '')).replace(/\.md$/, '')
+  const parts: string[] = []
+  for (const seg of (mdDir + '/' + t).split('/')) {
+    if (seg === '' || seg === '.') continue
+    if (seg === '..') { parts.pop(); continue }
+    parts.push(seg)
+  }
+  return (base + parts.join('/')).replace(/\.md$/, '')
+}
+
+/**
+ * Unified post-build check: scan markdown sources for dead links.
+ * Per-volume builds set ignoreDeadLinks so cross-volume links don't cause false
+ * positives; this checks every markdown link against the full published page set
+ * (all volumes unified in dist) — focusing on content links authors write, not
+ * structural ones (favicon/nav/assets/missing translations) that are separate debt.
+ */
+function checkSiteIssues(distDir: string): void {
+  logStep('Post-build check: dead links in markdown')
+  const base = readBase()
+
+  // 1. Collect published pages → URL set (only .html pages, not assets)
+  const pages = new Set<string>()
+  function collect(d: string) {
+    let entries: string[]
+    try { entries = readdirSync(d) } catch { return }
+    for (const name of entries) {
+      if (name.startsWith('.')) continue
+      const full = join(d, name)
+      if (statSync(full).isDirectory()) { collect(full); continue }
+      const rel = relative(distDir, full).replace(/\\/g, '/')
+      let url: string
+      if (rel === 'index.html') url = base
+      else if (rel.endsWith('/index.html')) url = base + rel.replace(/\/index\.html$/, '/')
+      else if (rel.endsWith('.html')) url = base + rel.replace(/\.html$/, '')
+      else url = base + rel
+      pages.add(url)
+    }
+  }
+  collect(distDir)
+  log(`  ${pages.size} addressable URLs (pages + assets)`)
+
+  // 2. Scan document/**/*.md for markdown links
+  const mdFiles: string[] = []
+  ;(function walk(d: string) {
+    for (const e of readdirSync(d, { withFileTypes: true })) {
+      const full = join(d, e.name)
+      if (e.isDirectory()) walk(full)
+      else if (e.name.endsWith('.md')) mdFiles.push(full)
+    }
+  })(DOCUMENTS)
+
+  const linkRe = /\[[^\]]*\]\(([^)]+)\)/g
+  const broken: Array<{ from: string; link: string }> = []
+  for (const md of mdFiles) {
+    const content = readFileSync(md, 'utf-8')
+    const mdDir = '/' + relative(DOCUMENTS, md).replace(/\\/g, '/').replace(/\/[^/]*$/, '')
+    for (const m of content.matchAll(linkRe)) {
+      const url = resolveLinkUrl(mdDir, m[1].trim(), base)
+      if (!url) continue
+      // Skip asset links (images/fonts/files): vitepress hashes & rewrites them
+      // at build time, so the source path never matches the dist path. Vitepress
+      // itself errors on truly missing images, so we focus on page links here.
+      if (/\.(webp|png|jpe?g|gif|svg|bmp|ico|css|js|woff2?|ttf|otf|pdf|zip|tar|gz|mp4|webm)$/i.test(url)) continue
+      const candidates = [url, url.replace(/\/$/, ''), url + '/']
+      if (!candidates.some((c) => pages.has(c))) {
+        broken.push({ from: relative(DOCUMENTS, md), link: m[1] })
+      }
+    }
+  }
+
+  log(`  scanned ${mdFiles.length} markdown files, ${broken.length} dead link(s)`)
+  if (broken.length) {
+    for (const b of broken.slice(0, 50)) log(`    ${b.from} → ${b.link}`)
+    if (broken.length > 50) log(`    ... and ${broken.length - 50} more`)
+    throw new Error(`Post-build check failed: ${broken.length} dead link(s)`)
+  }
+  log(`  ✓ No dead links in markdown`)
+}
+
 // ── Search Index Merge ──────────────────────────────────────
 
 function findSearchIndexFiles(dir: string): Map<'root' | 'en', string> {
@@ -710,6 +808,9 @@ async function main() {
 
   // ── Step 3.5: Unify hash maps and site data ─────────────
   unifyCrossVolumeData(DIST_FINAL)
+
+  // ── Step 3.6: Post-build issue check (dead links, etc.) ─
+  checkSiteIssues(DIST_FINAL)
 
   // ── Step 4: Finalize ────────────────────────────────────
   logStep('Step 4/4: Finalizing')

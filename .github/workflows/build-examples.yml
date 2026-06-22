@@ -3,9 +3,9 @@ name: Build Examples
 # example/mini 多架构内核模块编译 smoke。
 #
 # 核心约束:内核模块编译(make -C $(KDIR) M=... modules)需要一份预编过的内核树
-# (out/build_latest_<arch>,含 scripts/ + Module.symvers 骨架)。所以每个架构先跑
-# `modules_prepare`(只准备编外部模块的最小骨架,比全量编内核轻得多——几分钟 vs 15+ 分钟),
-# 缓存这份内核树,再编 example/mini 下的模块。
+# (out/build_latest_<arch>,含 scripts/ + 完整 Module.symvers)。所以每个架构先编 vmlinux
+# (生成完整 Module.symvers,含 _printk 等内核导出符号——modules_prepare 不编 vmlinux,
+# Module.symvers 缺符号,外部模块 modpost 会报 "_printk undefined"),缓存这份内核树,再编 example/mini。
 #
 # 第一版矩阵:arm64 + riscv(两个交叉编译架构,机制一致)。
 #   - arm32 暂缓:Makefile.arch 写的 arm-none-linux-gnueabihf- 在 Ubuntu apt 里没对应包
@@ -59,17 +59,20 @@ jobs:
         uses: actions/cache@v4
         with:
           path: out/build_latest_${{ matrix.arch }}
-          key: kernel-${{ matrix.arch }}-${{ env.LINUX_SHA }}-modules_prepare
+          key: kernel-${{ matrix.arch }}-${{ env.LINUX_SHA }}-vmlinux
 
-      - name: Prepare kernel tree (modules_prepare)
+      - name: Prepare kernel tree (vmlinux → Module.symvers)
         if: steps.kcache.outputs.cache-hit != 'true'
         run: |
           KOUT="$PWD/out/build_latest_${{ matrix.arch }}"
           mkdir -p "$KOUT"
           cd third_party/linux
           make ARCH=${{ matrix.arch }} CROSS_COMPILE=${{ matrix.cc }} O="$KOUT" defconfig
-          make ARCH=${{ matrix.arch }} CROSS_COMPILE=${{ matrix.cc }} O="$KOUT" -j$(nproc) modules_prepare
-          echo "::notice::modules_prepare 产物大小: $(du -sh "$KOUT" | cut -f1)"
+          # 编 vmlinux 生成完整 Module.symvers(含 _printk 等内核导出符号)。
+          # modules_prepare 不够:它不编 vmlinux,Module.symvers 缺内核导出符号,
+          # 外部模块 modpost 会报 "_printk [hello.ko] undefined!"。
+          make ARCH=${{ matrix.arch }} CROSS_COMPILE=${{ matrix.cc }} O="$KOUT" -j$(nproc) vmlinux
+          echo "::notice::vmlinux 内核树大小: $(du -sh "$KOUT" | cut -f1)"
 
       - name: Build example/mini modules (${{ matrix.arch }})
         run: python3 scripts/build_examples.py ${{ matrix.arch }} ${{ matrix.cc }}

@@ -15,7 +15,7 @@ Our rootfs doesn't need to be a fully functional Linux distribution. It only nee
 
 ### Building the rootfs
 
-The project provides an automation script, [rootfs-minimal-maker.sh](scripts/rootfs-minimal-maker.sh), to handle the entire rootfs build process. Its core tasks include: compiling BusyBox (statically linked), creating the rootfs directory structure (`bin/`, `sbin/`, `usr/`, `proc/`, `sys/`, `dev/`, etc.), installing BusyBox's symbolic links, and generating the `/init` boot script. Run it like this:
+The project provides an automation script, [rootfs-minimal-maker.sh](https://github.com/Awesome-Embedded-Learning-Studio/PenguinLab/blob/main/scripts/rootfs-minimal-maker.sh), to handle the entire rootfs build process. Its core tasks include: compiling BusyBox (statically linked), creating the rootfs directory structure (`bin/`, `sbin/`, `usr/`, `proc/`, `sys/`, `dev/`, etc.), installing BusyBox's symbolic links, and generating the `/init` boot script. Run it like this:
 
 ```bash
 ARCH=aarch64 ./scripts/rootfs-minimal-maker.sh defconfig
@@ -68,5 +68,5 @@ Why static linking? When compiling BusyBox, we chose static linking (`CONFIG_STA
 
 ## Further Reading
 
-- [rootfs-minimal-maker.sh](scripts/rootfs-minimal-maker.sh) — The rootfs build script; the `setup_rootfs()` function in particular shows which directories and files a minimal rootfs needs
+- [rootfs-minimal-maker.sh](https://github.com/Awesome-Embedded-Learning-Studio/PenguinLab/blob/main/scripts/rootfs-minimal-maker.sh) — The rootfs build script; the `setup_rootfs()` function in particular shows which directories and files a minimal rootfs needs
 - [BusyBox Official Website](https://busybox.net/) — The BusyBox project homepage and documentation

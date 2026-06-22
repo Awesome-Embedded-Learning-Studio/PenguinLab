@@ -1,0 +1,75 @@
+name: Build Examples
+
+# example/mini 多架构内核模块编译 smoke。
+#
+# 核心约束:内核模块编译(make -C $(KDIR) M=... modules)需要一份预编过的内核树
+# (out/build_latest_<arch>,含 scripts/ + Module.symvers 骨架)。所以每个架构先跑
+# `modules_prepare`(只准备编外部模块的最小骨架,比全量编内核轻得多——几分钟 vs 15+ 分钟),
+# 缓存这份内核树,再编 example/mini 下的模块。
+#
+# 第一版矩阵:arm64 + riscv(两个交叉编译架构,机制一致)。
+#   - arm32 暂缓:Makefile.arch 写的 arm-none-linux-gnueabihf- 在 Ubuntu apt 里没对应包
+#     (apt 是 gcc-arm-linux-gnueabihf),要 CROSS_COMPILE 覆盖,二期再补。
+#   - x86_64 暂缓:Makefile.arch 让 KDIR 默认指 /lib/modules/$(uname -r)/build(runner 宿主
+#     内核,与 6.19.9 源码 vermagic 不匹配),要改成自编树,二期再补。
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'example/mini/**'
+      - 'example/common/**'
+      - 'scripts/build_examples.py'
+      - '.github/workflows/build-examples.yml'
+  pull_request:
+    paths:
+      - 'example/mini/**'
+      - 'example/common/**'
+      - 'scripts/build_examples.py'
+      - '.github/workflows/build-examples.yml'
+  workflow_dispatch:   # 手动触发(全架构验证,不受 paths 限制)
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { arch: arm64, cc: aarch64-linux-gnu-, apt: gcc-aarch64-linux-gnu }
+          - { arch: riscv, cc: riscv64-linux-gnu-,  apt: gcc-riscv64-linux-gnu }
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Init linux submodule
+        run: git submodule update --init third_party/linux
+
+      - name: Resolve linux submodule SHA
+        run: echo "LINUX_SHA=$(git ls-tree HEAD third_party/linux | awk '{print $3}')" >> $GITHUB_ENV
+
+      - name: Install toolchain (${{ matrix.arch }})
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ${{ matrix.apt }} build-essential bc ccache file
+
+      - name: Cache kernel tree (out/build_latest_${{ matrix.arch }})
+        id: kcache
+        uses: actions/cache@v4
+        with:
+          path: out/build_latest_${{ matrix.arch }}
+          key: kernel-${{ matrix.arch }}-${{ env.LINUX_SHA }}-modules_prepare
+
+      - name: Prepare kernel tree (modules_prepare)
+        if: steps.kcache.outputs.cache-hit != 'true'
+        run: |
+          KOUT="$PWD/out/build_latest_${{ matrix.arch }}"
+          mkdir -p "$KOUT"
+          cd third_party/linux
+          make ARCH=${{ matrix.arch }} CROSS_COMPILE=${{ matrix.cc }} O="$KOUT" defconfig
+          make ARCH=${{ matrix.arch }} CROSS_COMPILE=${{ matrix.cc }} O="$KOUT" -j$(nproc) modules_prepare
+          echo "::notice::modules_prepare 产物大小: $(du -sh "$KOUT" | cut -f1)"
+
+      - name: Build example/mini modules (${{ matrix.arch }})
+        run: python3 scripts/build_examples.py ${{ matrix.arch }} ${{ matrix.cc }}

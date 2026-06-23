@@ -42,5 +42,9 @@ VFS、Ext4、页缓存、写时复制。
 - 🔨 [ICMP：网络的诊断与控制协议](./net/10-net-icmp)
 - 🔨 [组播路由：一对多的高效投递](./net/11-net-multicast)
 - 🔨 [IPv6：不只是更长的地址](./net/12-net-ipv6)
+- 🔨 [IPsec 与 XFRM：内核怎么给数据包穿装甲](./net/13-net-ipsec)
+- 🔨 [mac80211：内核怎么管一块无线网卡](./net/14-net-wireless)
+- 🔨 [RDMA 与 InfiniBand：绕过内核的零拷贝传输](./net/15-net-rdma)
+- 🔨 [网络命名空间：容器网络的根基](./net/16-net-namespace)
 
-XDP、IPsec、无线、RDMA、命名空间 持续铺开。
+XDP 持续铺开。

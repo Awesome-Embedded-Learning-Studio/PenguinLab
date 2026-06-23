@@ -6,7 +6,7 @@ name: Build Examples
 # (out/build_latest_<arch>,含 scripts/ + 完整 Module.symvers)。
 #
 # 用 allnoconfig + 开 CONFIG_MODULES/CONFIG_PRINTK:最小内核、无 =m 配置模块,
-# 所以 make modules 只 modpost vmlinux 生成 Module.symvers——
+# 所以 make(默认,KBUILD_BUILTIN=1)只编 vmlinux + modpost vmlinux 生成 Module.symvers——
 #   ① 不碰 defconfig 里 arch/riscv/kvm/kvm.ko 这种有符号依赖问题会炸的配置模块;
 #   ② allnoconfig vmlinux 极小,编译快(~3min vs defconfig ~15min);
 #   ③ hello.c 只用 _printk(pr_info)+ module 宏,allnoconfig 内核完全够。
@@ -59,7 +59,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: out/build_latest_${{ matrix.arch }}
-          key: kernel-${{ matrix.arch }}-${{ env.LINUX_SHA }}-allnoconfig
+          key: kernel-${{ matrix.arch }}-${{ env.LINUX_SHA }}-allnoconfig-make
 
       - name: Prepare kernel tree (allnoconfig → Module.symvers)
         if: steps.kcache.outputs.cache-hit != 'true'
@@ -71,8 +71,11 @@ jobs:
           make ARCH=${{ matrix.arch }} CROSS_COMPILE=${{ matrix.cc }} O="$KOUT" allnoconfig
           ./scripts/config --file "$KOUT/.config" --enable CONFIG_MODULES --enable CONFIG_PRINTK
           make ARCH=${{ matrix.arch }} CROSS_COMPILE=${{ matrix.cc }} O="$KOUT" olddefconfig
-          # 无 =m 配置模块,make modules 只 modpost vmlinux → Module.symvers(含 _printk)。
-          make ARCH=${{ matrix.arch }} CROSS_COMPILE=${{ matrix.cc }} O="$KOUT" -j$(nproc) modules
+          # 关键:用 make(默认,KBUILD_BUILTIN=1),不是 make modules。
+          # make modules 时 KBUILD_BUILTIN 为空 → 不 modpost vmlinux → Module.symvers 缺
+          # _printk → hello.ko modpost 报 undefined。make(默认)会 modpost vmlinux 出完整
+          # Module.symvers(本地验证含 _printk)。allnoconfig 无 =m,make 不编配置模块(不碰 kvm)。
+          make ARCH=${{ matrix.arch }} CROSS_COMPILE=${{ matrix.cc }} O="$KOUT" -j$(nproc)
           echo "::notice::allnoconfig 内核树大小: $(du -sh "$KOUT" | cut -f1)"
 
       - name: Build example/mini modules (${{ matrix.arch }})

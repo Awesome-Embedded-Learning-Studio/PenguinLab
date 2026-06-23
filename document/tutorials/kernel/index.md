@@ -28,6 +28,13 @@ maturity: drafting
 
 VFS、Ext4、页缓存、写时复制。
 
-## 网络栈 📚 规划中
+## 网络栈 🔨 整理中
 
-socket 层、TCP/IP 协议栈、Netfilter、XDP。
+- 🔨 [网络栈全景：一个包的内核漂流](./net/01-net-overview)
+- 🔨 [sk_buff：贯穿网络栈的快递盒](./net/02-net-sk-buff)
+- 🔨 [邻居子系统与 ARP：IP 怎么找到 MAC](./net/03-net-neighbor)
+- 🔨 [IPv4 协议层：包的接收与发送](./net/04-net-ipv4)
+- 🔨 [IPv4 路由子系统：包该往哪走](./net/05-net-routing)
+- 🔨 [TCP 传输层：三次握手与收发内核视角](./net/06-net-tcp)
+
+UDP、Netfilter、XDP 持续铺开。

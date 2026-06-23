@@ -29,3 +29,6 @@ site/.vitepress/dist
 site/.vitepress/.build-tmp
 site/.vitepress/.build-cache
 site/.vitepress/cache
+
+# 误生成的嵌套 build 产物
+site/site/

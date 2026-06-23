@@ -18,9 +18,11 @@ maturity: drafting
 
 ## 内存管理 🔨 整理中
 
-- 🔨 [伙伴系统：内核怎么管物理页](./mm/mm-buddy)
-
-Slab/Slub、vmalloc、页面回收、OOM 持续铺开。
+- 🔨 [伙伴系统：内核怎么管物理页](./mm/01-mm-buddy)
+- 🔨 [Slab 分配器：内核怎么管小对象](./mm/02-mm-slab)
+- 🔨 [vmalloc：只要虚拟连续就行](./mm/03-mm-vmalloc)
+- 🔨 [页面回收与 kswapd：内存紧张时怎么办](./mm/04-mm-page-reclaim)
+- 🔨 [OOM Killer：回收也扛不住时的最后防线](./mm/05-mm-oom)
 
 ## 文件系统 📚 规划中
 

@@ -3,16 +3,15 @@ name: Build Examples
 # example/mini 多架构内核模块编译 smoke。
 #
 # 核心约束:内核模块编译(make -C $(KDIR) M=... modules)需要一份预编过的内核树
-# (out/build_latest_<arch>,含 scripts/ + 完整 Module.symvers)。所以每个架构先编 modules
-# (modpost vmlinux 出完整 Module.symvers,含 _printk 等内核导出符号——modules_prepare / vmlinux
-# 都不 modpost,Module.symvers 缺符号,外部模块 modpost 会报 "_printk undefined"),
-# 缓存这份内核树,再编 example/mini。
+# (out/build_latest_<arch>,含 scripts/ + 完整 Module.symvers)。
 #
-# 第一版矩阵:arm64 + riscv(两个交叉编译架构,机制一致)。
-#   - arm32 暂缓:Makefile.arch 写的 arm-none-linux-gnueabihf- 在 Ubuntu apt 里没对应包
-#     (apt 是 gcc-arm-linux-gnueabihf),要 CROSS_COMPILE 覆盖,二期再补。
-#   - x86_64 暂缓:Makefile.arch 让 KDIR 默认指 /lib/modules/$(uname -r)/build(runner 宿主
-#     内核,与 6.19.9 源码 vermagic 不匹配),要改成自编树,二期再补。
+# 用 allnoconfig + 开 CONFIG_MODULES/CONFIG_PRINTK:最小内核、无 =m 配置模块,
+# 所以 make modules 只 modpost vmlinux 生成 Module.symvers——
+#   ① 不碰 defconfig 里 arch/riscv/kvm/kvm.ko 这种有符号依赖问题会炸的配置模块;
+#   ② allnoconfig vmlinux 极小,编译快(~3min vs defconfig ~15min);
+#   ③ hello.c 只用 _printk(pr_info)+ module 宏,allnoconfig 内核完全够。
+#
+# 第一版矩阵:arm64 + riscv。arm32(工具链 -none- 命名坑)/x86_64(KDIR 指宿主内核)二期再补。
 
 on:
   push:
@@ -60,21 +59,21 @@ jobs:
         uses: actions/cache@v4
         with:
           path: out/build_latest_${{ matrix.arch }}
-          key: kernel-${{ matrix.arch }}-${{ env.LINUX_SHA }}-modules
+          key: kernel-${{ matrix.arch }}-${{ env.LINUX_SHA }}-allnoconfig
 
-      - name: Prepare kernel tree (modules → Module.symvers)
+      - name: Prepare kernel tree (allnoconfig → Module.symvers)
         if: steps.kcache.outputs.cache-hit != 'true'
         run: |
           KOUT="$PWD/out/build_latest_${{ matrix.arch }}"
           mkdir -p "$KOUT"
           cd third_party/linux
-          make ARCH=${{ matrix.arch }} CROSS_COMPILE=${{ matrix.cc }} O="$KOUT" defconfig
-          # 编 modules 生成完整 Module.symvers(modpost vmlinux,含 _printk 等内核导出符号)。
-          # modules_prepare / vmlinux 都不够:前者不编 vmlinux,后者只链接不 modpost,
-          # Module.symvers 缺内核导出符号,外部模块 modpost 报 "_printk [hello.ko] undefined!"。
-          # 第一次慢(~15min/架构),缓存命中后(key 含 linux 子模块 SHA)秒级。
+          # allnoconfig 最小内核,再开模块支持 + printk(_printk 在这),olddefconfig 解依赖。
+          make ARCH=${{ matrix.arch }} CROSS_COMPILE=${{ matrix.cc }} O="$KOUT" allnoconfig
+          ./scripts/config --file "$KOUT/.config" --enable CONFIG_MODULES --enable CONFIG_PRINTK
+          make ARCH=${{ matrix.arch }} CROSS_COMPILE=${{ matrix.cc }} O="$KOUT" olddefconfig
+          # 无 =m 配置模块,make modules 只 modpost vmlinux → Module.symvers(含 _printk)。
           make ARCH=${{ matrix.arch }} CROSS_COMPILE=${{ matrix.cc }} O="$KOUT" -j$(nproc) modules
-          echo "::notice::modules 内核树大小: $(du -sh "$KOUT" | cut -f1)"
+          echo "::notice::allnoconfig 内核树大小: $(du -sh "$KOUT" | cut -f1)"
 
       - name: Build example/mini modules (${{ matrix.arch }})
         run: python3 scripts/build_examples.py ${{ matrix.arch }} ${{ matrix.cc }}

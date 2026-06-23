@@ -38,5 +38,9 @@ VFS、Ext4、页缓存、写时复制。
 - 🔨 [TCP 传输层：三次握手与收发内核视角](./net/06-net-tcp)
 - 🔨 [UDP：无连接的轻量传输](./net/07-net-udp)
 - 🔨 [Netfilter：网络栈的钩子框架](./net/08-net-netfilter)
+- 🔨 [Netlink：用户态与内核的双向 socket](./net/09-net-netlink)
+- 🔨 [ICMP：网络的诊断与控制协议](./net/10-net-icmp)
+- 🔨 [组播路由：一对多的高效投递](./net/11-net-multicast)
+- 🔨 [IPv6：不只是更长的地址](./net/12-net-ipv6)
 
-XDP 持续铺开。
+XDP、IPsec、无线、RDMA、命名空间 持续铺开。

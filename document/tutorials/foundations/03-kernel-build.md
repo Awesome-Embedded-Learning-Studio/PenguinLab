@@ -8,6 +8,7 @@ difficulty: beginner
 tags: [kernel-build, arm64, kbuild, make]
 architectures: [arm64]
 kernel_version: "6.19"
+maturity: verified
 ---
 
 ## 做什么

@@ -12,7 +12,7 @@ You can use `qemu-system-aarch64 -M help` to see all ARM64 machine types support
 
 ### Boot Command
 
-The project provides a [qemu-run.sh](scripts/qemu-run.sh) script to simplify QEMU's boot parameters. It automatically detects the kernel image and rootfs file in the build output directory. Running it is straightforward:
+The project provides a [qemu-run.sh](https://github.com/Awesome-Embedded-Learning-Studio/PenguinLab/blob/main/scripts/qemu-run.sh) script to simplify QEMU's boot parameters. It automatically detects the kernel image and rootfs file in the build output directory. Running it is straightforward:
 
 ```bash
 ./scripts/qemu-run.sh run

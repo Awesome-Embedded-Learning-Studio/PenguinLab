@@ -7,6 +7,7 @@ difficulty: beginner
 tags: [wsl2, cross-compile, toolchain, arm64]
 architectures: [arm64]
 kernel_version: "6.19"
+maturity: verified
 ---
 
 ## Welcome Kernel！
@@ -136,7 +137,7 @@ CROSS_COMPILE
 - 指定 binutils 文件名的可选固定部分。CROSS_COMPILE 可以是文件名的一部分或完整路径。在某些设置中，CROSS_COMPILE 也用于 ccache。
 ```
 
-这里有一个很容易踩的坑——`ARCH` 的值和工具链前缀的命名并不总是一一对应。对于 ARM64 来说，内核构建系统用的架构名是 `arm64`，但工具链前缀是 `aarch64-linux-gnu-`，两者不一样。这是历史原因造成的，ARM64 架构在内核社区一直叫 `arm64`，而工具链这边用的是 ARM 官方定义的 `aarch64` 名称。项目的 [linux-action-scripts.sh](scripts/linux-action-scripts.sh) 第 69-72 行专门做了这个映射，把用户传入的 `aarch64` 或 `arm64` 统一转成 Kbuild 认的 `arm64`。
+这里有一个很容易踩的坑——`ARCH` 的值和工具链前缀的命名并不总是一一对应。对于 ARM64 来说，内核构建系统用的架构名是 `arm64`，但工具链前缀是 `aarch64-linux-gnu-`，两者不一样。这是历史原因造成的，ARM64 架构在内核社区一直叫 `arm64`，而工具链这边用的是 ARM 官方定义的 `aarch64` 名称。项目的 [linux-action-scripts.sh](https://github.com/Awesome-Embedded-Learning-Studio/PenguinLab/blob/main/scripts/linux-action-scripts.sh) 第 69-72 行专门做了这个映射，把用户传入的 `aarch64` 或 `arm64` 统一转成 Kbuild 认的 `arm64`。
 
 `CROSS_COMPILE` 更有意思——它不是一个完整的命令名，而是一个前缀。内核构建系统会自动在这个前缀后面拼接 `gcc`、`ld`、`objcopy` 等后缀来找到对应的工具。也就是说，当你设置 `CROSS_COMPILE=aarch64-linux-gnu-` 时，make 会去找 `aarch64-linux-gnu-gcc`、`aarch64-linux-gnu-ld`、`aarch64-linux-gnu-objcopy` 等一系列工具。如果 `CROSS_COMPILE` 是空字符串，make 就直接用本机的 `gcc`、`ld` 等——这就是为什么忘记设这个变量的时候，内核会编译成 x86 架构的，因为这个空字符串前缀导致构建系统用了宿主机的编译器。
 

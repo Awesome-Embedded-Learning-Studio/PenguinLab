@@ -97,6 +97,12 @@ INITRD="${INITRD:-}"
 # Extra options
 QEMU_EXTRA_OPTS="${QEMU_EXTRA_OPTS:-}"
 
+# 9p shared directory (virtio-9p)
+: "${QEMU_9P:=off}"
+: "${QEMU_9P_PATH:=}"
+: "${QEMU_9P_TAG:=hostshare}"
+: "${QEMU_9P_SEC:=none}"
+
 # PID file for tracking running instances
 PID_DIR="${PROJECT_ROOT}/out/qemu"
 PID_FILE="${PID_DIR}/qemu.pid"
@@ -140,6 +146,12 @@ Devices & Networking:
     QEMU_TAP_IF       - ${QEMU_TAP_IF}        (TAP interface name)
     QEMU_MAC          - (MAC address for network)
 
+Shared Directory (9p):
+    QEMU_9P           - ${QEMU_9P}            (on, off: 9p shared dir)
+    QEMU_9P_PATH      - (host path to share, required if QEMU_9P=on)
+    QEMU_9P_TAG       - ${QEMU_9P_TAG}        (mount tag for guest)
+    QEMU_9P_SEC       - ${QEMU_9P_SEC}        (security_model: none/mapped-xattr/passthrough)
+
 Build:
     BUILD_OUTPUT_BASE - ${BUILD_OUTPUT_BASE}
 
@@ -158,6 +170,9 @@ Examples:
 
     # Run with networking enabled
     QEMU_NET=on $(basename "$0") run
+
+    # Run with a 9p shared dir (guest: mount -t 9p -o trans=virtio hostshare /mnt)
+    QEMU_9P=on QEMU_9P_PATH=/path/to/share $(basename "$0") run
 
     # Stop running QEMU instances
     $(basename "$0") stop
@@ -411,6 +426,12 @@ build_qemu_command() {
 
     # Enable semihosting (useful for bare-metal testing)
     # cmd+=" -semihosting"
+
+    # 9p shared directory (virtio-9p). Mount in guest with:
+    #   mount -t 9p -o trans=virtio,version=9p2000.L ${QEMU_9P_TAG} /mnt/...
+    if [[ "${QEMU_9P}" == "on" && -n "${QEMU_9P_PATH}" ]]; then
+        cmd+=" -virtfs local,path=${QEMU_9P_PATH},mount_tag=${QEMU_9P_TAG},security_model=${QEMU_9P_SEC},id=fs9p"
+    fi
 
     # Extra options
     if [[ -n "${QEMU_EXTRA_OPTS}" ]]; then

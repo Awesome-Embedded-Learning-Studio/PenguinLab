@@ -113,6 +113,7 @@ export function buildSidebar(): DefaultTheme.Sidebar {
     '/tutorials/embedded/': volumeSidebar('tutorials/embedded', '/tutorials/embedded'),
     '/tutorials/debugging/': volumeSidebar('tutorials/debugging', '/tutorials/debugging'),
     '/tutorials/virtualization/': volumeSidebar('tutorials/virtualization', '/tutorials/virtualization'),
+    '/guides/': volumeSidebar('guides', '/guides'),
     '/notes/': volumeSidebar('notes', '/notes'),
     '/blog/': [
       { text: '内核新闻', link: '/blog/' },

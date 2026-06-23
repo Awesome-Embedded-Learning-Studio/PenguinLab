@@ -8,7 +8,7 @@ In this post, we set up the foundational infrastructure for kernel debugging —
 
 By default, when QEMU launches a kernel, it runs straight through without pausing anywhere to wait for a debugger connection. To give GDB a chance to intervene, we need two startup parameters: `-s` is shorthand for `-gdb tcp::1234`, which tells QEMU to listen on port 1234 for the GDB remote debugging protocol; `-S` freezes the CPU immediately after launch, preventing it from executing the first instruction until GDB sends the `continue` command to continue.
 
-Our [qemu-run.sh](scripts/qemu-run.sh) script adds a `debug` command for this, automatically appending `-s -S` when building the QEMU command:
+Our [qemu-run.sh](https://github.com/Awesome-Embedded-Learning-Studio/PenguinLab/blob/main/scripts/qemu-run.sh) script adds a `debug` command for this, automatically appending `-s -S` when building the QEMU command:
 
 ```bash
 ./scripts/qemu-run.sh debug

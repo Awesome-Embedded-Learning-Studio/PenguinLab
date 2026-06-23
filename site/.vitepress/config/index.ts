@@ -2,6 +2,9 @@ import { defineConfig } from 'vitepress'
 import { sharedBase, sharedThemeConfig, sharedEnThemeConfig } from './shared'
 import { navZh, navEn } from './nav'
 import { buildSidebar } from './sidebar'
+import { getBuildInfo } from './build-info'
+
+const buildInfo = getBuildInfo()
 
 export default defineConfig({
   ...sharedBase,
@@ -45,7 +48,7 @@ export default defineConfig({
       text: '在 GitHub 上编辑此页',
     },
     footer: {
-      message: '基于 VitePress 构建',
+      message: `${buildInfo.version} · ${buildInfo.sha} · ${buildInfo.date}`,
       copyright: `Copyright ${new Date().getFullYear()} Charliechen`,
     },
     socialLinks: [

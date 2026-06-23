@@ -43,7 +43,7 @@ After these three steps, the final `.config` inflates from a few dozen options t
 
 ### Design Philosophy of the Config Fragment
 
-Our prepared fragment file is [configs/arm64-qemu-virt-learn.config](configs/arm64-qemu-virt-learn.config). It's organized by functional category, with each group annotated with comments explaining "why we need these options." Of course, you might wonder what all these things are. If you're not entirely sure — a great approach is to use a recursive descent method to look up the related concepts. Let's quickly run through what these are:
+Our prepared fragment file is [configs/arm64-qemu-virt-learn.config](https://github.com/Awesome-Embedded-Learning-Studio/PenguinLab/blob/main/configs/arm64-qemu-virt-learn.config). It's organized by functional category, with each group annotated with comments explaining "why we need these options." Of course, you might wonder what all these things are. If you're not entirely sure — a great approach is to use a recursive descent method to look up the related concepts. Let's quickly run through what these are:
 
 First, the platform basics. The ARM64 architecture itself is mandatory, and SMP (Symmetric Multiprocessing) must be enabled since our QEMU launch will configure two CPU cores:
 
@@ -114,4 +114,4 @@ Running `make O=... Image` directly from the project root `PenguinLab/` will thr
 
 - [Kbuild Kernel Build System Documentation](https://www.kernel.org/doc/html/latest/kbuild/kbuild.html) — Official definitions for variables like `ARCH`, `CROSS_COMPILE`, and `O=`
 - [Linux Kernel Build Instructions](https://docs.kernel.org/admin-guide/README.html) — The official kernel.org getting-started guide for building the kernel
-- [configs/arm64-qemu-virt-learn.config](configs/arm64-qemu-virt-learn.config) — Our mini config fragment file, with comments on every config option
+- [configs/arm64-qemu-virt-learn.config](https://github.com/Awesome-Embedded-Learning-Studio/PenguinLab/blob/main/configs/arm64-qemu-virt-learn.config) — Our mini config fragment file, with comments on every config option

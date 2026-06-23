@@ -8,6 +8,7 @@ difficulty: beginner
 tags: [busybox, rootfs, initramfs, cpio, arm64]
 architectures: [arm64]
 kernel_version: "6.19"
+maturity: verified
 ---
 
 ## 做什么
@@ -27,7 +28,7 @@ BusyBox 是嵌入式 Linux 世界的瑞士军刀——它把 `ls`、`cat`、`sh`
 
 ### 构建 rootfs
 
-项目提供了一个自动化脚本 [rootfs-minimal-maker.sh](scripts/rootfs-minimal-maker.sh) 来处理整个 rootfs 构建流程。它的核心工作包括：编译 BusyBox（静态链接）、创建 rootfs 目录结构（`bin/`、`sbin/`、`usr/`、`proc/`、`sys/`、`dev/` 等）、安装 BusyBox 的符号链接、生成 `/init` 启动脚本。运行方式是：
+项目提供了一个自动化脚本 [rootfs-minimal-maker.sh](https://github.com/Awesome-Embedded-Learning-Studio/PenguinLab/blob/main/scripts/rootfs-minimal-maker.sh) 来处理整个 rootfs 构建流程。它的核心工作包括：编译 BusyBox（静态链接）、创建 rootfs 目录结构（`bin/`、`sbin/`、`usr/`、`proc/`、`sys/`、`dev/` 等）、安装 BusyBox 的符号链接、生成 `/init` 启动脚本。运行方式是：
 
 ```bash
 ARCH=aarch64 ./scripts/rootfs-minimal-maker.sh defconfig
@@ -80,5 +81,5 @@ find . -print0 | cpio --null -ov --format=newc 2>/dev/null | gzip -9 > ../rootfs
 
 ## 延伸阅读
 
-- [rootfs-minimal-maker.sh](scripts/rootfs-minimal-maker.sh) — rootfs 构建脚本，特别是 `setup_rootfs()` 函数展示了最小 rootfs 需要哪些目录和文件
+- [rootfs-minimal-maker.sh](https://github.com/Awesome-Embedded-Learning-Studio/PenguinLab/blob/main/scripts/rootfs-minimal-maker.sh) — rootfs 构建脚本，特别是 `setup_rootfs()` 函数展示了最小 rootfs 需要哪些目录和文件
 - [BusyBox 官方网站](https://busybox.net/) — BusyBox 项目主页和文档

@@ -10,6 +10,7 @@ architectures: [arm64]
 kernel_version: "6.19"
 sources:
   - notes: document/notes/linux_kernel_programming/ch01.md
+maturity: verified
 ---
 
 ## 做什么
@@ -57,7 +58,7 @@ make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- \
 
 ### Config Fragment 的设计思路
 
-我们准备好的 fragment 文件是 [configs/arm64-qemu-virt-learn.config](configs/arm64-qemu-virt-learn.config)，它按功能分类组织，每一组都有注释说明"为什么需要这些配置"。当然，您可能会问这些都是啥。如果您不是很清楚——一个最好的办法就是递归下降法的查询相关的概念。我们这里快速的说一下这些内容都是啥：
+我们准备好的 fragment 文件是 [configs/arm64-qemu-virt-learn.config](https://github.com/Awesome-Embedded-Learning-Studio/PenguinLab/blob/main/configs/arm64-qemu-virt-learn.config)，它按功能分类组织，每一组都有注释说明"为什么需要这些配置"。当然，您可能会问这些都是啥。如果您不是很清楚——一个最好的办法就是递归下降法的查询相关的概念。我们这里快速的说一下这些内容都是啥：
 
 先说平台基础。ARM64 架构本身是必须的，SMP（对称多处理器）也要开，因为我们后续的 QEMU 启动会配两个 CPU 核：
 
@@ -128,4 +129,4 @@ rm -f third_party/linux/.config
 
 - [Kbuild 内核构建系统文档](https://www.kernel.org/doc/html/latest/kbuild/kbuild.html) — `ARCH`、`CROSS_COMPILE`、`O=` 等变量的官方定义
 - [Linux 内核构建说明](https://docs.kernel.org/admin-guide/README.html) — kernel.org 官方的编译入门指南
-- [configs/arm64-qemu-virt-learn.config](configs/arm64-qemu-virt-learn.config) — 我们的 mini config fragment 文件，每个配置项都有注释
+- [configs/arm64-qemu-virt-learn.config](https://github.com/Awesome-Embedded-Learning-Studio/PenguinLab/blob/main/configs/arm64-qemu-virt-learn.config) — 我们的 mini config fragment 文件，每个配置项都有注释

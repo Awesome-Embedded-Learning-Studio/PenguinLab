@@ -8,6 +8,7 @@ difficulty: beginner
 tags: [gdb, qemu, debug, kaslr, vscode, arm64]
 architectures: [arm64]
 kernel_version: "6.19"
+maturity: verified
 ---
 
 ## 做什么
@@ -20,7 +21,7 @@ kernel_version: "6.19"
 
 QEMU 默认启动内核时是直接跑完的，不会在任何地方暂停等待调试器连接。要让 GDB 有介入的机会，我们需要两个启动参数：`-s` 是 `-gdb tcp::1234` 的简写，让 QEMU 在 1234 端口开放 GDB 远程调试协议的监听；`-S` 让 QEMU 在启动后立刻冻结 CPU，不执行第一条指令，等待 GDB 发送 `continue` 命令后才继续。
 
-我们的 [qemu-run.sh](scripts/qemu-run.sh) 脚本为此增加了一个 `debug` 命令，在构建 QEMU 命令时自动追加 `-s -S`：
+我们的 [qemu-run.sh](https://github.com/Awesome-Embedded-Learning-Studio/PenguinLab/blob/main/scripts/qemu-run.sh) 脚本为此增加了一个 `debug` 命令，在构建 QEMU 命令时自动追加 `-s -S`：
 
 ```bash
 ./scripts/qemu-run.sh debug

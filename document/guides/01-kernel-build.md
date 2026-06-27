@@ -31,7 +31,7 @@ scripts/linux-action-scripts.sh clean            # 删 out/build_latest_<arch>/
 | 变量 | 默认 | 说明 |
 |------|------|------|
 | `ARCH` | `arm` | `aarch64` 会被脚本映射成内核命名 `arm64` |
-| `CROSS_COMPILE` | 按 `ARCH` 自动选 | 工具链前缀 |
+| `CROSS_COMPILE` | `arm-none-linux-gnueabihf-`（ARM32） | 工具链前缀；**ARM64 必须显式设 `CROSS_COMPILE=aarch64-linux-gnu-`**——脚本不会按 `ARCH` 自动切（实测踩坑，见下） |
 | `LINUX_DEFCONFIG` | （无） | `config` 命令必填；ARM64 用 `defconfig`，ARM32 用 `vexpress_defconfig` |
 | `BUILD_OUTPUT_BASE` | `out/build_latest_<arch>` | 产物目录；显式指定时不触发自动备份 |
 | `BUILD_JOBS` | `nproc` | 并行度 |
@@ -58,7 +58,7 @@ ARM32 对应 `arch/arm/boot/zImage`。
 ## 实操：编一个 ARM64 内核
 
 ```bash
-ARCH=aarch64 LINUX_DEFCONFIG=defconfig \
+ARCH=aarch64 CROSS_COMPILE=aarch64-linux-gnu- LINUX_DEFCONFIG=defconfig \
   scripts/linux-action-scripts.sh config_and_build
 ```
 
@@ -104,3 +104,4 @@ ARCH=arm LINUX_DEFCONFIG=vexpress_defconfig \
 - **`LINUX_DEFCONFIG` 没设就跑 `config`**：脚本直接报错退出。ARM64 填 `defconfig`，ARM32 填 `vexpress_defconfig`。
 - **改了源码不生效**：确认改的是 `third_party/linux/` 下的文件，且 `build` 用的 `O=` 目录和之前一致——别一不小心换了输出目录，等于从头编译。
 - **`ARCH=aarch64` vs `arm64`**：你输入 `aarch64`（工具链习惯），脚本内部转成 `arm64`（内核习惯），输出目录也用 `arm64`。记住这点就不会找错目录。
+- **漏 `CROSS_COMPILE` 会用 ARM32 默认工具链（大坑）**：脚本 `CROSS_COMPILE` 默认 `arm-none-linux-gnueabihf-`（ARM32），**不会按 `ARCH` 自动切**。ARM64 编译必须显式 `CROSS_COMPILE=aarch64-linux-gnu-`，否则 ARM32 gcc 不认 ARM64 选项（`-msign-return-address=non-leaf` 等）编译失败——而且脚本不检测编译错误会**误报 SUCCESS**，结果 Image 根本没更新、`struct module` 布局对不上，外部模块 insmod 报 `invalid module format`。看到 build 秒结束就要怀疑这个。

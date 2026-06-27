@@ -4,10 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vitepress dev .",
-    "build": "tsx ../scripts/build.ts",
-    "build:single": "vitepress build .",
-    "preview": "vitepress preview ."
+    "dev": "vitepress dev site",
+    "build": "tsx scripts/build.ts",
+    "build:single": "vitepress build site",
+    "preview": "vitepress preview site"
   },
   "devDependencies": {
     "@types/node": "^25.6.2",

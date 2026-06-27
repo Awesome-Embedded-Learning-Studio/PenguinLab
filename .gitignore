@@ -32,3 +32,17 @@ site/.vitepress/cache
 
 # 误生成的嵌套 build 产物
 site/site/
+
+# example 编译产物(内核模块 + 用户态可执行,项目级自给自足,不依赖全局 gitignore)
+example/mini/*/*.o
+example/mini/*/*.ko
+example/mini/*/*.mod
+example/mini/*/*.mod.c
+example/mini/*/*.symvers
+example/mini/*/modules.order
+example/mini/*/.*.cmd
+example/mini/*/*_user
+example/project/*/*_user
+
+# 临时亲测输出(根目录 wait.md,会话用)
+/wait.md

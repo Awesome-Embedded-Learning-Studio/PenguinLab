@@ -377,20 +377,12 @@ setup_rootfs() {
 
 echo "=== PenguinLab Initramfs ==="
 
-# Mount essential filesystems
+# Mount essential filesystems (devtmpfs: 内核自动管理 /dev, 设备注册即建节点)
 mount -t proc none /proc
 mount -t sysfs none /sys
-mount -t tmpfs none /dev
-
-# Create essential device nodes
-mknod -m 622 /dev/console c 5 1
-mknod -m 666 /dev/null c 1 3
-mknod -m 666 /dev/zero c 1 5
-mknod -m 666 /dev/tty c 5 0
-mknod -m 666 /dev/random c 1 8
-mknod -m 666 /dev/urandom c 1 9
-mknod -m 666 /dev/tty0 c 4 0
-mknod -m 666 /dev/ttyAMA0 c 204 64
+mount -t devtmpfs devtmpfs /dev 2>/dev/null || mount -t tmpfs none /dev
+# devtmpfs 已自动创建 console/null/zero/tty/random/ttyAMA0 等;
+# misc/platform 设备 insmod 注册后也会自动出现 /dev 节点(本例 chardev 等就靠它)
 
 # Print some info
 echo "Kernel: $(uname -r)"
@@ -422,7 +414,7 @@ mount -t proc none /proc
 mkdir -p /sys
 mount -t sysfs none /sys
 mkdir -p /dev
-mount -t tmpfs none /dev
+mount -t devtmpfs devtmpfs /dev 2>/dev/null || mount -t tmpfs none /dev
 
 mknod /dev/console c 5 1
 mknod /dev/null c 1 3
@@ -439,7 +431,7 @@ RC_EOF
     cat > "${ROOTFS_INSTALL}/etc/fstab" << 'FSTAB_EOF'
 proc /proc proc defaults 0 0
 sysfs /sys sysfs defaults 0 0
-tmpfs /dev tmpfs defaults 0 0
+devtmpfs /dev devtmpfs defaults 0 0
 FSTAB_EOF
     log_info "  Created /etc/fstab"
 

@@ -5,7 +5,7 @@ difficulty: intermediate
 tags: [printk, 日志系统, 调试, 动态调试]
 architectures: [arm64, x86_64, riscv]
 kernel_version: "6.19"
-maturity: drafting
+maturity: verified
 prerequisites:
   - /tutorials/foundations/07-kernel-module-hello
 related: []
@@ -260,14 +260,30 @@ echo -n "module snd func *ctl* line 1-600 +p" > /proc/dynamic_debug/control
 
 调试启动早期阶段（initcall）则不能事后写控制文件，得在 cmdline 里预先塞 `dyndbg="file drivers/usb/* +pflmt"`，或 modprobe 配置里 `options mydriver dyndbg=+pmflt`。配套的救命 boot 参数还有 `ignore_loglevel`（无视级别全吐）、`initcall_debug`（打印每个 initcall 的耗时和返回值，查启动卡死神器）。
 
-## 动手试试
+## 动手试试（2026-06-27 已亲测）
 
-> 以下是验证方案，等在 QEMU ARM64 上实跑后填真实输出。
+代码落在 `example/mini/06-debug-printk/`（模块名取 `dbgprintk`，避免和内核自带的 `printk` 名字撞车）。QEMU ARM64 + Linux 6.19 上 `insmod` 后跑通，以下都是真实输出。
 
-- 写一个内核模块，init 函数里依次 `pr_emerg`…`pr_debug` 各打一条，配 `pr_fmt` 自动加 `模块名:函数名:行号` 前缀；`insmod` 后 `dmesg` 观察各级别，确认 `KERN_DEBUG` 默认是否上屏、改 `console_loglevel` 后是否变化（待亲测核对）。
-- `cat /proc/sys/kernel/printk` 记下四个数字，对照本文 `console_printk[4]` 的含义；`echo 8 > /proc/sys/kernel/printk` 后再 `insmod`，看 DEBUG 是否冒出来（待亲测）。
-- 写一个限速模块，循环里 `pr_info_ratelimited` 打 60 条，观察末尾的抑制信息（默认 5 秒 / 10 条突发）。在 6.19 下这条信息形如 `<调用者函数名>: N callbacks suppressed`，不是笔记里那种 `__ratelimit: ...` 前缀——具体函数名和被吞条数待亲测核对。
-- 若内核开了 `CONFIG_DYNAMIC_DEBUG`：`grep 自己模块 /proc/dynamic_debug/control` 看到打印点，`echo -n "module xxx +p"` 开启后触发设备操作，对比开关前后 `dmesg`（待亲测）。
+- 写一个内核模块，init 函数里依次 `pr_emerg`…`pr_debug` 各打一条，配 `pr_fmt` 自动加 `模块名:` 前缀；`insmod` 后 `dmesg` 观察各级别，确认 `KERN_DEBUG` 默认是否上屏。
+
+`insmod dbgprintk.ko` 后 `dmesg` 实测输出：
+
+```
+dbgprintk: EMERG (0)
+dbgprintk: ALERT (1)
+dbgprintk: CRIT  (2)
+dbgprintk: ERR   (3)
+dbgprintk: WARN  (4)
+dbgprintk: NOTICE(5)
+dbgprintk: INFO  (6)
+dbgprintk: printk demo: loaded, pr_fmt prefix = 'dbgprintk: '
+```
+
+七条 `pr_emerg`…`pr_info`（级别 0~6）全部出现，每条都带 `dbgprintk:` 前缀——这就是 `pr_fmt` 的功劳，配的是 `#define pr_fmt(fmt) "dbgprintk: " fmt`，所有 `pr_*` 自动套上模块名前缀。最后一条 `printk demo: loaded, pr_fmt prefix = 'dbgprintk: '` 是模块自己打的确认行，把实际生效的 `pr_fmt` 模板原样打印出来对账。
+
+**`pr_debug` 那条默认没出现**——这是关键现象。在本 mini config 下没开 `CONFIG_DYNAMIC_DEBUG`，`pr_debug` 走的是 `no_printk` 分支（编译期消除），所以 `dmesg` 里压根没有 `dbgprintk: DEBUG (7)` 这一行。这正是前文讲的三态定义的体现：默认配置下 `pr_debug` 是"看不见的"，想让它出声得开 `CONFIG_DYNAMIC_DEBUG`（走 `dynamic_pr_debug`），或在编译时定义 `DEBUG` 宏。
+
+- `cat /proc/sys/kernel/printk` 记下四个数字，对照本文 `console_printk[4]` 的含义——默认下级别 0~6 能上控制台（`console_loglevel` 默认 7，数值 < 7 的都放行），所以上面七条都刷出来了；`echo 8 > /proc/sys/kernel/printk` 也救不回 `pr_debug`，因为它在编译期就被消除了，不是被 loglevel 过滤掉的。
 
 ## 小结
 

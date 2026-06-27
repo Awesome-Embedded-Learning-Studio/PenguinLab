@@ -5,7 +5,7 @@ difficulty: intermediate
 tags: [字符设备, file_operations, cdev, misc 设备]
 architectures: [arm64, x86_64, riscv]
 kernel_version: "6.19"
-maturity: drafting
+maturity: verified
 prerequisites:
   - /tutorials/foundations/07-kernel-module-hello
 related:
@@ -71,11 +71,11 @@ struct cdev {
 | `.read` | `read()` | 把内核数据搬给用户(配 `copy_to_user`) |
 | `.write` | `write()` | 收用户数据进内核(配 `copy_from_user`) |
 | `.release` | `close()` | 释放 `open` 申请的资源 |
-| `.llseek` | `lseek()` | 调整文件偏移,不支持就显式设 `no_llseek` |
+| `.llseek` | `lseek()` | 调整文件偏移,不支持就显式设 `noop_llseek` |
 | `.unlocked_ioctl` | `ioctl()` | 设备专用的"自定义命令通道" |
 | `.mmap` | `mmap()` | 把内核/设备内存映射进用户地址空间 |
 
-签名都是固定的,比如 `.read` 是 `ssize_t (*read)(struct file *, char __user *, size_t, loff_t *)`——`__user` 标记告诉编译器和 `sparse` 检查器:这个指针来自用户态,别直接 deref。某个回调不实现就让对应指针为 `NULL`,VFS 会返回默认错误。但有个坑:`.llseek` 设 `NULL` 不是"不支持",而是走默认逻辑可能返回随机正值糊弄用户;正确做法是显式赋 `no_llseek` 并在 `.open` 里调 `nonseekable_open()`,这样用户态 `lseek` 会得到明明白白的 `-ESPIPE`。
+签名都是固定的,比如 `.read` 是 `ssize_t (*read)(struct file *, char __user *, size_t, loff_t *)`——`__user` 标记告诉编译器和 `sparse` 检查器:这个指针来自用户态,别直接 deref。某个回调不实现就让对应指针为 `NULL`,VFS 会返回默认错误。但有个坑:`.llseek` 设 `NULL` 不是"不支持",而是走默认逻辑可能返回随机正值糊弄用户;正确做法是显式赋 `noop_llseek` 并在 `.open` 里调 `nonseekable_open()`,这样用户态 `lseek` 会得到明明白白的 `-ESPIPE`。
 
 ## 用户态怎么连上:open() → VFS → chrdev_open → 你的 .open
 
@@ -110,30 +110,46 @@ struct cdev {
 
 漏了这个检查就是经典提权路径:假设 `dev->secret` 只有 64 字节,你 `copy_from_user(dev->secret, buf, len)` 而 `len` 是用户给的 1000,内核内存就被一路覆盖下去。Linux 进程的权限信息存在 `task_struct->cred`(`struct cred`)里,`uid` 字段为 0 即 root——要是越界写恰好(或被精心构造地)盖到某个进程的 `cred->uid`,一个普通用户就成了 root。历史上无数 CVE 就是这种"边界检查缺失"酿的。读方向同样危险:把未初始化的内核内存泄漏给用户(KASLR 泄露),是攻击者绕过内核防护的第一步,开了 KASAN 的内核会当场 panic 报给你看。**所以每个 `copy_*_user` 前先想清楚 `len` 的上界,这是内核安全的生死线。**
 
-## 动手待亲测:写个 misc 设备,cat/echo 读写
+## 动手验证（2026-06-27 已亲测）:写个 misc 设备,cat/echo 读写
 
-动手部分留到亲测阶段,这里先给验证方案占位,落地代码归后续 `example/mini/` 目录。
+代码落在 `example/mini/01-chardev_basic/`。QEMU ARM64 + Linux 6.19 上 `insmod` 后跑通,以下都是真实输出。
 
 **目标**:一个 misc 字符设备,内核里存一句"秘密",`cat /dev/xxx` 读出来,`echo "新秘密" > /dev/xxx` 写进去。
 
-**验证方案(待 QEMU 亲测核对)**:
+**验证点(已落地)**:
 
-1. 填 `struct miscdevice`:`minor = MISC_DYNAMIC_MINOR`、`name = "llkd_miscdrv"`、`mode = 0666`(调试期图方便,生产环境是大忌)、`fops` 指向你的 `file_operations`(至少实现 `.open/.read/.write/.release`,`.llseek = no_llseek`)。
-2. `init` 里 `misc_register()`,预期 `dmesg` 看到 `major # 10, minor# = N`。
+1. 填 `struct miscdevice`:`minor = MISC_DYNAMIC_MINOR`、`name = "llkd_miscdrv"`、`mode = 0666`(调试期图方便,生产环境是大忌)、`fops` 指向你的 `file_operations`(至少实现 `.open/.read/.write/.release`,`.llseek = noop_llseek`)。
+2. `init` 里 `misc_register()`,`dmesg` 看到 `major # 10, minor# = N`。
 3. 读写用 `copy_to_user`/`copy_from_user`,**写时先判 `count > MAXBYTES` 返回 `-EFBIG`**,严守边界。
 4. `exit` 里 `misc_deregister()` 配对。
 
-预期命令输出(待亲测):
+实测命令输出(QEMU ARM64,2026-06-27):
 
 ```
 $ ls -l /dev/llkd_miscdrv
-crw-rw-rw- 1 root root 10, 56 ... /dev/llkd_miscdrv   # 10 主号,56 动态次号
+crw-rw-rw- 1 0 0 10, 258 /dev/llkd_miscdrv
+```
+
+`10` 是 misc 框架共享的主号,`258` 是 `MISC_DYNAMIC_MINOR` 动态分到的次号——果然落在 `>255` 池子里(印证了前文"动态次号 >255"那段),不是示例里随手写的 56。devtmpfs 自动把这个节点建出来了,不用手敲 `mknod`。
+
+```
 $ echo "hello kernel" > /dev/llkd_miscdrv
+# dmesg
+llkd_miscdrv: write() 13 bytes
 $ cat /dev/llkd_miscdrv
 hello kernel
 ```
 
-> ⚠️ **待亲测**:上面命令输出是参考样例,次设备号会变——`minor` 设了 `MISC_DYNAMIC_MINOR` 时,内核分到的是 `>255` 池子里的号,而非示例里随手写的 56(56 其实落在 `<255` 的固定号区间,这里只是示意格式)。我们会拿到 QEMU ARM64 上 `insmod` 后跑一遍,把 `dmesg`、`ls -l`、`cat`/`echo` 的真实输出记下来,顺手验证"故意写超长数据"会被我们的边界检查挡住(返回 `-EFBIG`)。
+写进 `"hello kernel"`(含换行共 13 字节),驱动的 `.write` 经 `copy_from_user` 收下;`cat` 调 `.read` 经 `copy_to_user` 把同一句端回来,echo/cat 闭环成立。
+
+边界检查也按设计拦下了超长写:
+
+```
+$ head -c 200 /dev/urandom > /dev/llkd_miscdrv
+head: standard output: File too large
+```
+
+这是用户态看到的报错——驱动的 `.write` 发现 `count > MAXBYTES` 后返回 `-EFBIG`,`write(2)` 把它翻译成 `errno=EFBIG`,shell 打成 `File too large`。200 字节没越界写进内核缓冲区,前面那条"边界检查是驱动作者的命"的红线,这条 `-EFBIG` 就是兑现。
 
 ## 小结
 

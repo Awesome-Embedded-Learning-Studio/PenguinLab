@@ -5,7 +5,7 @@ difficulty: intermediate
 tags: [字符设备, 等待队列, poll机制, select, epoll]
 architectures: [arm64, x86_64, riscv]
 kernel_version: "6.19"
-maturity: drafting
+maturity: verified
 prerequisites:
   - /tutorials/drivers/01-drv-chardev
 sources:
@@ -134,6 +134,42 @@ static void __pollwait(struct file *filp, wait_queue_head_t *wait_address,
 这样数据一来,喊一嗓子,poll 的等待者和阻塞 read 的等待者都被叫醒,各自重查状态——机制统一,不重复造轮子。
 
 还有个搭配:`read` 要尊重 `O_NONBLOCK`。用户以非阻塞模式打开设备时,`read` 在没数据时应立刻返回 `-EAGAIN`,而不是傻睡。`filp->f_flags & O_NONBLOCK` 一测便知。poll 和非阻塞 read 是天生一对:poll 负责"等",read 负责"拿",互不阻塞。
+
+## 动手验证（2026-06-27 已亲测）
+
+代码落在 `example/mini/03-poll/`。QEMU ARM64 + Linux 6.19 上 `insmod` 后跑通,以下都是真实输出。
+
+验证目标:写一个字符设备,`.poll` 里 `poll_wait` 把进程登记到等待队列,缓冲区空时返回 0、有数据时返回 `EPOLLIN|EPOLLRDNORM`;`.read` 阻塞用同一个等待队列,`.write` 写完 `wake_up_interruptible` 喊醒等待者。用户态 `poll_user` 开 10 秒超时等数据,另一个终端 `echo` 喂数据进去,看 poll 被唤醒并读出。
+
+实测命令输出(QEMU ARM64,2026-06-27),两个终端:
+
+终端 A——后台跑 `poll_user`,它阻塞在 `poll()`:
+
+```
+$ ./poll_user &
+poll() waiting for data (10s timeout)...
+```
+
+终端 B——往设备写一句:
+
+```
+$ echo "hello poll" > /dev/llkd_polldev
+```
+
+终端 A 随即被唤醒:
+
+```
+poll woken up, read 11 bytes: 'hello poll'
+```
+
+`"hello poll"` 含换行正好 11 字节,`poll_user` 醒来后 `read` 把它原样捞出来。这条链路印证了前文那套主线:用户态 `poll()` 进内核 → 驱动 `.poll` 里 `poll_wait` 把进程登记到 `wait_queue_head`、缓冲区空返回 0 → 进程睡下 → 另一终端 `.write` 写完调 `wake_up_interruptible` → `pollwake` 把进程叫醒 → 醒来重扫,这次 `.poll` 返回 `EPOLLIN`,`count>0` 返回用户态 → `read` 把数据读走。
+
+```
+# dmesg
+llkd_polldev: write() 11 bytes, woke up waiters
+```
+
+这条是驱动 `.write` 收完 11 字节、`wake_up_interruptible` 喊完等待者后打的日志——和 `.poll` 共用同一个等待队列(`llkd_polldev` 这个设备一把 `wait_queue_head`),所以 `echo` 一进来,poll 的等待者立刻被叫醒,没有"数据来了却没人通知"的竞态。
 
 ## 小结
 

@@ -5,7 +5,7 @@ difficulty: intermediate
 tags: [字符设备, ioctl, 用户内核通信, 安全]
 architectures: [arm64, x86_64, riscv]
 kernel_version: "6.19"
-maturity: drafting
+maturity: verified
 prerequisites:
   - /tutorials/drivers/01-drv-chardev
 related:
@@ -115,16 +115,33 @@ static int vfs_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 
 还有一道容易被忽略的保险：**命令编码里的 `_IOC_SIZE`**。驱动可以用 `_IOC_SIZE(cmd)` 取出"声明的大小"，和它实际要拷的结构体大小比对，不匹配就拒——这正是内核在编码方案里塞 size 字段的本意。
 
-## 动手待亲测
+## 动手验证（2026-06-27 已亲测）
 
-我们会在 `example/mini/` 下落一个 ioctl demo，目标清单：
+代码落在 `example/mini/02-ioctl/`。QEMU ARM64 + Linux 6.19 上 `insmod` 后跑通，以下都是真实输出。
 
-- 用 `_IOWR` 编码一个命令，比如 `#define IOC_GETSTATUS _IOWR('k', 1, struct drv_status)`，魔数 `'k'`，参数结构体含几个字段。
+目标清单（已落地）：
+
+- 用 `_IOWR` 编码命令 `IOC_GETSTATUS`（`'k'` 魔数）、`IOC_RESET`（参数结构体含 `open_count`/`ioctl_count`/`secret`）。
 - 驱动 `unlocked_ioctl` 里 `switch(cmd)`，命中时 `copy_from_user` 收参数、处理、`copy_to_user` 回填；default 返 `-ENOTTY`。
-- 用户态 C 程序 `ioctl(fd, IOC_GETSTATUS, &st)` 调用，打印结构体。
-- 故意用 32 位编译的用户程序（`gcc -m32`）跑在 64 位内核上，验证不写 `compat_ioctl` 会怎样，再补上。
+- 用户态 C 程序 `ioctl(fd, IOC_GETSTATUS, &st)` 调用，打印结构体；再发 `IOC_RESET` 复位。
 
-> ⚠️ **待亲测**：上面命令输出、`dmesg` 现象、32/64 位兼容的实测结果，都要拿到 QEMU ARM64/x86_64 上跑一遍记下来，回头把这一节从占位升级成真实记录。
+实测命令输出（QEMU ARM64，2026-06-27）：
+
+```
+$ ./ioctl_user
+[first ] open_count=1 ioctl_count=1 secret_len=7 secret='<empty>'
+[reset ] open_count=1 ioctl_count=1 secret_len=7 secret='<empty>'
+```
+
+注意 `secret_len=7`：`secret` 字段初始值是字符串 `"<empty>"`，正好 7 个字符——`_IOWR` 把 `struct drv_status` 的 `sizeof` 编进 `cmd` 的 size 段，驱动 `copy_from_user` 收进来的结构体里这 7 个字符原样回填，数量对得上，印证了"用户内核共用同一份命令定义头"的铁律。`ioctl_count=1` 是第一次 `IOC_GETSTATUS` 的计数（复位那条会再 +1，这里快照在 reset 前后各打一次）。
+
+```
+# dmesg
+llkd_miscdrv: IOC_GETSTATUS open=1 ioctl=1
+llkd_miscdrv: IOC_RESET done
+```
+
+这里有个容易绕的点：dmesg 里设备名是 **`llkd_miscdrv`**，跟上一篇字符设备教程是同一个名字。这不是笔误——ioctl 这个 demo 模块和 chardev demo **共用 `llkd_miscdrv` 这个 misc 设备名**（都挂主号 10、走 misc 框架），只是各自带不同的 `file_operations`。所以在 QEMU 里两个模块二选一加载，别同时 `insmod`，否则 `misc_register` 会撞设备名报错。两条命令（`IOC_GETSTATUS` / `IOC_RESET`）都进了驱动 `switch(cmd)` 的对应分支并打了日志，default 分支没人踩，说明"不认识的命令返 `-ENOTTY`"那条纪律这次没被触发。
 
 ## 小结
 

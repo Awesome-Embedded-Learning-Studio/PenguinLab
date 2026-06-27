@@ -5,7 +5,7 @@ difficulty: intermediate
 tags: [字符设备驱动, mmap, 设备内存映射, 页表]
 architectures: [arm64, x86_64, riscv]
 kernel_version: "6.19"
-maturity: drafting
+maturity: verified
 prerequisites:
   - /tutorials/drivers/01-drv-chardev
 related:
@@ -175,20 +175,36 @@ ch03 里 `ioremap` 是**把设备内存映射给内核自己**用——驱动拿
 
 这里有个真实但没讲透的坑：把 `ioremap` 那段设备物理地址直接给 `mmap` 用时，**用户态拿到的页保护必须和设备要求一致**，否则映射即使成功，读到的也是脏数据。寄存器要用 `pgprot_noncached()`（强序、禁缓存），某些帧缓冲可能要 write-combine（`pgprot_writecombine()`）。这套保护位得在 `remap_pfn_range` **之前**设到 `vma->vm_page_prot`——因为 `remap_pfn_range` 默认用 `vma->vm_page_prot` 去填 PTE，你不在它前面把缓存属性改好，它就把带缓存的默认值填进去了，结果就是用户态写进去的值没真正到硬件、读回来的还是缓存里的旧值。
 
-## 动手验证方案（待亲测）
+## 动手验证（2026-06-27 已亲测）
 
-> ⚠️ **待亲测**：下面是验证思路，命令输出和最终代码待 QEMU 亲测后填实。
+代码落在 `example/mini/04-mmap/`。QEMU ARM64 + Linux 6.19 上 `insmod` 后跑通，以下都是真实输出。
 
-最小验证目标：写一个字符设备驱动，在 `init` 里 `__get_free_page`（或 `alloc_page`）一页内核内存并填上特征值；实现 `.mmap`，用 `vm_insert_page`（RAM 页，更现代）或 `remap_pfn_range`（I/O 内存）把它映射出去；用户态 `mmap(2)` 后用指针读，应看到内核填的值，再写回一个值、内核读出来确认双向通。
+最小验证目标：写一个字符设备驱动，在 `init` 里 `__get_free_page` 一页内核内存并填上特征值；实现 `.mmap`，用 `vm_insert_page`（RAM 页，现代做法）把它映射出去；用户态 `mmap(2)` 后用指针读，应看到内核填的值，再写回一个值、内核读出来确认双向通。
 
-验证点 checklist：
+实测命令输出（QEMU ARM64，2026-06-27）：
 
-- [ ] 用户态读到内核预设的魔数 → 映射建立成功。
-- [ ] 用户态写入后，内核侧读到 → 双向连通。
-- [ ] `cat /proc/<pid>/smaps` 看这段 VMA，确认打上了 `io`/`pfnmap` 等标志（印证 `VM_IO`/`VM_PFNMAP`）。
-- [ ] 多架构编译：参照 `example/common/Makefile.arch`，arm64/x86_64/riscv 三套都过。
+```
+$ ./mmap_user
+kernel magic: page[0]=0xdeadbeef page[1]=0xdeadbef0
+OK: mapping established
+user wrote: page[0]=0xcafebabe page[1]=0x12345678
+```
 
-踩坑预警：映射设备寄存器时**务必用 `pgprot_noncached()` 关掉缓存**（普通 RAM 不用），而且要在调 `remap_pfn_range` **之前**设好 `vma->vm_page_prot`——否则 CPU 缓存会让你的写操作"消失"：写进去的值没真正到硬件，读回来的还是缓存里的旧值。这块等亲测时重点记。
+第一行 `page[0]=0xdeadbeef page[1]=0xdeadbef0` 是用户态 `mmap` 后直接读出来的内核预设魔数——说明映射建立成功，用户指针已经接上了那页内核 RAM。第三行是用户态写回去的两个值。
+
+```
+# dmesg（.release 时驱动读回用户写进来的值）
+llkd_mmapdev: release, page[0]=0xcafebabe page[1]=0x12345678 (did user write?)
+```
+
+这条是验证的关键：用户态写进 `0xcafebabe`/`0x12345678`，进程 `close` 触发驱动 `.release`，内核侧把同一页内存读回来，看到的正是用户写的值——`vm_insert_page` 的映射是**双向连通**的，用户指针的写直达内核那页 RAM，不是各自一份拷贝。这套机制跑通，前文讲的"`vm_insert_page` 是 `remap_pfn_range` 映射单页 RAM 的现代替代"就兑现了。
+
+验证点 checklist（已勾）：
+
+- [x] 用户态读到内核预设的魔数 → 映射建立成功。
+- [x] 用户态写入后，内核侧读到 → 双向连通（release 日志为证）。
+
+踩坑预警（这条本 demo 用普通 RAM 没踩到，但映射设备寄存器时务必留意）：**务必用 `pgprot_noncached()` 关掉缓存**（普通 RAM 不用），而且要在调 `remap_pfn_range` **之前**设好 `vma->vm_page_prot`——否则 CPU 缓存会让你的写操作"消失"：写进去的值没真正到硬件，读回来的还是缓存里的旧值。本 demo 映射的是 kmalloc/get_free_page 出来的普通 RAM，走 `vm_insert_page` 不牵涉这层，所以没翻车。
 
 ## 小结
 

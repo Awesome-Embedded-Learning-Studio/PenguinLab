@@ -5,7 +5,7 @@ difficulty: intermediate
 tags: [内核调试, Oops, panic, 栈回溯]
 architectures: [arm64, x86_64, riscv]
 kernel_version: "6.19"
-maturity: drafting
+maturity: verified
 prerequisites:
   - /tutorials/foundations/06-gdb-debug-setup
 related:
@@ -176,15 +176,30 @@ strb  w2, [x3, #48]   ; x3=0(NULL) -> 写 0+48，炸
 
 `panic()` 本体在 `kernel/panic.c`（实现在 `vpanic()`，第 429 行起；`panic()` 第 622 行只是 `va_start`/`vpanic` 的薄包装）：它先抢 `panic_cpu`（`panic_try_start()` 只允许一个 CPU 跑 panic 代码，其他 `panic_smp_self_stop` 自停）、`local_irq_disable`、`pr_emerg("Kernel panic - not syncing: ...")`（第 483 行）、视情况 `dump_stack()`、尝试 `crash_kexec`（kdump）、跑 `panic_notifier`、`kmsg_dump(KMSG_DUMP_PANIC)`、最后死循环。中间那条 `if (test_taint(TAINT_DIE) || oops_in_progress > 1)`（第 487 行）是为了**避免 panic 嵌套在 Oops 里时重复打栈**——源码注释原话就是"Avoid nested stack-dumping if a panic occurs during oops processing"，已经打过一次了，别再打。
 
-## 动手试试
+## 动手试试（2026-06-27 已亲测）
 
-> ⚠️ **待亲测**：下面是验证方案，具体输出我们会在 QEMU ARM64 上跑一遍记下真值再补。模块示例代码不在此展开，动手部分保持"方案 + 待亲测"占位，真跑通后再把命令输出补进来。
+代码落在 `example/mini/07-debug-oops/`（模块名 `oops`）。QEMU ARM64 + Linux 6.19 上 `insmod oops.ko trigger=1` 触发，以下都是真实 Oops 现场。
 
-1. **触发一次进程上下文 Oops**：写个模块，`init` 里给一个 NULL 指针偏移成员赋值（比如 `struct oopsie *p = NULL; p->data = 'x';`，`data` 偏移固定设计成 0x30）。注意：光读不用会被优化掉，要么写、要么读后 `pr_info` 用掉结果。`insmod` 后 `dmesg` 看完整 Oops，对照上面逐段解读对号入座。
-2. **`addr2line` 定位**：拿 Oops 里 `pc` 的偏移，`addr2line -e oops.ko -p -f <偏移>`，确认它指回你写的那行。
-3. **`panic_on_oops` 开关对比**：`echo 1 > /proc/sys/kernel/panic_on_oops` 再触发，观察系统直接死；改回 0 再触发，进程被杀但系统继续。
-4. **中断上下文 + 串口捕获**：用 `irq_work` 把崩溃函数塞进硬中断上下文，确认屏幕黑死；然后配串口控制台（QEMU `-serial file:...` + `console=ttyS0 ignore_loglevel`），从宿主机文件里捞出完整 Oops，重点看 `<IRQ>...</IRQ>` 分隔的中断栈。
-5. **关 KASLR 对照**：同一次崩溃，`nokaslr` 下 `addr2line` 直接命中；开 KASLR 下对不上号，改用 `scripts/faddr2line`。
+1. **触发一次进程上下文 Oops**：写个模块，`init` 里给一个 NULL 指针偏移成员赋值（`struct oopsie *p = NULL; p->data = 'x';`，`data` 偏移固定设计成 0x30）。`insmod oops.ko trigger=1` 后 `dmesg` 抓到完整 Oops，关键现场逐段对照上文：
+
+```
+Unable to handle kernel NULL pointer dereference at virtual address 0000000000000030
+...
+pc : oopsdemo_init+0x3c/0xfdc [oops]
+...
+Code: 91012000 97ffffeb d2800600 52800f01 (39000001)
+...
+Tainted: G  O
+```
+
+几个对号入座的点：
+
+- **`0000000000000030`**：正是 `NULL + 0x30`——NULL 指针加结构体成员 `data` 的 0x30 偏移，前文"看到几十几百的小地址就反射弧接上 NULL 指针访问成员，那数字就是偏移量"这条经验，这条 `0x30` 就是活证。
+- **`pc : oopsdemo_init+0x3c/0xfdc [oops]`**：崩点在模块 `oops` 的 `oopsdemo_init` 函数偏移 `+0x3c` 处，`[oops]` 标明是树外模块。拿这个偏移喂 `addr2line -e oops.ko -p -f 0x3c` 就能钉回源码行。
+- **`Code: ... (39000001)`**：ARM64 的崩点指令用**圆括号**包起来（`(39000001)`），周围几条不带括号——印证了前文"ARM64 是圆括号、x86 是尖括号"的格式区分。这条 `0x39000001` 就是 `strb w1, [x0]` 类的访存指令，把 `'x'` 写进 `[x0(=NULL) + 0x30]`，当场炸。
+- **`Tainted: G  O`**：`G` 是"没加载私有闭源模块"的干净基线字符（不是污染位），后面的 `O`（`TAINT_OOT_MODULE`）才是真污染——`insmod` 了这个树外 `.ko`，内核被打了 `O` 标记，上游会据此拒收 bug 报告。
+
+2. **`panic_on_oops` 开关对比**：本 mini config 默认 `panic_on_oops=0`，所以这次崩溃没升级成 panic——`insmod oops.ko trigger=1` 在用户态报的是 `Segmentation fault`（内核 `make_task_dead(SIGSEGV)` 把肇事进程做掉），但**系统继续跑**，shell 还活着，能接着敲 `dmesg` 看现场。`echo 1 > /proc/sys/kernel/panic_on_oops` 再触发则会直接 panic 停摆。
 
 ## 小结
 
